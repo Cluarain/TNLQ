@@ -1,0 +1,507 @@
+@charset "UTF-8";
+
+body {
+    /* cursor: url('path/to/your/custom-cursor.png'), auto;
+    cursor: url('path/to/your/hover-cursor.png'), pointer;
+    cursor: url('путь/к/текст.cur'), text;
+    cursor: url('путь/к/перемещение.cur'), move;
+    cursor: url('путь/к/запрещено.cur'), not-allowed;
+    cursor: url('путь/к/ожидание.cur'), wait; */
+}
+
+.btn {
+    transition: var(--main-transition);
+}
+
+.btn-transparent {
+    filter: drop-shadow(0px 0px 0px var(--text-primary));
+    transition-property: transform, filter;
+
+    &:hover {
+        transform: translate(-3px, -3px);
+        filter: drop-shadow(3px 3px 5px var(--text-primary));
+    }
+
+    &:active {
+        transform: translate(0, 0);
+        filter: drop-shadow(0px 0px 0px var(--text-primary));
+    }
+}
+
+.hover-active-1 {
+    --hover-color: currentColor;
+    position: relative;
+    z-index: 1;
+    transition: color var(--main-transition);
+
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 20%;
+        left: -10%;
+        height: 60%;
+        width: 120%;
+        background: var(--hover-color);
+        z-index: 0;
+        opacity: 0;
+        filter: blur(20px);
+        transition: opacity var(--main-transition);
+    }
+
+    &:hover {
+
+        color: var(--accent-color);
+
+        /* filter: drop-shadow(0 0 5px var(--hover-color)); */
+        &::after {
+            opacity: 0.5;
+        }
+    }
+}
+
+
+.hover-active-2 {
+    transition: all var(--main-transition);
+    box-shadow: 0px 0px 0 0 var(--text-tertiary);
+
+    &:hover {
+        transform: translate(-3px, -3px);
+        box-shadow: 3px 3px 0 0 var(--text-tertiary);
+    }
+
+    &:active {
+        transform: translate(0, 0);
+        box-shadow: 0px 0px 0 0 var(--text-tertiary);
+    }
+}
+
+.pricing__cards {
+
+    &:hover>.pricing__cards__item:not(:hover) {
+        filter: blur(2px);
+        /* transform: scale(0.95); */
+        transform: translate(5px, 5px);
+        box-shadow: 0 0 0 0 var(--text-tertiary);
+    }
+}
+
+.pricing__cards__item {
+    transition: all var(--main-transition);
+
+    &:hover {
+        transform: translate(-5px, -5px);
+        box-shadow: 10px 10px 0 0 var(--text-tertiary);
+    }
+}
+
+.pricing__card-period-best::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent 30%, var(--text-primary) 38%, var(--text-primary) 40%, transparent 48%);
+    background-size: 200% 100%;
+    background-position: 100% 0;
+    animation: load_placeholder 1.75s infinite;
+
+}
+
+@keyframes load_placeholder {
+    0% {
+        background-position: 100% 0;
+    }
+
+    50% {
+        /*  50% времени уходит на движение */
+        background-position: -100% 0;
+    }
+
+    100% {
+        background-position: -100% 0;
+    }
+}
+
+.accordion {
+    transition: background var(--main-transition);
+
+    /* styles when accordion open */
+    &:has(.accordion-details[open]) {
+
+        & .accordion-title {
+            /* font-weight: 700; */
+            filter: drop-shadow(var(--active-shadow));
+        }
+
+        & .accordion-arrow::before {
+            content: "–";
+            transform: rotate(180deg);
+        }
+    }
+}
+
+.accordion-summary {
+    transition: transform var(--main-transition);
+
+    &:hover,
+    &:focus-visible,
+    &:active {
+        transform: translateX(-5px);
+    }
+}
+
+.accordion-title {
+    transition: filter var(--main-transition);
+}
+
+
+/* glitch v1 */
+/* .why-tuneliqa__title {
+    position: relative;
+    --bg-color: #0d0d0d;
+    --primary-color: #00f2ea;
+    --secondary-color: #a855f7;
+    --text-color: #e5e5e5;
+    --disabled-color: #555;
+    --glitch-anim-duration: 0.3s;
+
+}
+
+
+.why-tuneliqa__title:hover::before,
+.why-tuneliqa__title:hover::after {
+    content: attr(data-glitch);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.why-tuneliqa__title:hover::before {
+    color: var(--secondary-color);
+    animation: glitch-anim-text var(--glitch-anim-duration) cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.why-tuneliqa__title:hover::after {
+    color: var(--primary-color);
+    animation: glitch-anim-text var(--glitch-anim-duration) cubic-bezier(0.25, 0.46, 0.45, 0.94) reverse both;
+}
+
+@keyframes glitch-anim-text {
+    0% {
+        transform: translate(0);
+        clip-path: inset(0 0 0 0);
+    }
+
+    20% {
+        transform: translate(-3px, 2px);
+        clip-path: inset(50% 0 20% 0);
+    }
+
+    40% {
+        transform: translate(2px, -1px);
+        clip-path: inset(20% 0 60% 0);
+    }
+
+    60% {
+        transform: translate(-2px, 1px);
+        clip-path: inset(80% 0 5% 0);
+    }
+
+    80% {
+        transform: translate(2px, -2px);
+        clip-path: inset(30% 0 45% 0);
+    }
+
+    100% {
+        transform: translate(0);
+        clip-path: inset(0 0 0 0);
+    }
+} */
+
+
+/* glitch v2 */
+.glitch {
+    position: relative;
+    display: block;
+}
+
+.glitch::before,
+.glitch::after {
+    content: attr(data-glitch);
+    position: absolute;
+    width: 110%;
+    left: 0;
+    top: 0;
+    z-index: -1;
+    display: inline;
+}
+
+/* .glitch::before {
+    top: 10px;
+    left: 15px;
+    color: #e0287d;
+}
+
+.glitch::after {
+    top: 5px;
+    left: -10px;
+    color: #1bc7fb;
+} */
+
+.glitch {
+    animation: paths var(--time-glitch) step-end infinite;
+}
+
+.glitch::before {
+    animation: paths var(--time-glitch) step-end infinite, opacity var(--time-glitch) step-end infinite,
+        font calc(var(--time-glitch) * 1.5) step-end infinite, movement calc(var(--time-glitch) * 2) step-end infinite;
+}
+
+.glitch::after {
+    animation: paths var(--time-glitch) step-end infinite, opacity var(--time-glitch) step-end infinite,
+        font calc(var(--time-glitch) * 1.3) step-end infinite, movement calc(var(--time-glitch) * 1.5) step-end infinite;
+}
+
+@keyframes paths {
+    0% {
+        clip-path: polygon(0% 43%,
+                83% 43%,
+                83% 22%,
+                23% 22%,
+                23% 24%,
+                91% 24%,
+                91% 26%,
+                18% 26%,
+                18% 83%,
+                29% 83%,
+                29% 17%,
+                41% 17%,
+                41% 39%,
+                18% 39%,
+                18% 82%,
+                54% 82%,
+                54% 88%,
+                19% 88%,
+                19% 4%,
+                39% 4%,
+                39% 14%,
+                76% 14%,
+                76% 52%,
+                23% 52%,
+                23% 35%,
+                19% 35%,
+                19% 8%,
+                36% 8%,
+                36% 31%,
+                73% 31%,
+                73% 16%,
+                1% 16%,
+                1% 56%,
+                50% 56%,
+                50% 8%);
+    }
+
+    5% {
+        clip-path: polygon(0% 29%,
+                44% 29%,
+                44% 83%,
+                94% 83%,
+                94% 56%,
+                11% 56%,
+                11% 64%,
+                94% 64%,
+                94% 70%,
+                88% 70%,
+                88% 32%,
+                18% 32%,
+                18% 96%,
+                10% 96%,
+                10% 62%,
+                9% 62%,
+                9% 84%,
+                68% 84%,
+                68% 50%,
+                52% 50%,
+                52% 55%,
+                35% 55%,
+                35% 87%,
+                25% 87%,
+                25% 39%,
+                15% 39%,
+                15% 88%,
+                52% 88%);
+    }
+
+    30% {
+        clip-path: polygon(0% 53%,
+                93% 53%,
+                93% 62%,
+                68% 62%,
+                68% 37%,
+                97% 37%,
+                97% 89%,
+                13% 89%,
+                13% 45%,
+                51% 45%,
+                51% 88%,
+                17% 88%,
+                17% 54%,
+                81% 54%,
+                81% 75%,
+                79% 75%,
+                79% 76%,
+                38% 76%,
+                38% 28%,
+                61% 28%,
+                61% 12%,
+                55% 12%,
+                55% 62%,
+                68% 62%,
+                68% 51%,
+                0% 51%,
+                0% 92%,
+                63% 92%,
+                63% 4%,
+                65% 4%);
+    }
+
+    45% {
+        clip-path: polygon(0% 33%,
+                2% 33%,
+                2% 69%,
+                58% 69%,
+                58% 94%,
+                55% 94%,
+                55% 25%,
+                33% 25%,
+                33% 85%,
+                16% 85%,
+                16% 19%,
+                5% 19%,
+                5% 20%,
+                79% 20%,
+                79% 96%,
+                93% 96%,
+                93% 50%,
+                5% 50%,
+                5% 74%,
+                55% 74%,
+                55% 57%,
+                96% 57%,
+                96% 59%,
+                87% 59%,
+                87% 65%,
+                82% 65%,
+                82% 39%,
+                63% 39%,
+                63% 92%,
+                4% 92%,
+                4% 36%,
+                24% 36%,
+                24% 70%,
+                1% 70%,
+                1% 43%,
+                15% 43%,
+                15% 28%,
+                23% 28%,
+                23% 71%,
+                90% 71%,
+                90% 86%,
+                97% 86%,
+                97% 1%,
+                60% 1%,
+                60% 67%,
+                71% 67%,
+                71% 91%,
+                17% 91%,
+                17% 14%,
+                39% 14%,
+                39% 30%,
+                58% 30%,
+                58% 11%,
+                52% 11%,
+                52% 83%,
+                68% 83%);
+    }
+
+    76% {
+        clip-path: polygon(0% 26%,
+                15% 26%,
+                15% 73%,
+                72% 73%,
+                72% 70%,
+                77% 70%,
+                77% 75%,
+                8% 75%,
+                8% 42%,
+                4% 42%,
+                4% 61%,
+                17% 61%,
+                17% 12%,
+                26% 12%,
+                26% 63%,
+                73% 63%,
+                73% 43%,
+                90% 43%,
+                90% 67%,
+                50% 67%,
+                50% 41%,
+                42% 41%,
+                42% 46%,
+                50% 46%,
+                50% 84%,
+                96% 84%,
+                96% 78%,
+                49% 78%,
+                49% 25%,
+                63% 25%,
+                63% 14%);
+    }
+
+    90% {
+        clip-path: polygon(0% 41%,
+                13% 41%,
+                13% 6%,
+                87% 6%,
+                87% 93%,
+                10% 93%,
+                10% 13%,
+                89% 13%,
+                89% 6%,
+                3% 6%,
+                3% 8%,
+                16% 8%,
+                16% 79%,
+                0% 79%,
+                0% 99%,
+                92% 99%,
+                92% 90%,
+                5% 90%,
+                5% 60%,
+                0% 60%,
+                0% 48%,
+                89% 48%,
+                89% 13%,
+                80% 13%,
+                80% 43%,
+                95% 43%,
+                95% 19%,
+                80% 19%,
+                80% 85%,
+                38% 85%,
+                38% 62%);
+    }
+
+    1%,
+    7%,
+    33%,
+    47%,
+    78%,
+    93% {
+        clip-path: none;
+    }
+}

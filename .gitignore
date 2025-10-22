@@ -1,0 +1,26 @@
+.vscode/
+
+nginx/*
+!nginx/nginx.conf
+!nginx/conf.d/
+
+html/wp-admin/
+html/wp-content/index.php
+html/wp-content/languages
+html/wp-content/upgrade
+html/wp-content/uploads
+html/wp-includes/
+html/index.php
+html/license.txt
+html/readme.html
+html/*.php
+
+html/wp-config.php
+html/wp-content/plugins/*
+
+
+# Log files
+*.log
+
+# htaccess
+/.htaccess
