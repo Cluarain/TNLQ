@@ -226,14 +226,14 @@ body {
 /* glitch v2 */
 .glitch {
     position: relative;
-    display: block;
+    display: inline-block;
 }
 
 .glitch::before,
 .glitch::after {
     content: attr(data-glitch);
     position: absolute;
-    width: 110%;
+    width: 100%;
     left: 0;
     top: 0;
     z-index: -1;
@@ -503,5 +503,39 @@ body {
     78%,
     93% {
         clip-path: none;
+    }
+}
+
+
+
+[data-star] {
+    position: relative;
+
+    &::after {
+        content: "";
+        position: absolute;
+        height: clamp(100px, 10vw, 200px);
+        width: clamp(100px, 10vw, 200px);
+        background: center / contain no-repeat url('data:image/svg+xml,<svg width="198" height="198" viewBox="0 0 198 198" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M99.5045 0H98.0337C98.0337 75.1295 75.1295 98.0337 0 98.0337V99.5045C75.1295 99.5045 98.0337 122.421 98.0337 197.55H99.5045C99.5045 122.421 122.421 99.5045 197.55 99.5045V98.0337C122.421 98.0337 99.5045 75.1295 99.5045 0ZM150.034 102.861C136.986 106.277 126.916 111.65 119.289 119.289C111.662 126.928 106.242 136.974 102.861 150.034C100.715 158.639 99.345 167.42 98.7691 176.271C98.1964 167.421 96.8308 158.64 94.6888 150.034C91.2609 136.986 85.8877 126.916 78.2609 119.289C70.6341 111.662 60.5638 106.242 47.5164 102.861C38.9108 100.715 30.1298 99.345 21.2792 98.7691C30.1293 98.1964 38.9103 96.8308 47.5164 94.6888C60.5638 91.2609 70.6222 85.8877 78.2846 78.2846C85.947 70.6815 91.332 60.5875 94.7125 47.5401C96.8546 38.934 98.2201 30.1531 98.7928 21.3029C99.3688 30.1535 100.738 38.9345 102.885 47.5401C106.301 60.5875 111.674 70.6459 119.313 78.2846C126.952 85.9233 136.998 91.332 150.057 94.7125C158.663 96.8546 167.444 98.2201 176.295 98.7928C167.437 99.3596 158.648 100.721 150.034 102.861Z" fill="white" fill-opacity="0.3"/></svg>');
+        background-size: 100% 100%;
+        margin-inline-end: clamp(10px, 3vw, 80px);
+        margin-block-start: clamp(1px, 1.5vw, 32px);
+    }
+}
+
+[data-star="top, right"]::after {
+    top: 0;
+    inset-inline-end: 0;
+}
+
+[data-star="bottom, right"]::after {
+    bottom: 0;
+    inset-inline-end: 0;
+}
+
+
+@media (max-width: 768px) {
+    [data-star="top, right"]::after {
+        top: 100%;
     }
 }

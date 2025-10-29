@@ -7,7 +7,7 @@
 
 <body <?php body_class() ?>>
     <?php get_header() ?>
-    <main id="main" class="main" role="main">
+    <main id="main" class="main">
 
         <?php
         // Получаем контент и парсим блоки

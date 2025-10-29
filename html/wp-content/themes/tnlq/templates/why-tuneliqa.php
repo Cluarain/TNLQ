@@ -35,7 +35,7 @@ extract(parse_args_filtered($args, $defaults));
     <div class="container">
         <div class="why-tuneliqa__inner">
             <h2 class="project__title arrow-sign"><?php echo $title ?></h2>
-            <div class="why-tuneliqa__content margin-l">
+            <div class="why-tuneliqa__content left-padding margin-l">
                 <?php
                 foreach ($items as $item) {
                     //   class="glitch" 
@@ -43,7 +43,7 @@ extract(parse_args_filtered($args, $defaults));
                     <div class="why-tuneliqa__content__item">
                         <h3 class="why-tuneliqa__title font-xxl text-accent text-balance">
                         <span 
-                      
+                        class="glitch" 
                         data-glitch="' . $item["item_title"] . '" style="--time-glitch:' . rand(10, 30) . 's">' . $item["item_title"] . '</span>
                         </h3>
                         <p class="font-xl text-secondary arrow-sign-2">' .  $item["item_text"] . '</p>

@@ -21,9 +21,9 @@ extract(parse_args_filtered($args, $defaults));
     </div>
     <div class="container">
         <div class="main-banner__inner margin-xxxl">
-            <h2 class="main-banner__inner__title project__title">
+            <h1 class="main-banner__inner__title project__title">
                 <span class="font-l"><?php echo $title ?></span>
-            </h2>
+            </h1>
             <div class="main-banner__inner__buttons">
                 <a href="#" class="btn btn-lg btn-primary arrow-sign hover-active-2"><?php echo $button1 ?></a>
                 <a href="<?php print_global_var('pricing_link') ?>" class="btn btn-lg btn-transparent arrow-sign"><?php echo $button2 ?></a>
