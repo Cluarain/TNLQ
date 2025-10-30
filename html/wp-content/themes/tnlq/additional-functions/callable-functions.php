@@ -75,28 +75,41 @@ function generatedFAQ_HTML($question, $answer)
     HTML;
 }
 
-function get_attachment_image_by_name($attachment_name, $size = 'full', $icon = false, $fetchpriority = '', $lazyload = true, $attr = '')
+function get_attachment_image_by_name($attachment_name, $size = 'full', $icon = false, $attributes = [])
 {
   if (!$attachment_name) {
     return null;
   }
 
   // Получаем ID вложения по названию
-  $attachment = get_posts(array(
-    'post_type' => 'attachment',
-    'name' => $attachment_name,
-    'post_status' => 'inherit',
-    'numberposts' => 1
-  ));
+  $attachment = get_posts([
+    'post_type'      => 'attachment',
+    'name'           => $attachment_name,
+    'post_status'    => 'inherit',
+    'numberposts'    => 1,
+    'fields'         => 'id', // Оптимизация: получаем только ID
+  ]);
 
   if ($attachment) {
     $attachment_id = $attachment[0]->ID;
 
-    // Преобразуем атрибуты в массив для модификации
-    $attributes = $attr;
-    if (!is_array($attributes)) {
-      $attributes = array();
-    }
+
+    // Устанавливаем значения по умолчанию
+    $default_attrs = [
+      'fetchpriority' => '',
+      'lazyload' => true,
+      'svg-inline' => false,
+    ];
+
+    // Объединяем переданные атрибуты с значениями по умолчанию
+    $attributes = array_merge($default_attrs, $attributes);
+
+    // Извлекаем наши специальные параметры
+    $fetchpriority = $attributes['fetchpriority'];
+    $lazyload = $attributes['lazyload'];
+
+    // Удаляем их из массива атрибутов, чтобы не передавать в wp_get_attachment_image
+
 
     // Добавляем fetchpriority если задан
     if (!empty($fetchpriority)) {
@@ -108,12 +121,66 @@ function get_attachment_image_by_name($attachment_name, $size = 'full', $icon = 
       $attributes['loading'] = 'lazy';
     }
 
+    if ($attributes['svg-inline']) {
+      $mime_type = get_post_mime_type($attachment_id);
+      if ($mime_type === 'image/svg+xml') {
+        return get_svg_inline_by_attachmentID($attachment_id);
+      }
+    }
+    unset($attributes['fetchpriority'], $attributes['lazyload'], $attributes['svg-inline']);
+
     return wp_get_attachment_image($attachment_id, $size, $icon, $attributes);
   } else {
     return null;
   }
 }
 
+function get_svg_inline_by_attachmentID($attachmentID)
+{
+  $svg = file_get_contents(wp_get_attachment_url($attachmentID));
+
+  // Удаляем XML декларацию если есть, чтобы избежать проблем
+  $svg = trim(preg_replace('/<\?xml[^>]+\?>/', '', $svg));
+
+  if (strpos($svg, 'viewBox=') === false) {
+    // Extract width and height using regex
+    $width_pattern = '/width=("|\')([0-9.]+)("|\')/';
+    $height_pattern = '/height=("|\')([0-9.]+)("|\')/';
+
+    $width = null;
+    $height = null;
+
+    if (preg_match($width_pattern, $svg, $width_matches)) {
+      $width = $width_matches[2];
+    }
+    if (preg_match($height_pattern, $svg, $height_matches)) {
+      $height = $height_matches[2];
+    }
+
+    // If both width and height are found, add viewBox
+    if ($width && $height) {
+      $viewbox = 'viewBox="0 0 ' . $width . ' ' . $height . '"';
+      // Insert viewBox after the opening <svg tag
+      $svg = preg_replace('/<svg([^>]*)>/', '<svg$1 ' . $viewbox . '>', $svg);
+    }
+  }
+
+  if (strpos($svg, '<title>') === false) {
+    $alt_text = get_post_meta($attachmentID, '_wp_attachment_image_alt', true);
+    if (!empty($alt_text)) {
+
+
+      // Вставляем title как первый дочерний элемент внутри svg
+      $svg = preg_replace(
+        '/(<svg[^>]*>)(.*?)(<\/svg>)/s',
+        '$1<title>' . esc_html($alt_text) . '</title>$2$3',
+        $svg
+      );
+    }
+  }
+
+  return $svg;
+}
 function parse_args_filtered($args, $defaults)
 {
   return (

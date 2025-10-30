@@ -34,7 +34,6 @@ body {
     z-index: 1;
     transition: color var(--main-transition);
 
-
     &::after {
         content: '';
         position: absolute;
@@ -60,9 +59,10 @@ body {
     }
 }
 
-
 .hover-active-2 {
-    transition: all var(--main-transition);
+    transition: var(--main-transition);
+    transition-property: box-shadow, transform;
+
     box-shadow: 0px 0px 0 0 var(--text-tertiary);
 
     &:hover {
@@ -76,6 +76,34 @@ body {
     }
 }
 
+.hover-active-svg-fill {
+    &>svg {
+        transition: fill var(--main-transition);
+    }
+
+    &:active,
+    &:hover {
+        &>svg {
+            fill: var(--accent-color);
+        }
+    }
+}
+
+.hover-active-svg-stroke {
+    &>svg {
+        transition: stroke var(--main-transition);
+    }
+
+    &:active,
+    &:hover {
+        &>svg {
+            stroke: var(--accent-color);
+        }
+
+    }
+}
+
+
 .pricing__cards {
 
     &:hover>.pricing__cards__item:not(:hover) {
@@ -87,7 +115,8 @@ body {
 }
 
 .pricing__cards__item {
-    transition: all var(--main-transition);
+    transition: var(--main-transition);
+    transition-property: transform, box-shadow, filter;
 
     &:hover {
         transform: translate(-5px, -5px);
@@ -225,45 +254,29 @@ body {
 
 /* glitch v2 */
 .glitch {
-    position: relative;
-    display: inline-block;
+    /* position: relative;
+    display: inline-block; */
 }
 
 .glitch::before,
 .glitch::after {
-    content: attr(data-glitch);
-    position: absolute;
-    width: 100%;
-    left: 0;
-    top: 0;
-    z-index: -1;
+    /* content: attr(data-glitch); */
+    content: "";
     display: inline;
 }
 
-/* .glitch::before {
-    top: 10px;
-    left: 15px;
-    color: #e0287d;
-}
-
-.glitch::after {
-    top: 5px;
-    left: -10px;
-    color: #1bc7fb;
-} */
-
 .glitch {
-    animation: paths var(--time-glitch) step-end infinite;
+    animation: paths var(--time-glitch, 15) step-end infinite;
 }
 
 .glitch::before {
-    animation: paths var(--time-glitch) step-end infinite, opacity var(--time-glitch) step-end infinite,
-        font calc(var(--time-glitch) * 1.5) step-end infinite, movement calc(var(--time-glitch) * 2) step-end infinite;
+    animation: paths var(--time-glitch, 15) step-end infinite, opacity var(--time-glitch, 15) step-end infinite,
+        font calc(var(--time-glitch, 15) * 1.5) step-end infinite, movement calc(var(--time-glitch, 15) * 2) step-end infinite;
 }
 
 .glitch::after {
-    animation: paths var(--time-glitch) step-end infinite, opacity var(--time-glitch) step-end infinite,
-        font calc(var(--time-glitch) * 1.3) step-end infinite, movement calc(var(--time-glitch) * 1.5) step-end infinite;
+    animation: paths var(--time-glitch, 15) step-end infinite, opacity var(--time-glitch, 15) step-end infinite,
+        font calc(var(--time-glitch, 15) * 1.3) step-end infinite, movement calc(var(--time-glitch, 15) * 1.5) step-end infinite;
 }
 
 @keyframes paths {

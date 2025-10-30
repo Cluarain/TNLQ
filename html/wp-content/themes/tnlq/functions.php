@@ -62,9 +62,8 @@ function add_meta_tag()
     echo '
     <!-- start My custom meta -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="preload" href="' . get_relative_theme_file_uri("/assets/fonts/IBM_Plex_Mono/IBMPlexMono-Regular.woff2") . '" as="font" type="font/woff2" fetchpriority="high" crossorigin>
-    <link rel="preload" href="' . get_relative_theme_file_uri("/assets/fonts/IBM_Plex_Mono/IBMPlexMono-Bold.woff2") . '" as="font" type="font/woff2" fetchpriority="high" crossorigin>
-    <link rel="preload" href="' . get_relative_theme_file_uri("/assets/images/hole.svg") . '" as="image" fetchpriority="high" type="image/svg+xml">
+    <link rel="preload" href="/assets/fonts/IBM_Plex_Mono/IBMPlexMono-Regular.woff2" as="font" type="font/woff2" fetchpriority="high" crossorigin>
+    <link rel="preload" href="/assets/fonts/IBM_Plex_Mono/IBMPlexMono-Bold.woff2" as="font" type="font/woff2" fetchpriority="high" crossorigin>
     <!-- / end My custom meta -->
     ';
 }
@@ -98,7 +97,7 @@ function add_scripts_and_styles()
     wp_enqueue_style('main');
 
     // ['strategy' => 'async', 'in_footer' => true ]
-    wp_enqueue_script('main', $main_js, [], getShortFileHash($main_js), true);
+    wp_enqueue_script('main', getShortFileLink($main_js), [], getShortFileHash($main_js), true);
 }
 add_action('wp_enqueue_scripts', 'add_scripts_and_styles');
 

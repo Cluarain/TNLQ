@@ -41,10 +41,8 @@ extract(parse_args_filtered($args, $defaults));
                     //   class="glitch" 
                     echo '
                     <div class="why-tuneliqa__content__item">
-                        <h3 class="why-tuneliqa__title font-xxl text-accent text-balance">
-                        <span 
-                        class="glitch" 
-                        data-glitch="' . $item["item_title"] . '" style="--time-glitch:' . rand(10, 30) . 's">' . $item["item_title"] . '</span>
+                        <h3 class="why-tuneliqa__title font-xxl text-accent text-balance glitch" style="--time-glitch:' . rand(10, 30) . 's">
+                            ' . $item["item_title"] . '
                         </h3>
                         <p class="font-xl text-secondary arrow-sign-2">' .  $item["item_text"] . '</p>
                     </div>

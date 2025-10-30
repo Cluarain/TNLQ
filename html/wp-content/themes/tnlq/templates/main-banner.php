@@ -7,16 +7,19 @@ $defaults = array(
 extract(parse_args_filtered($args, $defaults));
 ?>
 
-
 <section class="main-banner">
     <div class="main-banner__img">
         <?php
-        // $param = isset($_GET['test']) ? sanitize_text_field($_GET['test']) : '';
-        // if ($param === '1') {
-        // } else {
-        //     echo get_attachment_image_by_name('main_banner', 'full', false, array('class' => 'main-banner__img'));
-        // }
-        echo '<img src="/assets/images/hole.svg" alt="' . $title . '" decoding="async" fetchpriority="high" >';
+        echo get_attachment_image_by_name(
+            'hole',
+            'full',
+            false,
+            [
+                'fetchpriority' => 'high',
+                'lazyload' => false,
+                // 'svg-inline' => true
+            ]
+        );
         ?>
     </div>
     <div class="container">

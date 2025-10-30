@@ -37,12 +37,11 @@ extract(parse_args_filtered($args, $defaults));
                             echo get_attachment_image_by_name($item['item_img']);
                             break;
                         }
-
                         $attachment_id = $item['item_img']['id'];
                         $attachment = get_post($attachment_id);
                         $mime_type = get_post_mime_type($attachment_id);
                         if ($mime_type === 'image/svg+xml') {
-                            echo file_get_contents(wp_get_attachment_url($attachment_id));
+                            echo get_svg_inline_by_attachmentID($attachment_id);
                         } else {
                             echo wp_get_attachment_image($attachment_id);
                         }

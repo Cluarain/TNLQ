@@ -34,7 +34,8 @@
                         <!-- <a href="#" class="btn btn-transparent arrow-sign">Generate account</a> -->
                     </div>
                 </div>
-                <a href="/" class="tnlq-logo text-accent hover-active-1" aria-label="Main page">
+                <a href="/" class="tnlq-logo text-accent hover-active-1">
+                    <span class="d-none">Main page</span>
                     <?php echo get_attachment_image_by_name('tuneliqa_logo') ?>
                 </a>
                 <div class="header__nav__inner__desktop">
