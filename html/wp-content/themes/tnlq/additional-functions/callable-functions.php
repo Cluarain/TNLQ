@@ -67,7 +67,9 @@ function generatedFAQ_HTML($question, $answer)
       <div class="accordion-content" role="definition">
         <div class="accordion-overflow">
           <div class="accordion-body">
-            {$answer}
+            <div class="special-symbols">
+              {$answer}
+            </div>
           </div>
         </div>
       </div>
@@ -108,8 +110,6 @@ function get_attachment_image_by_name($attachment_name, $size = 'full', $icon = 
     $fetchpriority = $attributes['fetchpriority'];
     $lazyload = $attributes['lazyload'];
 
-    // Удаляем их из массива атрибутов, чтобы не передавать в wp_get_attachment_image
-
 
     // Добавляем fetchpriority если задан
     if (!empty($fetchpriority)) {
@@ -127,6 +127,7 @@ function get_attachment_image_by_name($attachment_name, $size = 'full', $icon = 
         return get_svg_inline_by_attachmentID($attachment_id);
       }
     }
+    // Удаляем их из массива атрибутов, чтобы не передавать в wp_get_attachment_image
     unset($attributes['fetchpriority'], $attributes['lazyload'], $attributes['svg-inline']);
 
     return wp_get_attachment_image($attachment_id, $size, $icon, $attributes);
@@ -181,6 +182,7 @@ function get_svg_inline_by_attachmentID($attachmentID)
 
   return $svg;
 }
+
 function parse_args_filtered($args, $defaults)
 {
   return (

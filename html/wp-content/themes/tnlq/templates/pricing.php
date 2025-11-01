@@ -65,7 +65,7 @@ extract(parse_args_filtered($args, $defaults));
                                 <?php
                                 echo $best_plan ?
                                     '<span class="pricing__card-period-best">
-                                        <span>Best Plan</span>
+                                        <span>Popular</span>
                                     </span>' : '';
                                 echo $period
                                 ?>

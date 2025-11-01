@@ -26,8 +26,9 @@ add_action('after_setup_theme', function () {
 
     $GLOBALS['why-tuneliqa_link'] = '#why-tuneliqa';
     $GLOBALS['pricing_link'] = '#pricing';
+    $GLOBALS['privacy-matters_link'] = '#privacy-matters';
     $GLOBALS['faq_link'] = '#faq';
-    $GLOBALS['contact_link'] = 'mailto:#';
+    $GLOBALS['contact_link'] = '#footer';
 
 
     $GLOBALS['telegram_link'] = 'tg';

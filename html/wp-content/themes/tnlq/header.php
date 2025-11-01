@@ -27,11 +27,10 @@
                         <a href="<?php print_global_var('why-tuneliqa_link') ?>" class="hover-active-1 nav-link">Why
                             Tuneliqa</a>
                         <a href="<?php print_global_var('pricing_link') ?>" class="hover-active-1 nav-link">Pricing</a>
-                        <a href="/privacy-policy/" class="hover-active-1 nav-link">Privacy</a>
+                        <a href="<?php print_global_var('privacy-matters_link') ?>" class="hover-active-1 nav-link">Privacy</a>
                         <a href="<?php print_global_var('faq_link') ?>" class="hover-active-1 nav-link">FAQ</a>
                         <a href="<?php print_global_var('contact_link') ?>"
                             class="text-success hover-active-1 nav-link arrow-sign">contact</a>
-                        <!-- <a href="#" class="btn btn-transparent arrow-sign">Generate account</a> -->
                     </div>
                 </div>
                 <a href="/" class="tnlq-logo text-accent hover-active-1">
@@ -42,13 +41,12 @@
                     <a href="<?php print_global_var('why-tuneliqa_link') ?>" class="hover-active-1 nav-link">Why
                         Tuneliqa</a>
                     <a href="<?php print_global_var('pricing_link') ?>" class="hover-active-1 nav-link">Pricing</a>
-                    <a href="/privacy-policy/" class="hover-active-1 nav-link">Privacy</a>
+                    <a href="<?php print_global_var('privacy-matters_link') ?>" class="hover-active-1 nav-link">Privacy</a>
                     <a href="<?php print_global_var('faq_link') ?>" class="hover-active-1 nav-link">FAQ</a>
                     <a href="<?php print_global_var('contact_link') ?>"
                         class="text-success hover-active-1 nav-link arrow-sign">contact</a>
-                    <a href="#" class="btn btn-transparent arrow-sign">Generate account</a>
+                    <a href="<?php print_global_var('pricing_link') ?>" class="btn btn-lg btn-transparent arrow-sign">View Plans</a>
                 </div>
-
             </nav>
         </div>
     </div>

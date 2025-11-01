@@ -14,7 +14,7 @@ $defaults = array(
 
     'card_title' => 'Ready to escape surveillance?',
     'card_button1' => 'Get Started',
-    'card_button2' => 'View Plans',
+    // 'card_button2' => 'View Plans',
     'additional_attributes' => '',
 );
 extract(parse_args_filtered($args, $defaults));
@@ -56,8 +56,7 @@ extract(parse_args_filtered($args, $defaults));
                 <div class="bypass__buttons">
                     <h3 class="bypass__buttons-subtitle"><?php echo $card_title ?></h3>
                     <div class="main-banner__inner__buttons">
-                        <a href="#" class="btn btn-lg btn-primary arrow-sign hover-active-2"><?php echo $card_button1 ?></a>
-                        <a href="<?php print_global_var('pricing_link') ?>" class="btn btn-lg btn-transparent arrow-sign"><?php echo $card_button2 ?></a>
+                        <a href="<?php print_global_var('pricing_link') ?>" class="btn btn-lg btn-primary arrow-sign hover-active-2"><?php echo $card_button1 ?></a>
                     </div>
                 </div>
             </div>

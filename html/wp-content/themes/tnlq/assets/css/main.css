@@ -376,7 +376,7 @@ header {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
-    height: calc(2 * 1.325em);
+    height: calc(2 * 1.5em);
     overflow: hidden;
 }
 
@@ -815,7 +815,6 @@ summary {
     padding: clamp(16px, 1.8vw, 24px) clamp(20px, 2.2vw, 30px);
     border-radius: 5px;
     background-color: var(--bg-tertiary);
-
     margin-inline-end: clamp(0px, 6vw, 90px);
     position: relative;
 
@@ -826,6 +825,26 @@ summary {
         content: "A:\a0";
     } */
 }
+
+.special-symbols {
+    /* background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="130" viewBox="0 0 60 130" fill="%23fff"><path d="M8.50 100.90L8.50 92.60L44 72.50L44 71.70L8.50 51.60L8.50 43.10L51.50 68L51.50 76L8.50 100.90Z"></path></svg>'); */
+    /* background-repeat: repeat-y; */
+    /* padding-inline-start: 2rem; */
+    /* background-size: 1rem 1.5em; */
+
+    &>* {
+        display: flex;
+
+        &::before {
+            content: ">\a0\a0\a0\a0";
+        }
+
+        &:first-child::before {
+            content: ">\a0 A:\a0";
+        }
+    }
+}
+
 
 .footer {
     background: var(--bg-secondary);
@@ -1049,6 +1068,10 @@ summary {
             height: 42px;
             background-size: contain;
         }
+    }
+
+    .special-symbols>* {
+        display: block;
     }
 }
 
