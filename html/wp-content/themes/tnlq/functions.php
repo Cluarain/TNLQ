@@ -91,6 +91,7 @@ function add_scripts_and_styles()
     // $main_css = get_relative_theme_file_uri('/assets/css/main' . $isMinify . '.css');
 
     $main_js = get_relative_theme_file_uri('/assets/js/main' . $isMinify . '.js');
+    $typewriter_js = get_relative_theme_file_uri('/assets/js/typewriter' . $isMinify . '.js');
 
     // wp_enqueue_style('main', getShortFileLink($main_css), [], getShortFileHash($main_css));
     wp_register_style('main', false);
@@ -99,6 +100,7 @@ function add_scripts_and_styles()
 
     // ['strategy' => 'async', 'in_footer' => true ]
     wp_enqueue_script('main', getShortFileLink($main_js), [], getShortFileHash($main_js), true);
+    wp_enqueue_script('typewriter', getShortFileLink($typewriter_js), [], getShortFileHash($typewriter_js), ['strategy' => 'async', 'in_footer' => true]);
 }
 add_action('wp_enqueue_scripts', 'add_scripts_and_styles');
 

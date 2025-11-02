@@ -75,4 +75,63 @@ document.addEventListener("DOMContentLoaded", function () {
             window.location.href = '/' + '#' + targetId;
         }
     });
+
+    // Typewriter
+    {
+        // Функция для проверки загрузки Typewriter
+        function waitForTypewriter(callback) {
+            if (typeof Typewriter !== 'undefined') {
+                callback();
+            } else {
+                setTimeout(function () {
+                    waitForTypewriter(callback);
+                }, 100);
+            }
+        }
+
+        waitForTypewriter(function () {
+            // Получаем все элементы с текстом
+            var titleElements = document.querySelectorAll('.resist-mass__title');
+            var texts = Array.from(titleElements).map(function (el) {
+                return el.textContent.trim();
+            });
+
+            var currentIndex = 0;
+            var typedNode = document.querySelector('.resist-mass__title.active');
+
+            function startNextAnimation() {
+                // Обновляем активный элемент
+                titleElements.forEach(function (el) {
+                    el.classList.remove('active');
+                });
+                typedNode = titleElements[currentIndex];
+                typedNode.classList.add('active');
+
+                // Очищаем текст для анимации
+                typedNode.textContent = "";
+
+                var typewriter = new Typewriter(typedNode, {
+                    loop: false,
+                    delay: 75,
+                    deleteSpeed: 50
+                });
+
+                typewriter
+                    .typeString(texts[currentIndex])
+                    .pauseFor(2000)
+                    .deleteAll()
+                    .callFunction(function () {
+                        // Переходим к следующему тексту
+                        currentIndex = (currentIndex + 1) % texts.length;
+
+                        // Запускаем следующую анимацию после небольшой паузы
+                        setTimeout(startNextAnimation, 500);
+                    })
+                    .start();
+            }
+
+            // Запускаем первую анимацию
+            startNextAnimation();
+        });
+    }
 });

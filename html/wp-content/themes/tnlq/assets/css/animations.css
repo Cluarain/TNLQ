@@ -103,20 +103,19 @@ body {
     }
 }
 
-
+/* только для десктопа */
 @media (min-width: 768px) {
-    .pricing__cards {
+    /* .pricing__cards {
 
         &:hover>.pricing__cards__item:not(:hover) {
             filter: blur(2px);
-            /* transform: scale(0.95); */
             transform: translate(5px, 5px);
             box-shadow: 0 0 0 0 var(--text-tertiary);
         }
-    }
+    } */
 }
 
-.pricing__cards__item {
+/* .pricing__cards__item {
     transition: var(--main-transition);
     transition-property: transform, box-shadow, filter;
 
@@ -124,7 +123,7 @@ body {
         transform: translate(-5px, -5px);
         box-shadow: 10px 10px 0 0 var(--text-tertiary);
     }
-}
+} */
 
 .pricing__card-period-best::before {
     content: '';
@@ -136,7 +135,7 @@ body {
     background: linear-gradient(120deg, transparent 30%, var(--text-primary) 38%, var(--text-primary) 40%, transparent 48%);
     background-size: 200% 100%;
     background-position: 100% 0;
-    animation: load_placeholder 5s infinite;
+    animation: load_placeholder 12s infinite;
 
 }
 
@@ -145,13 +144,13 @@ body {
         background-position: 100% 0;
     }
 
-    15% {
+    7% {
         /*  % времени уходит на движение */
-        background-position: -100% 0;
+        background-position: -90% 0;
     }
 
     100% {
-        background-position: -100% 0;
+        background-position: -90% 0;
     }
 }
 
@@ -193,7 +192,7 @@ body {
 .glitch {
     position: relative;
     z-index: 1;
-    animation: paths calc(var(--time-glitch, 5s)/2) step-end infinite;
+    /* animation: paths calc(var(--time-glitch, 5s)/2) step-end infinite; */
 }
 
 .glitch:before {
@@ -206,9 +205,7 @@ body {
     overflow: hidden;
     clip: rect(0, 900px, 0, 0);
     animation:
-        noise-before calc(var(--time-glitch, 5s)/10) infinite linear alternate-reverse,
-        font calc(var(--time-glitch, 5s)/2) step-end infinite,
-        movement calc(var(--time-glitch, 5s)/1.5) step-end infinite;
+        noise-before calc(var(--time-glitch, 5s)/10) infinite linear alternate-reverse;
     animation-delay: calc(var(--time-glitch, 5s) * 0.7);
 }
 
@@ -222,9 +219,7 @@ body {
     overflow: hidden;
     clip: rect(0, 900px, 0, 0);
     animation:
-        noise-after calc(var(--time-glitch, 5s)/10 - 0.1s) infinite linear alternate-reverse,
-        font calc(var(--time-glitch, 5s)/1.8) step-end infinite,
-        movement calc(var(--time-glitch, 5s)/1.3) step-end infinite;
+        noise-after calc(var(--time-glitch, 5s)/10 - 0.1s) infinite linear alternate-reverse;
     animation-delay: calc(var(--time-glitch, 5s) * 0.7);
 }
 
@@ -453,7 +448,6 @@ body {
     bottom: 0;
     inset-inline-end: 0;
 }
-
 
 @media (max-width: 768px) {
     [data-star="top, right"]::after {

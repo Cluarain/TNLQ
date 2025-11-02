@@ -29,7 +29,7 @@ extract(parse_args_filtered($args, $defaults));
                     <!-- <img src="/assets/images/block_logo.svg" alt="block logo" width="1016" height="224" loading="lazy" decoding="async"> -->
                 </div>
                 <div class="bypass__slogan bypass-double-sign">
-                    <h3 class="bypass__slogan-title" style="margin-inline-start:.4em"><?php echo $title ?></h3>
+                    <h3 class="bypass__slogan-title"><?php echo $title ?></h3>
                 </div>
                 <div class="bypass__tags">
                     <?php
