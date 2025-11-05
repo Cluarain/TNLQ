@@ -20,7 +20,7 @@ $defaults = array(
         ],
     ],
 
-    'additional_attributes' => 'data-star="top, right"',
+    'additional_attributes' => 'data-star="top,right"',
 );
 extract(parse_args_filtered($args, $defaults));
 ?>

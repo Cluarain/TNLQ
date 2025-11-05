@@ -1,12 +1,21 @@
 @charset "UTF-8";
 
 body {
-    /* cursor: url('path/to/your/custom-cursor.png'), auto;
-    cursor: url('path/to/your/hover-cursor.png'), pointer;
-    cursor: url('путь/к/текст.cur'), text;
-    cursor: url('путь/к/перемещение.cur'), move;
-    cursor: url('путь/к/запрещено.cur'), not-allowed;
-    cursor: url('путь/к/ожидание.cur'), wait; */
+    /* 
+
+    cursor: url('дефолт.png'), auto;
+    cursor: url('наведение.png'), pointer;
+    cursor: url('выделение текста.cur'), text;
+    cursor: url('перемещение при зажатой ЛКМ.cur'), move;
+    cursor: url('запрещено.cur'), not-allowed;
+    cursor: url('ожидание.cur'), wait; 
+    
+    */
+}
+
+::selection {
+    color: #fff;
+    background: var(--success-color);
 }
 
 .btn {
@@ -17,10 +26,10 @@ body {
     filter: drop-shadow(0px 0px 0px var(--text-primary));
     transition-property: transform, filter;
 
-    &:hover {
+    /* &:hover {
         transform: translate(-3px, -3px);
         filter: drop-shadow(3px 3px 5px var(--text-primary));
-    }
+    } */
 
     &:active {
         transform: translate(0, 0);
@@ -30,10 +39,17 @@ body {
 
 .hover-active-1 {
     --hover-color: currentColor;
-    position: relative;
-    z-index: 1;
-    transition: color var(--main-transition);
+    /* position: relative;
+    z-index: 1;*/
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -webkit-transform: translate3d(0, 0, 0);
+    -moz-transform: translate3d(0, 0, 0);
 
+    transition: var(--main-transition);
+    transition-property: color, filter;
+
+    /* 
     &::after {
         content: '';
         position: absolute;
@@ -46,35 +62,55 @@ body {
         opacity: 0;
         filter: blur(20px);
         transition: opacity var(--main-transition);
-    }
+        z-index: 0;
+    } */
 
     &:hover {
 
         color: var(--accent-color);
-
-        /* filter: drop-shadow(0 0 5px var(--hover-color)); */
+        filter: drop-shadow(0 0 7px var(--hover-color));
+        /* 
         &::after {
             opacity: 0.5;
-        }
+        } */
     }
 }
 
 .hover-active-2 {
     transition: var(--main-transition);
-    transition-property: box-shadow, transform;
-
-    box-shadow: 0px 0px 0 0 var(--text-tertiary);
+    transition-property: transform, opacity;
+    /* box-shadow: 0px 0px 0 0 var(--text-tertiary); */
 
     &:hover {
-        transform: translate(-3px, -3px);
-        box-shadow: 3px 3px 0 0 var(--text-tertiary);
+
+        /* transform: translate(-3px, -3px);
+        box-shadow: 3px 3px 0 0 var(--text-tertiary); */
+        &::before {
+            animation: blinking 1.5s infinite;
+        }
     }
 
-    &:active {
+    /* &:active {
         transform: translate(0, 0);
         box-shadow: 0px 0px 0 0 var(--text-tertiary);
+    } */
+}
+
+@keyframes blinking {
+
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.1;
+    }
+
+    100% {
+        opacity: 1;
     }
 }
+
 
 .hover-active-svg-fill {
     &>svg {
@@ -103,17 +139,18 @@ body {
     }
 }
 
+
 /* только для десктопа */
-@media (min-width: 768px) {
-    /* .pricing__cards {
+/* @media (min-width: 768px) {
+    .pricing__cards {
 
         &:hover>.pricing__cards__item:not(:hover) {
             filter: blur(2px);
             transform: translate(5px, 5px);
             box-shadow: 0 0 0 0 var(--text-tertiary);
         }
-    } */
-}
+    }
+} */
 
 /* .pricing__cards__item {
     transition: var(--main-transition);
@@ -161,8 +198,7 @@ body {
     &:has(.accordion-details[open]) {
 
         & .accordion-title {
-            /* font-weight: 700; */
-            filter: drop-shadow(var(--active-shadow));
+            filter: var(--glow);
         }
 
         & .accordion-arrow::before {
@@ -186,16 +222,49 @@ body {
     transition: filter var(--main-transition);
 }
 
+[data-star] {
+    position: relative;
+
+    &::after {
+        content: "";
+        position: absolute;
+        height: clamp(100px, 10vw, 200px);
+        width: clamp(100px, 10vw, 200px);
+        background: center / contain no-repeat url('data:image/svg+xml,<svg width="198" height="198" viewBox="0 0 198 198" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M99.5045 0H98.0337C98.0337 75.1295 75.1295 98.0337 0 98.0337V99.5045C75.1295 99.5045 98.0337 122.421 98.0337 197.55H99.5045C99.5045 122.421 122.421 99.5045 197.55 99.5045V98.0337C122.421 98.0337 99.5045 75.1295 99.5045 0ZM150.034 102.861C136.986 106.277 126.916 111.65 119.289 119.289C111.662 126.928 106.242 136.974 102.861 150.034C100.715 158.639 99.345 167.42 98.7691 176.271C98.1964 167.421 96.8308 158.64 94.6888 150.034C91.2609 136.986 85.8877 126.916 78.2609 119.289C70.6341 111.662 60.5638 106.242 47.5164 102.861C38.9108 100.715 30.1298 99.345 21.2792 98.7691C30.1293 98.1964 38.9103 96.8308 47.5164 94.6888C60.5638 91.2609 70.6222 85.8877 78.2846 78.2846C85.947 70.6815 91.332 60.5875 94.7125 47.5401C96.8546 38.934 98.2201 30.1531 98.7928 21.3029C99.3688 30.1535 100.738 38.9345 102.885 47.5401C106.301 60.5875 111.674 70.6459 119.313 78.2846C126.952 85.9233 136.998 91.332 150.057 94.7125C158.663 96.8546 167.444 98.2201 176.295 98.7928C167.437 99.3596 158.648 100.721 150.034 102.861Z" fill="white" fill-opacity="0.3"/></svg>');
+        background-size: 100% 100%;
+        margin-inline-end: clamp(10px, 3vw, 80px);
+        margin-block-start: clamp(1px, 1.5vw, 32px);
+        filter: var(--glow);
+    }
+}
+
+[data-star="top,right"]::after {
+    top: 0;
+    inset-inline-end: 0;
+}
+
+[data-star="bottom,right"]::after {
+    bottom: 0;
+    inset-inline-end: 0;
+}
+
+@media (max-width: 768px) {
+    [data-star="top,right"]::after {
+        top: 100%;
+    }
+}
+
 
 /* glitch v4 */
 
-.glitch {
-    position: relative;
-    z-index: 1;
-    /* animation: paths calc(var(--time-glitch, 5s)/2) step-end infinite; */
-}
+/* .glitch { */
+/* position: relative;
+    z-index: 1; */
+/* filter: drop-shadow(0 0 5px currentColor); */
+/* animation: paths calc(var(--time-glitch, 5s)/2) step-end infinite; */
+/* } */
 
-.glitch:before {
+/* .glitch:before {
     content: attr(data-glitch);
     position: absolute;
     top: 0;
@@ -221,9 +290,9 @@ body {
     animation:
         noise-after calc(var(--time-glitch, 5s)/10 - 0.1s) infinite linear alternate-reverse;
     animation-delay: calc(var(--time-glitch, 5s) * 0.7);
-}
+} */
 
-@keyframes noise-before {
+/* @keyframes noise-before {
     0% {
         clip: rect(61px, 9999px, 52px, 0);
     }
@@ -421,36 +490,4 @@ body {
     100% {
         clip-path: polygon(0% 26%, 15% 26%, 15% 73%, 72% 73%, 72% 70%, 77% 70%, 77% 75%, 8% 75%, 8% 42%, 4% 42%, 4% 61%, 17% 61%, 17% 12%, 26% 12%, 26% 63%, 73% 63%, 73% 43%, 90% 43%, 90% 67%, 50% 67%, 50% 41%, 42% 41%, 42% 46%, 50% 46%, 50% 84%, 96% 84%, 96% 78%, 49% 78%, 49% 25%, 63% 25%, 63% 14%);
     }
-}
-
-
-[data-star] {
-    position: relative;
-
-    &::after {
-        content: "";
-        position: absolute;
-        height: clamp(100px, 10vw, 200px);
-        width: clamp(100px, 10vw, 200px);
-        background: center / contain no-repeat url('data:image/svg+xml,<svg width="198" height="198" viewBox="0 0 198 198" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M99.5045 0H98.0337C98.0337 75.1295 75.1295 98.0337 0 98.0337V99.5045C75.1295 99.5045 98.0337 122.421 98.0337 197.55H99.5045C99.5045 122.421 122.421 99.5045 197.55 99.5045V98.0337C122.421 98.0337 99.5045 75.1295 99.5045 0ZM150.034 102.861C136.986 106.277 126.916 111.65 119.289 119.289C111.662 126.928 106.242 136.974 102.861 150.034C100.715 158.639 99.345 167.42 98.7691 176.271C98.1964 167.421 96.8308 158.64 94.6888 150.034C91.2609 136.986 85.8877 126.916 78.2609 119.289C70.6341 111.662 60.5638 106.242 47.5164 102.861C38.9108 100.715 30.1298 99.345 21.2792 98.7691C30.1293 98.1964 38.9103 96.8308 47.5164 94.6888C60.5638 91.2609 70.6222 85.8877 78.2846 78.2846C85.947 70.6815 91.332 60.5875 94.7125 47.5401C96.8546 38.934 98.2201 30.1531 98.7928 21.3029C99.3688 30.1535 100.738 38.9345 102.885 47.5401C106.301 60.5875 111.674 70.6459 119.313 78.2846C126.952 85.9233 136.998 91.332 150.057 94.7125C158.663 96.8546 167.444 98.2201 176.295 98.7928C167.437 99.3596 158.648 100.721 150.034 102.861Z" fill="white" fill-opacity="0.3"/></svg>');
-        background-size: 100% 100%;
-        margin-inline-end: clamp(10px, 3vw, 80px);
-        margin-block-start: clamp(1px, 1.5vw, 32px);
-    }
-}
-
-[data-star="top, right"]::after {
-    top: 0;
-    inset-inline-end: 0;
-}
-
-[data-star="bottom, right"]::after {
-    bottom: 0;
-    inset-inline-end: 0;
-}
-
-@media (max-width: 768px) {
-    [data-star="top, right"]::after {
-        top: 100%;
-    }
-}
+} */

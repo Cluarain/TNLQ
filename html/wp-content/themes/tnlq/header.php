@@ -33,7 +33,7 @@
                             class="text-success hover-active-1 nav-link arrow-sign">contact</a>
                     </div>
                 </div>
-                <a href="/" class="tnlq-logo text-accent hover-active-1">
+                <a href="/" class="tnlq-logo">
                     <span class="d-none">Main page</span>
                     <?php echo get_attachment_image_by_name('tuneliqa_logo') ?>
                 </a>
@@ -44,8 +44,8 @@
                     <a href="<?php print_global_var('privacy-matters_link') ?>" class="hover-active-1 nav-link">Privacy</a>
                     <a href="<?php print_global_var('faq_link') ?>" class="hover-active-1 nav-link">FAQ</a>
                     <a href="<?php print_global_var('contact_link') ?>"
-                        class="text-success hover-active-1 nav-link arrow-sign">contact</a>
-                    <a href="<?php print_global_var('pricing_link') ?>" class="btn btn-lg btn-transparent arrow-sign">View Plans</a>
+                        class="text-success hover-active-1 hover-active-2 nav-link arrow-sign">contact</a>
+                    <a href="<?php print_global_var('pricing_link') ?>" class="btn btn-lg btn-transparent hover-active-2 arrow-sign">View Plans</a>
                 </div>
             </nav>
         </div>

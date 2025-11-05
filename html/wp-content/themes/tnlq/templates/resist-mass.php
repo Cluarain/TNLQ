@@ -22,12 +22,12 @@ extract(parse_args_filtered($args, $defaults));
 
             if ($index == 0) {
                 echo '
-                <h2 class="resist-mass__title active">
+                <h2 class="resist-mass__title glow active">
                     ' . $title['title'] . '
                 </h2>';
             } else {
                 echo '
-                <p class="resist-mass__title">
+                <p class="resist-mass__title glow">
                     ' . $title['title'] . '
                 </p>';
             }

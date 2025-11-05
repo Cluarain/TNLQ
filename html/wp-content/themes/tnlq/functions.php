@@ -31,7 +31,7 @@ add_action('after_setup_theme', function () {
     $GLOBALS['contact_link'] = '#footer';
 
 
-    $GLOBALS['telegram_link'] = 'tg';
+    $GLOBALS['telegram_link'] = 'https://t.me/tuneliqa';
     $GLOBALS['twitter_link'] = 'xxx';
 
 
@@ -83,7 +83,7 @@ add_action('admin_head', function () {
 
 function add_scripts_and_styles()
 {
-    $isMinify = '';
+    $isMinify = '.min';
     // if (! WP_DEBUG) {
     //     $isMinify = '.min';
     // }
@@ -91,7 +91,6 @@ function add_scripts_and_styles()
     // $main_css = get_relative_theme_file_uri('/assets/css/main' . $isMinify . '.css');
 
     $main_js = get_relative_theme_file_uri('/assets/js/main' . $isMinify . '.js');
-    $typewriter_js = get_relative_theme_file_uri('/assets/js/typewriter' . $isMinify . '.js');
 
     // wp_enqueue_style('main', getShortFileLink($main_css), [], getShortFileHash($main_css));
     wp_register_style('main', false);
@@ -100,6 +99,8 @@ function add_scripts_and_styles()
 
     // ['strategy' => 'async', 'in_footer' => true ]
     wp_enqueue_script('main', getShortFileLink($main_js), [], getShortFileHash($main_js), true);
+
+    $typewriter_js = get_relative_theme_file_uri('/assets/js/typewriter.min.js');
     wp_enqueue_script('typewriter', getShortFileLink($typewriter_js), [], getShortFileHash($typewriter_js), ['strategy' => 'async', 'in_footer' => true]);
 }
 add_action('wp_enqueue_scripts', 'add_scripts_and_styles');
@@ -170,7 +171,7 @@ add_action('wp_footer', function () {
         </symbol>
     </svg>';
 
-    $isMinify = '';
+    $isMinify = '.min';
     // if (! WP_DEBUG) {
     //     $isMinify = '.min';
     // }

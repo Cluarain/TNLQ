@@ -12,8 +12,8 @@
                 <p class="footer__subtitle text-tertiary double-colon-mark">Your data is yours. We just help you keep it that way. No ads. No trackers. No logs. Just tunnels of trust</p>
             </div>
             <div class="footer__inner__box footer__buttons">
-                <a href="<?php print_global_var('pricing_link') ?>" class="btn btn-transparent btn-lg arrow-sign">View Plans</a>
-                <a href="<?php print_global_var('contact_link') ?>" class="text-success hover-active-1 nav-link arrow-sign font-l">contact</a>
+                <a href="<?php print_global_var('pricing_link') ?>" class="btn btn-transparent btn-lg hover-active-2 arrow-sign">View Plans</a>
+                <a href="<?php print_global_var('contact_link') ?>" class="text-success hover-active-2 nav-link arrow-sign font-l">contact</a>
                 <div class="footer__social">
                     <?php get_template_part('templates/social') ?>
                 </div>

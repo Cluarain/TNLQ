@@ -40,7 +40,7 @@ extract(parse_args_filtered($args, $defaults));
                 foreach ($items as $item) {
                     echo '
                     <div class="why-tuneliqa__content__item">
-                        <h3 class="why-tuneliqa__title font-xxl text-accent text-balance glitch" data-glitch="' . $item["item_title"] . '" style="--time-glitch:' . rand(2, 5) . 's">
+                        <h3 class="why-tuneliqa__title font-xxl text-accent text-balance">
                             ' . $item["item_title"] . '
                         </h3>
                         <p class="font-xl text-secondary arrow-sign-2">' .  $item["item_text"] . '</p>

@@ -73,7 +73,7 @@ extract(parse_args_filtered($args, $defaults));
                             <dd class="pricing__card-description margin-m">
                                 <div class="pricing__card-item vertical-sign"><?php echo $price_mon ?></div>
                                 <div class="pricing__card-item vertical-sign"><?php echo $price_total ?></div>
-                                <div class="pricing__card-item vertical-sign text-success"><?php echo $save ?></div>
+                                <div class="pricing__card-item vertical-sign text-success glow"><?php echo $save ?></div>
                                 <div class="pricing__card-item vertical-sign"><?php echo $disc ?></div>
                             </dd>
                         </dl>
