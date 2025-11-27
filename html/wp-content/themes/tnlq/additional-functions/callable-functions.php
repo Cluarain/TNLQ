@@ -77,6 +77,26 @@ function generatedFAQ_HTML($question, $answer)
     HTML;
 }
 
+
+function get_attachment_image_ID_by_name($attachment_name)
+{
+  if (!$attachment_name) {
+    return null;
+  }
+  $attachment = get_posts([
+    'post_type'      => 'attachment',
+    'name'           => $attachment_name,
+    'post_status'    => 'inherit',
+    'numberposts'    => 1,
+    'fields'         => 'id',
+  ]);
+  if ($attachment) {
+    return $attachment[0]->ID;
+  } else {
+    return null;
+  }
+}
+
 function get_attachment_image_by_name($attachment_name, $size = 'full', $icon = false, $attributes = [])
 {
   if (!$attachment_name) {

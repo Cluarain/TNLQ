@@ -38,14 +38,12 @@ extract(parse_args_filtered($args, $defaults));
                             break;
                         }
                         $attachment_id = $item['item_img']['id'];
-                        $attachment = get_post($attachment_id);
                         $mime_type = get_post_mime_type($attachment_id);
                         if ($mime_type === 'image/svg+xml') {
                             echo get_svg_inline_by_attachmentID($attachment_id);
                         } else {
                             echo wp_get_attachment_image($attachment_id);
                         }
-
                         ?>
                     </div>
                     <p class="tuneliqa-different__item-description"><?php echo $item['item_title'] ?></p>

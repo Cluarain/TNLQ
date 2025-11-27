@@ -192,7 +192,7 @@ body {
 }
 
 .accordion {
-    transition: background var(--main-transition);
+    transition: background-color var(--main-transition);
 
     /* styles when accordion open */
     &:has(.accordion-details[open]) {

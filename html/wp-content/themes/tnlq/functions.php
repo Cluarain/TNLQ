@@ -5,6 +5,31 @@ foreach (glob(get_template_directory() . '/additional-functions/*-functions.php'
     require_once $filename;
 }
 
+
+
+add_filter('cfw_get_billing_checkout_fields', 'remove_checkout_fields', 100);
+
+function remove_checkout_fields($fields)
+{
+    echo "remove_checkout_fields";
+    print_r($fields);
+
+    unset($fields['billing_company']);
+    unset($fields['billing_city']);
+    unset($fields['billing_postcode']);
+    unset($fields['billing_country']);
+    unset($fields['billing_state']);
+    unset($fields['billing_address_1']);
+    unset($fields['billing_address_2']);
+
+    print_r($fields);
+    return $fields;
+}
+
+// Set billing address fields to not required
+add_filter('woocommerce_checkout_fields', 'unrequire_checkout_fields');
+
+
 // отключаем поиск в теме
 function disable_search_filter($query, $error = true)
 {
@@ -74,6 +99,7 @@ add_action('wp_head', 'add_meta_tag');
 add_action('admin_head', function () {
     echo '
     <style>
+        .yooanalytics-woocommerce-wc-product-page,
         .mgmlp-header,
         .ewd-ufaq-dashboard-new-upgrade-banner {
             display: none !important;
@@ -83,7 +109,7 @@ add_action('admin_head', function () {
 
 function add_scripts_and_styles()
 {
-    $isMinify = '.min';
+    $isMinify = '';
     // if (! WP_DEBUG) {
     //     $isMinify = '.min';
     // }
@@ -226,3 +252,42 @@ function change_image_srcset($sources, $size_array, $image_src, $image_meta, $at
     return $sources;
 }
 add_filter('wp_calculate_image_srcset', 'change_image_srcset', 10, 5);
+
+
+// add_filter('woocommerce_product_single_add_to_cart_text', 'woocommerce_add_to_cart_button_text_single');
+// function woocommerce_add_to_cart_button_text_single()
+// {
+//     return 'CONNECT';
+// }
+
+// add_filter('woocommerce_product_add_to_cart_text', 'woocommerce_add_to_cart_button_text_archives');
+// function woocommerce_add_to_cart_button_text_archives()
+// {
+//     return 'CONNECT';
+// }
+
+
+// add_filter('add_to_cart_redirect', 'add_to_cart_redirect_to_checkout');
+// function add_to_cart_redirect_to_checkout()
+// {
+//     global $woocommerce;
+//     return $woocommerce->cart->get_checkout_url();
+// }
+
+
+// // Получаем URL для перехода к оформлению заказа
+// add_filter('woocommerce_loop_add_to_cart_url', 'replace_add_to_cart_button');
+// function replace_add_to_cart_button()
+// {
+//     global $product;
+//     return $product->add_to_cart_url();
+// }
+
+// remove_action('woocommerce_before_shop_loop_item_title', 'woocommerce_template_loop_product_thumbnail', 10);
+// remove_action('woocommerce_before_single_product_summary', 'woocommerce_show_product_images', 20);
+// remove_action('woocommerce_checkout_order_review', 'woocommerce_order_review', 10);
+
+
+// // работает
+// add_filter('woocommerce_placeholder_img_src', '__return_empty_string');
+// add_filter('woocommerce_placeholder_img', '__return_empty_string');

@@ -1,3 +1,30 @@
+<dialog id="paymentDialog">
+    <form method="dialog" class="modal-close">
+        <button type="button">&times;</button>
+    </form>
+    <div id="modal-wrapper" class="modal-payment">
+        <div class="modal-content">
+            <form id="paymentForm" method="POST" action="<?php echo get_template_directory_uri(); ?>/process-payment.php">
+                <?php wp_nonce_field('direct_payment_nonce', '_wpnonce'); ?>
+                
+                <p class="modal-heading">Specify the email address. The configuration for the VPN will be sent to it.</p>
+
+                <div class="form-control-wrapper">
+                    <input class="form-control input" type="email" id="email" name="email" placeholder=" " required>
+                    <label class="placeholder arrow-sign" for="email">Your email is </label>
+                </div>
+
+                <input type="hidden" id="productId" name="product_id">
+                <input type="hidden" id="tariffPeriod" name="tariff_period">
+                
+                <div class="modal-buttons">
+                    <button type="submit" class="btn btn-primary arrow-sign hover-active-2">Continue</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</dialog>
+
 <footer id="footer" class="footer padding-block-xxxl">
     <div class="container">
         <div class="footer__inner">

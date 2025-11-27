@@ -7,19 +7,23 @@ $defaults = array(
         [
             'period' => '1', // in month
             'total_price' => '11', // in $
+            'tariff_url' => '/',
         ],
         [
             'period' => '12',
             'total_price' => '60',
             'best_plan' => true,
+            'tariff_url' => '/',
         ],
         [
             'period' => '24',
             'total_price' => '96',
+            'tariff_url' => '/',
         ],
         [
             'period' => '36',
             'total_price' => '126',
+            'tariff_url' => '/',
         ],
     ],
 );
@@ -38,49 +42,105 @@ extract(parse_args_filtered($args, $defaults));
             <p class="pricing__subtitle text-secondary margin-s"><?php echo $subtitle ?></p>
             <div class="pricing__cards margin-l">
                 <?php
-                $default_month_price = $cards[0]['total_price'];
-                foreach ($cards as $card) {
-                    $period = $card["period"];
-                    switch ($period) {
-                        case $period >= 24:
-                            $period =  round($period / 12, 2) . ' YEARS';
-                            break;
-                        case $period >= 12:
-                            $period =  round($period / 12, 2) . ' YEAR';
-                            break;
-                        default:
-                            $period =  round($period, 2) . ' MONTH';
-                            break;
-                    }
+                // $default_month_price = $cards[0]['total_price'];
+                // foreach ($cards as $card) {
+                //     $period = $card["period"];
+                //     switch ($period) {
+                //         case $period >= 24:
+                //             $period =  round($period / 12, 2) . ' YEARS';
+                //             break;
+                //         case $period >= 12:
+                //             $period =  round($period / 12, 2) . ' YEAR';
+                //             break;
+                //         default:
+                //             $period =  round($period, 2) . ' MONTH';
+                //             break;
+                //     }
 
-                    $price_mon = '$' . $card["total_price"] / $card["period"] . ' / mo';
-                    $price_total =  'Total: $' . $card["total_price"];
-                    $save = 'Save $' . $default_month_price * $card["period"] - $card["total_price"];
-                    $disc = 'Disc: ' . round(($default_month_price * $card["period"] - $card["total_price"]) / ($default_month_price * $card["period"]) * 100) . '%';
-                    $best_plan = isset($card["best_plan"]) ? $card["best_plan"] : false;
+                //     $price_mon = '$' . $card["total_price"] / $card["period"] . ' / mo';
+                //     $price_total =  'Total: $' . $card["total_price"];
+                //     $save = 'Save $' . $default_month_price * $card["period"] - $card["total_price"];
+                //     $disc = 'Disc: ' . round(($default_month_price * $card["period"] - $card["total_price"]) / ($default_month_price * $card["period"]) * 100) . '%';
+                //     $best_plan = isset($card["best_plan"]) ? $card["best_plan"] : false;
+                //     $tariff_url =  isset($card["tariff_url"]) ? $card["tariff_url"] : '/';
+
+                $args = array(
+                    'post_type'      => 'product',
+                    'post_status'    => 'publish',
+                    'posts_per_page' => -1,
+                    'orderby'        => 'menu_order',
+                    'order'          => 'ASC',
+                );
+
+                $products = new WP_Query($args);
+
+                if ($products->have_posts()) {
+                    $first_post_id = $products->posts[0]->ID;
+                    $default_month_price = (float) wc_get_product($first_post_id)->get_price();
+
+                    while ($products->have_posts()) {
+                        $products->the_post();
+                        $product = wc_get_product();
+                        $product_id = get_the_ID();
+                        // Приводим значения к числам
+                        $card = [
+                            'period'      => (int) $product->get_attribute('period'),
+                            'total_price' => (float) $product->get_price(),
+                            'best_plan'   => $product->get_attribute('best plan'),
+                            'tariff_url'  => $product->add_to_cart_url()
+                        ];
+
+                        $period = (int)$card["period"];
+                        switch ($period) {
+                            case $period >= 24:
+                                $period =  round($period / 12, 2) . ' YEARS';
+                                break;
+                            case $period >= 12:
+                                $period =  round($period / 12, 2) . ' YEAR';
+                                break;
+                            default:
+                                $period =  round($period, 2) . ' MONTH';
+                                break;
+                        }
+
+                        $price_mon = '$' . $card["total_price"] / $card["period"] . ' / mo';
+                        $price_total =  'Total: $' . $card["total_price"];
+                        $save = 'Save $' . $default_month_price * $card["period"] - $card["total_price"];
+                        $disc = 'Disc: ' . round(($default_month_price * $card["period"] - $card["total_price"]) / ($default_month_price * $card["period"]) * 100) . '%';
+                        $best_plan = isset($card["best_plan"]) ? $card["best_plan"] : false;
+                        $tariff_url =  isset($card["tariff_url"]) ? $card["tariff_url"] : '/';
                 ?>
-                    <div class="pricing__cards__item">
-                        <dl>
-                            <dt class="pricing__card-period">
-                                <?php
-                                echo $best_plan ?
-                                    '<span class="pricing__card-period-best">
+                        <div class="pricing__cards__item">
+                            <dl>
+                                <dt class="pricing__card-period">
+                                    <?php
+                                    echo $best_plan ?
+                                        '<span class="pricing__card-period-best">
                                         <span>Popular</span>
                                     </span>' : '';
-                                echo $period
-                                ?>
-                            </dt>
-                            <dd class="pricing__card-description margin-m">
-                                <div class="pricing__card-item vertical-sign"><?php echo $price_mon ?></div>
-                                <div class="pricing__card-item vertical-sign"><?php echo $price_total ?></div>
-                                <div class="pricing__card-item vertical-sign text-success glow"><?php echo $save ?></div>
-                                <div class="pricing__card-item vertical-sign"><?php echo $disc ?></div>
-                            </dd>
-                        </dl>
-                        <a href="#" class="btn btn-warning pricing__card-button arrow-sign margin-m hover-active-2"><?php echo $buy_buttons ?></a>
-                    </div>
+                                    echo $period
+                                    ?>
+                                </dt>
+                                <dd class="pricing__card-description margin-m">
+                                    <div class="pricing__card-item vertical-sign"><?php echo $price_mon ?></div>
+                                    <div class="pricing__card-item vertical-sign"><?php echo $price_total ?></div>
+                                    <div class="pricing__card-item vertical-sign text-success glow"><?php echo $save ?></div>
+                                    <div class="pricing__card-item vertical-sign"><?php echo $disc ?></div>
+                                </dd>
+                            </dl>
+                            <button class="btn btn-warning pricing__card-button arrow-sign margin-m hover-active-2 buy-now-btn"
+                                data-product-id="<?php echo $product_id ?>"
+                                data-period="<?php echo $period ?>"
+                                data-price="<?php echo $price_total ?>"><?php echo $buy_buttons ?>
+                            </button>
+                            <!-- <a href="<?php echo $tariff_url ?>" aria-label="Buy button" data-period="<?php echo $period ?>" class="btn btn-warning pricing__card-button arrow-sign margin-m hover-active-2"><?php echo $buy_buttons ?></a> -->
+                        </div>
                 <?php
+
+                    }
+                    wp_reset_postdata();
                 }
+
                 ?>
             </div>
         </div>

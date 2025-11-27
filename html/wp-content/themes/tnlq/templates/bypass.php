@@ -31,7 +31,7 @@ extract(parse_args_filtered($args, $defaults));
                 <div class="bypass__slogan bypass-double-sign">
                     <h3 class="bypass__slogan-title"><?php echo $title ?></h3>
                 </div>
-                <div class="bypass__tags">
+                <div class="bypass__tags__wrapper">
                     <?php
                     $split_index = floor(count($tags) / 2);
                     $first_half = array_slice($tags, 0, $split_index);

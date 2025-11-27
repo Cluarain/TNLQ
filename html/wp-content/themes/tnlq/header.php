@@ -21,7 +21,11 @@
         <div class="header__nav">
             <nav class="header__nav__inner margin-l">
                 <div class="header__nav__inner__mobile">
-                    <div class="header__nav__inner__mobile__burger hover-active-1" id="mobile_burger"></div>
+                    <?php
+                    $burger_svg = get_svg_inline_by_attachmentID(get_attachment_image_ID_by_name('burger'));
+                    $css_burger = '--default-burger: url(data:image/svg+xml;charset=utf8,' . rawurlencode($burger_svg) . ');';
+                    ?>
+                    <div id="mobile_burger" class="header__nav__inner__mobile__burger hover-active-1" style="<?php echo $css_burger ?>"></div>
                     <div class="header__nav__inner__mobile__modal">
                         <span class="header__nav__inner__mobile__modal__title project__title"><span class="font-l">Menu</span></span>
                         <a href="<?php print_global_var('why-tuneliqa_link') ?>" class="hover-active-1 nav-link">Why

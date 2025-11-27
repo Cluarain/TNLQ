@@ -130,8 +130,73 @@ document.addEventListener("DOMContentLoaded", function () {
                     .start();
             }
 
-            // Запускаем первую анимацию
-            startNextAnimation();
+            if (titleElements.length > 0) {
+                // Запускаем первую анимацию
+                startNextAnimation();
+            }
+
+        });
+    }
+
+    // модальное окно
+    {
+
+
+
+        //     // Обработка отправки формы
+        //     form.addEventListener('submit', function (e) {
+        //         e.preventDefault();
+        //         const formData = new FormData(this);
+
+        //         fetch('/wp-admin/admin-ajax.php', {
+        //             method: 'POST',
+        //             body: formData
+        //         })
+        //             .then(response => response.json())
+        //             .then(data => {
+        //                 if (data.success) {
+        //                     const originalLink = document.querySelector('a[data-period="' + tariffInput.value + '"]');
+        //                     window.location.href = originalLink.href;
+        //                 } else {
+        //                     alert('Ошибка: ' + data.data);
+        //                 }
+        //             })
+        //             .catch(error => {
+        //                 console.error('Error:', error);
+        //             });
+        //     });
+
+
+        var dialog = document.getElementById('paymentDialog');
+        var form = document.getElementById('paymentForm');
+        
+        // закрывать по крестику и по клику вне формы
+        dialog.addEventListener('click', () => dialog.close());
+        document.getElementById('modal-wrapper').addEventListener('click', (event) => event.stopPropagation());
+
+        // Обработчик клика на кнопки заказа
+        document.querySelectorAll('.buy-now-btn').forEach(button => {
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const productId = this.dataset.productId;
+                const period = this.dataset.period;
+
+                // Заполняем скрытые поля
+                document.getElementById('productId').value = productId;
+                document.getElementById('tariffPeriod').value = period;
+
+                // Сбрасываем и показываем форму
+                form.reset();
+                dialog.showModal();
+            });
+        });
+
+        // Показываем индикатор загрузки при отправке формы
+        form.addEventListener('submit', function () {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.textContent = 'Processing...';
+            submitBtn.disabled = true;
         });
     }
 });
