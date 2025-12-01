@@ -31,6 +31,7 @@
     --accent-color: #528FCF;
     --success-color: #0E933B;
     --warning-color: hsl(31, 83%, 43%);
+    --danger-color: hsl(4, 90%, 60%);
 
     --bg-primary: hsl(0, 0%, 5%);
     --bg-secondary: hsl(0, 0%, 0%);
@@ -101,8 +102,9 @@ body {
 }
 
 :focus-visible {
-    outline: var(--accent-color) solid 2px;
-    border-radius: 2px;
+    outline: 2px solid var(--accent-color);
+    /* border-radius: 2px; */
+    outline-offset: 2px;
 }
 
 a {
@@ -879,6 +881,7 @@ dialog {
     background-color: var(--bg-quaternary);
 
     &::backdrop {
+        background-color: rgba(0, 0, 0, 0.8);
         backdrop-filter: blur(5px);
     }
 
@@ -916,17 +919,16 @@ dialog {
     }
 }
 
-.modal-payment {
+.modal-wrapper {
     max-width: 500px;
     padding: 30px;
-
 }
 
 .modal-heading {
     text-align: center;
 }
 
-#paymentForm {
+.modal-form {
     display: flex;
     flex-flow: column;
     align-items: center;

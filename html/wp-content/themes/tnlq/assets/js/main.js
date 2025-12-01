@@ -138,7 +138,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // модальное окно
+    // модальное окно для ввода почты
     {
 
 
@@ -169,7 +169,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         var dialog = document.getElementById('paymentDialog');
         var form = document.getElementById('paymentForm');
-        
+
         // закрывать по крестику и по клику вне формы
         dialog.addEventListener('click', () => dialog.close());
         document.getElementById('modal-wrapper').addEventListener('click', (event) => event.stopPropagation());
@@ -198,5 +198,86 @@ document.addEventListener("DOMContentLoaded", function () {
             submitBtn.textContent = 'Processing...';
             submitBtn.disabled = true;
         });
+    }
+
+
+    // модалка на ответ платежа
+    {
+        const urlParams = new URLSearchParams(window.location.search);
+        const paymentResult = urlParams.get('payment_result');
+        const orderId = urlParams.get('order_id');
+        const customerEmail = urlParams.get('customer_email');
+
+        if (paymentResult) {
+            switch (paymentResult) {
+                case 'success':
+                case 'completed':
+                    showPaymentModal({
+                        type: 'success',
+                        title: 'Payment Successful!',
+                        color: 'var(--success-color)',
+                        message: `Your VPN configuration has been sent to <strong>${decodeURIComponent(customerEmail || '')}</strong>`,
+                        orderId: orderId,
+                        showOrderId: true
+                    });
+                    break;
+                case 'cancelled':
+                    showPaymentModal({
+                        type: 'cancelled',
+                        title: 'Payment Cancelled',
+                        color: 'var(--danger-color)',
+                        message: 'The payment was cancelled. You can try again anytime.',
+                        showOrderId: false
+                    });
+                    break;
+                case 'processing':
+                case 'pending':
+                    showPaymentModal({
+                        type: 'pending',
+                        title: 'Payment Processing',
+                        color: 'var(--warning-color)',
+                        message: `Your payment is being processed. We\'ll notify you to <strong>${decodeURIComponent(customerEmail || '')}</strong>`,
+                        showOrderId: false
+                    });
+                    break;
+            }
+
+            // Убираем параметры из URL без перезагрузки
+            const cleanUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
+        }
+
+        // https://tuneliqa.com//?payment_status=success&order_id=277&key=wc_order_suYLtlZWqW3nr
+        function showPaymentModal(options) {
+            const { type, title, color, message, orderId, showOrderId } = options;
+            const orderIdHtml = showOrderId ? `<p>Order: #${orderId}</p>` : '';
+
+            const modalHtml = `
+            <dialog id="${type}PaymentDialog">
+                <div class="modal-wrapper">
+                    <form method="dialog" class="modal-form">
+                        <div class="modal-heading" >
+                            <h2 class="arrow-sign" style="color:${color};">${title}</h2>
+                        </div>
+                        <div class="modal-heading" >  
+                            <p>${message}</p>
+                            ${orderIdHtml}    
+                        </div>             
+                        <button type="submit" class="btn arrow-sign hover-active-2" style="background:${color}; color:#fff;">i understood</button>
+                    </form>
+                </div>
+            </dialog>
+            `;
+
+            // Удаляем предыдущее модальное окно, если оно существует
+            const existingModal = document.getElementById(`${type}PaymentDialog`);
+            if (existingModal) {
+                existingModal.remove();
+            }
+
+            // Добавляем модальное окно в DOM
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            document.getElementById(`${type}PaymentDialog`).showModal();
+        }
     }
 });

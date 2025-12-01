@@ -55,6 +55,27 @@ try {
     $order->set_status('pending');
     $order->save();
 
+    // Создаем URL для успешной оплаты и отмены
+    $success_url = add_query_arg(array(
+        'payment_status' => 'success',
+        'order_id' => $order->get_id(),
+        'key' => $order->get_order_key()
+    ), site_url('/'));
+
+    $cancel_url = add_query_arg(array(
+        'cancel_order' => 'true',
+        'order_id' => $order->get_id(),
+        'key' => $order->get_order_key()
+    ), site_url('/'));
+
+    add_filter('woocommerce_get_return_url', function () use ($success_url) {
+        return $success_url;
+    });
+
+    add_filter('woocommerce_get_cancel_order_url_raw', function () use ($cancel_url) {
+        return $cancel_url;
+    });
+
     // Сохраняем email в мета-данные заказа
     update_post_meta($order->get_id(), '_billing_email', $email);
 

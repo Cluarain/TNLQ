@@ -254,40 +254,129 @@ function change_image_srcset($sources, $size_array, $image_src, $image_meta, $at
 add_filter('wp_calculate_image_srcset', 'change_image_srcset', 10, 5);
 
 
-// add_filter('woocommerce_product_single_add_to_cart_text', 'woocommerce_add_to_cart_button_text_single');
-// function woocommerce_add_to_cart_button_text_single()
-// {
-//     return 'CONNECT';
-// }
+/**
+ * Обработка редиректов с NOWPayments на главную с параметрами
+ */
+add_action('template_redirect', 'handle_nowpayments_redirects');
 
-// add_filter('woocommerce_product_add_to_cart_text', 'woocommerce_add_to_cart_button_text_archives');
-// function woocommerce_add_to_cart_button_text_archives()
-// {
-//     return 'CONNECT';
-// }
+function handle_nowpayments_redirects()
+{
+    global $wp;
 
+    // 1. ОБРАБОТКА СТАРЫХ URL (order-received/274/?page_id=137&key=...&NP_id=...)
+    // Проверяем, находимся ли мы на странице order-received
+    $is_order_received_page = false;
+    $order_id = 0;
 
-// add_filter('add_to_cart_redirect', 'add_to_cart_redirect_to_checkout');
-// function add_to_cart_redirect_to_checkout()
-// {
-//     global $woocommerce;
-//     return $woocommerce->cart->get_checkout_url();
-// }
+    if (isset($wp->query_vars['name']) && $wp->query_vars['name'] === 'order-received' && isset($wp->query_vars['page'])) {
+        $is_order_received_page = true;
+        $order_id = intval($wp->query_vars['page']);
+    }
 
+    if ($is_order_received_page && isset($_GET['NP_id'])) {
+        $order_key = isset($_GET['key']) ? sanitize_text_field($_GET['key']) : '';
+        $np_id = sanitize_text_field($_GET['NP_id']);
 
-// // Получаем URL для перехода к оформлению заказа
-// add_filter('woocommerce_loop_add_to_cart_url', 'replace_add_to_cart_button');
-// function replace_add_to_cart_button()
-// {
-//     global $product;
-//     return $product->add_to_cart_url();
-// }
+        $order = wc_get_order($order_id);
 
-// remove_action('woocommerce_before_shop_loop_item_title', 'woocommerce_template_loop_product_thumbnail', 10);
-// remove_action('woocommerce_before_single_product_summary', 'woocommerce_show_product_images', 20);
-// remove_action('woocommerce_checkout_order_review', 'woocommerce_order_review', 10);
+        if ($order && $order->get_order_key() === $order_key) {
+            update_post_meta($order->get_id(), '_np_payment_id', $np_id);
 
+            if ($order->has_status(array('processing', 'completed'))) {
+                wp_redirect(add_query_arg(array(
+                    'payment_result' => 'success',
+                    'order_id' => $order->get_id(),
+                    'customer_email' => urlencode($order->get_billing_email()),
+                    'np_id' => $np_id
+                ), site_url('/')));
+                exit;
+            } else {
+                wp_redirect(add_query_arg(array(
+                    'payment_result' => 'pending',
+                    'order_id' => $order->get_id(),
+                    'np_id' => $np_id
+                ), site_url('/')));
+                exit;
+            }
+        }
+    }
 
-// // работает
-// add_filter('woocommerce_placeholder_img_src', '__return_empty_string');
-// add_filter('woocommerce_placeholder_img', '__return_empty_string');
+    // 2. ОБРАБОТКА НОВЫХ URL (?payment_status=success&order_id=...&key=...)
+    if (isset($_GET['payment_status']) && $_GET['payment_status'] === 'success') {
+        $order_id = (isset($_GET['order_id']) ? intval($_GET['order_id']) : 0);
+        $order_key = isset($_GET['key']) ? sanitize_text_field($_GET['key']) : '';
+
+        $order = wc_get_order($order_id);
+
+        if ($order && $order->get_order_key() === $order_key) {
+            if ($order->has_status(array('processing', 'completed'))) {
+                wp_redirect(add_query_arg(array(
+                    'payment_result' => 'success',
+                    'order_id' => $order->get_id(),
+                    'customer_email' => urlencode($order->get_billing_email())
+                ), site_url('/')));
+                exit;
+            } else {
+                wp_redirect(add_query_arg(array(
+                    'payment_result' => 'pending',
+                    'order_id' => $order->get_id()
+                ), site_url('/')));
+                exit;
+            }
+        }
+    }
+
+    // 3. ОБРАБОТКА ОТМЕНЫ - СТАРЫЙ И НОВЫЙ ФОРМАТ
+    if (isset($_GET['cancel_order']) && $_GET['cancel_order'] === 'true') {
+        $order_key = isset($_GET['key']) ? sanitize_text_field($_GET['key']) : '';
+
+        // Пытаемся получить order_id
+        if (isset($_GET['order_id'])) {
+            $order_id = intval($_GET['order_id']);
+        }
+
+        if ($order_id && $order_key) {
+            $order = wc_get_order($order_id);
+
+            if ($order && $order->get_order_key() === $order_key) {
+                $order->update_status('cancelled', __('Payment cancelled by customer.', 'woocommerce'));
+                wp_redirect(add_query_arg(array(
+                    'payment_result' => 'cancelled',
+                    'order_id' => $order->get_id()
+                ), site_url('/')));
+                exit;
+            }
+        }
+    }
+
+    // 4. ОБРАБОТКА СТАТУСА ЗАКАЗА - СТАРЫЙ И НОВЫЙ ФОРМАТ
+    $is_order_pay_page = false;
+    $order_id = 0;
+
+    // Проверяем по WooCommerce endpoint (новый формат)
+    if (isset($wp->query_vars['order-pay'])) {
+        $is_order_pay_page = true;
+        $order_id = intval($wp->query_vars['order-pay']);
+    }
+    // Проверяем по странице (старый формат: /order-pay/274/)
+    elseif (isset($wp->query_vars['name']) && $wp->query_vars['name'] === 'order-pay' && isset($wp->query_vars['page'])) {
+        $is_order_pay_page = true;
+        $order_id = intval($wp->query_vars['page']);
+    }
+
+    if ($is_order_pay_page) {
+        $order_key = isset($_GET['key']) ? sanitize_text_field($_GET['key']) : '';
+        $order = wc_get_order($order_id);
+
+        if ($order && $order->get_order_key() === $order_key) {
+            $status = $order->get_status();
+            wp_redirect(add_query_arg(array(
+                'payment_result' => $status,
+                'order_id' => $order->get_id(),
+                'customer_email' => urlencode($order->get_billing_email()),
+                'show_status' => 'true'
+            ), site_url('/')));
+            exit;
+        }
+    }
+}
