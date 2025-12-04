@@ -169,35 +169,53 @@ document.addEventListener("DOMContentLoaded", function () {
 
         var dialog = document.getElementById('paymentDialog');
         var form = document.getElementById('paymentForm');
+        var modalWrapper = document.getElementById('modal-wrapper');
 
-        // закрывать по крестику и по клику вне формы
-        dialog.addEventListener('click', () => dialog.close());
-        document.getElementById('modal-wrapper').addEventListener('click', (event) => event.stopPropagation());
+        if (dialog && form) {
+            // закрывать по крестику и по клику вне формы
+            dialog.addEventListener('click', () => dialog.close());
+            if (modalWrapper) {
+                modalWrapper.addEventListener('click', (event) => event.stopPropagation());
+            }
 
-        // Обработчик клика на кнопки заказа
-        document.querySelectorAll('.buy-now-btn').forEach(button => {
-            button.addEventListener('click', function (e) {
-                e.preventDefault();
+            // Обработчик клика на кнопки заказа
+            document.querySelectorAll('.buy-now-btn').forEach(button => {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
 
-                const productId = this.dataset.productId;
-                const period = this.dataset.period;
+                    const productId = this.dataset.productId;
+                    const period = this.dataset.period;
 
-                // Заполняем скрытые поля
-                document.getElementById('productId').value = productId;
-                document.getElementById('tariffPeriod').value = period;
+                    // Заполняем скрытые поля
+                    var productIdInput = document.getElementById('productId');
+                    var tariffInput = document.getElementById('tariffPeriod');
 
-                // Сбрасываем и показываем форму
-                form.reset();
-                dialog.showModal();
+                    if (productIdInput) {
+                        productIdInput.value = productId || '';
+                    }
+                    if (tariffInput) {
+                        tariffInput.value = period || '';
+                    }
+
+                    // Сбрасываем и показываем форму
+                    form.reset();
+                    if (typeof dialog.showModal === 'function') {
+                        dialog.showModal();
+                    } else {
+                        dialog.style.display = 'block';
+                    }
+                });
             });
-        });
 
-        // Показываем индикатор загрузки при отправке формы
-        form.addEventListener('submit', function () {
-            const submitBtn = this.querySelector('button[type="submit"]');
-            submitBtn.textContent = 'Processing...';
-            submitBtn.disabled = true;
-        });
+            // Показываем индикатор загрузки при отправке формы
+            form.addEventListener('submit', function () {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.textContent = 'Processing...';
+                    submitBtn.disabled = true;
+                }
+            });
+        }
     }
 
 
@@ -214,52 +232,48 @@ document.addEventListener("DOMContentLoaded", function () {
                 case 'completed':
                     showPaymentModal({
                         type: 'success',
-                        title: 'Payment Successful!',
+                        title: 'payment confirmed',
                         color: 'var(--success-color)',
-                        message: `Your VPN configuration has been sent to <strong>${decodeURIComponent(customerEmail || '')}</strong>`,
+                        message: `Your VPN config and instructions are now in your inbox <strong>${decodeURIComponent(customerEmail || '')}</strong>`,
                         orderId: orderId,
-                        showOrderId: true
                     });
                     break;
                 case 'cancelled':
                     showPaymentModal({
                         type: 'cancelled',
-                        title: 'Payment Cancelled',
+                        title: 'payment cancelled',
                         color: 'var(--danger-color)',
-                        message: 'The payment was cancelled. You can try again anytime.',
-                        showOrderId: false
+                        message: 'No charges were made. You can try again at any time.',
                     });
                     break;
                 case 'processing':
                 case 'pending':
                     showPaymentModal({
                         type: 'pending',
-                        title: 'Payment Processing',
+                        title: 'payment pending',
                         color: 'var(--warning-color)',
-                        message: `Your payment is being processed. We\'ll notify you to <strong>${decodeURIComponent(customerEmail || '')}</strong>`,
-                        showOrderId: false
+                        message: `Waiting for blockchain confirmations… We’ll notify you once the transaction is complete.`,
                     });
                     break;
             }
 
             // Убираем параметры из URL без перезагрузки
-            const cleanUrl = window.location.pathname;
-            window.history.replaceState({}, document.title, cleanUrl);
+            window.history.replaceState({}, document.title, window.location.pathname);
         }
 
-        // https://tuneliqa.com//?payment_status=success&order_id=277&key=wc_order_suYLtlZWqW3nr
+        // https://tuneliqa.com/?payment_status=success&order_id=277&key=wc_order_suYLtlZWqW3nr
         function showPaymentModal(options) {
-            const { type, title, color, message, orderId, showOrderId } = options;
-            const orderIdHtml = showOrderId ? `<p>Order: #${orderId}</p>` : '';
+            const { type, title, color, message, orderId } = options;
+            var orderIdHtml = orderId ? `<p>Order: #${orderId}</p>` : '';
 
-            const modalHtml = `
+            var modalHtml = `
             <dialog id="${type}PaymentDialog">
                 <div class="modal-wrapper">
                     <form method="dialog" class="modal-form">
-                        <div class="modal-heading" >
+                        <div class="modal-heading">
                             <h2 class="arrow-sign" style="color:${color};">${title}</h2>
                         </div>
-                        <div class="modal-heading" >  
+                        <div class="modal-heading">  
                             <p>${message}</p>
                             ${orderIdHtml}    
                         </div>             
@@ -270,7 +284,7 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
 
             // Удаляем предыдущее модальное окно, если оно существует
-            const existingModal = document.getElementById(`${type}PaymentDialog`);
+            var existingModal = document.getElementById(`${type}PaymentDialog`);
             if (existingModal) {
                 existingModal.remove();
             }
