@@ -4,7 +4,6 @@
  * Обработка редиректов с NOWPayments на главную с параметрами
  */
 add_action('template_redirect', 'handle_nowpayments_redirects');
-
 function handle_nowpayments_redirects()
 {
     global $wp;
@@ -130,7 +129,6 @@ function handle_nowpayments_redirects()
  * Обработка изменения статуса заказа для отправки VPN конфигурации
  */
 add_action('woocommerce_order_status_changed', 'handle_order_status_change_for_vpn', 10, 4);
-
 function handle_order_status_change_for_vpn($order_id, $old_status, $new_status, $order)
 {
     if (! $order instanceof WC_Order) {
@@ -145,7 +143,7 @@ function handle_order_status_change_for_vpn($order_id, $old_status, $new_status,
 
         // Отправляем только если еще не отправлен или был в pending
         if (!$config_sent || $was_pending === 'yes') {
-            $result = process_vpn_for_order($order_id, 'success');
+            $result = process_vpn_for_order($order_id);
 
             if (!empty($result['success'])) {
                 log_vpn_action($order_id, 'status_change_success', 'VPN config created & email flow triggered on status change.');
@@ -171,12 +169,11 @@ function handle_order_status_change_for_vpn($order_id, $old_status, $new_status,
 /**
  * Create VPN client via Firestarter API
  */
-function create_vpn_client($expires_days = 30, $total_gb = 100, $flow = '')
+function create_vpn_client($order_id, $expires_days, $total_gb = 0)
 {
     $api_url = 'https://portal.firestarter.click/api/clients/';
 
     if (!defined('D_TOKEN')) {
-        error_log('VPN API Error: D_TOKEN constant is not defined');
         log_vpn_action(0, 'api_token_missing', 'D_TOKEN constant is not defined');
         return [
             'success' => false,
@@ -188,7 +185,6 @@ function create_vpn_client($expires_days = 30, $total_gb = 100, $flow = '')
     $api_token = D_TOKEN;
 
     if (empty($api_token) || $api_token === '123') {
-        error_log('VPN API Error: Invalid or default API token');
         log_vpn_action(0, 'api_token_invalid', 'Using invalid or default API token');
         return [
             'success' => false,
@@ -213,8 +209,7 @@ function create_vpn_client($expires_days = 30, $total_gb = 100, $flow = '')
 
     if (is_wp_error($response)) {
         $error_message = 'VPN API Connection Error: ' . $response->get_error_message();
-        error_log($error_message);
-        log_vpn_action(0, 'api_connection_failed', $response->get_error_message());
+        log_vpn_action($order_id, 'api_connection_failed', $response->get_error_message());
         return [
             'success' => false,
             'error' => 'connection_failed',
@@ -226,10 +221,9 @@ function create_vpn_client($expires_days = 30, $total_gb = 100, $flow = '')
     $response_code = wp_remote_retrieve_response_code($response);
     $response_body = wp_remote_retrieve_body($response);
 
-    if ($response_code !== 200) {
+    if ($response_code !== 200 && $response_code !== 201) {
         $error_message = 'VPN API Error. HTTP Code: ' . $response_code . ' Response: ' . $response_body;
-        error_log($error_message);
-        log_vpn_action(0, 'api_http_error', $error_message);
+        log_vpn_action($order_id, 'api_http_error', $error_message);
 
         $error_data = json_decode($response_body, true);
         $user_message = 'VPN service returned an error. ';
@@ -259,7 +253,6 @@ function create_vpn_client($expires_days = 30, $total_gb = 100, $flow = '')
 
     if (json_last_error() !== JSON_ERROR_NONE) {
         $error_message = 'VPN API JSON Parse Error: ' . json_last_error_msg();
-        error_log($error_message);
         log_vpn_action(0, 'api_json_error', json_last_error_msg());
         return array(
             'success' => false,
@@ -269,9 +262,8 @@ function create_vpn_client($expires_days = 30, $total_gb = 100, $flow = '')
         );
     }
 
-    if (!isset($data['connection_string'])) {
+    if (!isset($data['client']['connection_string'])) {
         $error_message = 'VPN API Response Missing Connection String: ' . print_r($data, true);
-        error_log($error_message);
         log_vpn_action(0, 'api_invalid_response', 'Missing connection_string in response');
         return array(
             'success' => false,
@@ -280,20 +272,17 @@ function create_vpn_client($expires_days = 30, $total_gb = 100, $flow = '')
             'details' => 'Missing connection_string in response'
         );
     }
-
-    $data['success'] = true;
     return $data;
 }
 
 /**
  * Process VPN configuration for order
  */
-function process_vpn_for_order($order_id, $status = 'success')
+function process_vpn_for_order($order_id)
 {
     $order = wc_get_order($order_id);
 
     if (!$order) {
-        error_log('VPN Config Error: Order not found - ID: ' . $order_id);
         log_vpn_action($order_id, 'order_not_found', 'Order not found while processing VPN config');
         return array(
             'success' => false,
@@ -303,7 +292,7 @@ function process_vpn_for_order($order_id, $status = 'success')
     }
 
     $already_sent = get_post_meta($order_id, '_vpn_config_sent', true);
-    if ($already_sent && $status !== 'pending') {
+    if ($already_sent) {
         return array(
             'success' => true,
             'message' => 'VPN configuration was already sent.',
@@ -314,18 +303,7 @@ function process_vpn_for_order($order_id, $status = 'success')
     $customer_email = $order->get_billing_email();
     if (empty($customer_email)) {
         $error_message = 'VPN Config Error: No customer email for order ID: ' . $order_id;
-        error_log($error_message);
-        log_vpn_action($order_id, 'no_email', 'Customer email address is missing.');
-        update_post_meta(
-            $order_id,
-            '_vpn_last_error',
-            array(
-                'source'    => 'process_vpn_for_order',
-                'message'   => 'Customer email address is missing.',
-                'error'     => 'no_email',
-                'timestamp' => current_time('mysql'),
-            )
-        );
+        log_vpn_action($order_id, 'no_email', $error_message);
         return array(
             'success' => false,
             'error' => 'no_email',
@@ -333,103 +311,91 @@ function process_vpn_for_order($order_id, $status = 'success')
         );
     }
 
-    if ($status === 'pending') {
-        update_post_meta($order_id, '_vpn_pending', 'yes');
-        log_vpn_action($order_id, 'pending_marked', 'VPN configuration marked as pending.');
+
+
+    $expires_days = 2;
+    foreach ($order->get_items() as $item) {
+        $product = $item->get_product();
+        if ($product) {
+            $product_expires = $product->get_attribute('period');
+            if ($product_expires) {
+                $expires_days = $product_expires;
+            }
+        }
+    }
+
+    $vpn_config = create_vpn_client($order_id, $expires_days);
+
+    if (!$vpn_config || !isset($vpn_config['success']) || !$vpn_config['success']) {
+        $error_msg = isset($vpn_config['message']) ? $vpn_config['message'] : 'Unknown VPN API error';
+
+        $order->add_order_note('VPN Configuration Error: ' . $error_msg);
+        log_vpn_action($order_id, 'vpn_create_failed', $error_msg);
+        update_post_meta(
+            $order_id,
+            '_vpn_last_error',
+            array(
+                'source'    => 'create_vpn_client',
+                'message'   => $error_msg,
+                'error'     => isset($vpn_config['error']) ? $vpn_config['error'] : 'api_failed',
+                'timestamp' => current_time('mysql'),
+                'raw'       => $vpn_config,
+            )
+        );
+
         return array(
-            'success' => true,
-            'message' => 'VPN configuration marked as pending.',
-            'pending' => true
+            'success' => false,
+            'error' => isset($vpn_config['error']) ? $vpn_config['error'] : 'api_failed',
+            'message' => 'Failed to create VPN configuration: ' . $error_msg,
+            'details' => $vpn_config
         );
     }
 
-    if ($status === 'success' || $status === 'completed' || $status === 'processing') {
-        $expires_days = 30;
-        $total_gb = 100;
+    update_post_meta($order_id, '_vpn_config', $vpn_config);
+    update_post_meta($order_id, '_vpn_connection_string', $vpn_config['client']['connection_string']);
+    update_post_meta($order_id, '_vpn_expires_at', $vpn_config['client']['expires_at']);
+    // update_post_meta($order_id, '_vpn_total_gb', $vpn_config['client']['total_gb']);
 
-        foreach ($order->get_items() as $item) {
-            $product = $item->get_product();
-            if ($product) {
-                $product_expires = $product->get_attribute('period');
-                if ($product_expires) {
-                    $expires_days = $product_expires;
-                }
-            }
-        }
+    $email_result = send_vpn_config_email($customer_email, $vpn_config, $order);
 
-        $vpn_config = create_vpn_client($expires_days, $total_gb);
+    if ($email_result['success']) {
+        delete_post_meta($order_id, '_vpn_pending');
+        update_post_meta($order_id, '_vpn_config_sent', current_time('mysql'));
+        delete_post_meta($order_id, '_vpn_last_error');
 
-        if (!$vpn_config || !isset($vpn_config['success']) || !$vpn_config['success']) {
-            $error_msg = isset($vpn_config['message']) ? $vpn_config['message'] : 'Unknown VPN API error';
+        $order->add_order_note('VPN configuration successfully sent to customer: ' . $customer_email);
+        log_vpn_action($order_id, 'email_sent', 'VPN configuration email sent to ' . $customer_email);
 
-            $order->add_order_note('VPN Configuration Error: ' . $error_msg);
-            error_log('Failed to create VPN client for order ' . $order_id . ': ' . $error_msg);
-            log_vpn_action($order_id, 'vpn_create_failed', $error_msg);
-            update_post_meta(
-                $order_id,
-                '_vpn_last_error',
-                array(
-                    'source'    => 'create_vpn_client',
-                    'message'   => $error_msg,
-                    'error'     => isset($vpn_config['error']) ? $vpn_config['error'] : 'api_failed',
-                    'timestamp' => current_time('mysql'),
-                    'raw'       => $vpn_config,
-                )
-            );
+        return array(
+            'success' => true,
+            'message' => 'VPN configuration created and sent successfully.',
+            'email_sent' => true,
+            'customer_email' => $customer_email
+        );
+    } else {
+        $order->add_order_note('VPN configuration created but email failed to send: ' . $email_result['message']);
+        log_vpn_action($order_id, 'email_failed', $email_result['message']);
+        update_post_meta(
+            $order_id,
+            '_vpn_last_error',
+            array(
+                'source'    => 'send_vpn_config_email',
+                'message'   => $email_result['message'],
+                'error'     => 'email_failed',
+                'timestamp' => current_time('mysql'),
+                'raw'       => $email_result,
+            )
+        );
 
-            return array(
-                'success' => false,
-                'error' => isset($vpn_config['error']) ? $vpn_config['error'] : 'api_failed',
-                'message' => 'Failed to create VPN configuration: ' . $error_msg,
-                'details' => $vpn_config
-            );
-        }
-
-        update_post_meta($order_id, '_vpn_config', $vpn_config);
-        update_post_meta($order_id, '_vpn_connection_string', $vpn_config['connection_string']);
-        update_post_meta($order_id, '_vpn_expires_at', $vpn_config['expires_at']);
-        update_post_meta($order_id, '_vpn_total_gb', $vpn_config['total_gb']);
-
-        $email_result = send_vpn_config_email($customer_email, $vpn_config, $order);
-
-        if ($email_result['success']) {
-            delete_post_meta($order_id, '_vpn_pending');
-            update_post_meta($order_id, '_vpn_config_sent', current_time('mysql'));
-            delete_post_meta($order_id, '_vpn_last_error');
-
-            $order->add_order_note('VPN configuration successfully sent to customer: ' . $customer_email);
-            log_vpn_action($order_id, 'email_sent', 'VPN configuration email sent to ' . $customer_email);
-
-            return array(
-                'success' => true,
-                'message' => 'VPN configuration created and sent successfully.',
-                'email_sent' => true,
-                'customer_email' => $customer_email
-            );
-        } else {
-            $order->add_order_note('VPN configuration created but email failed to send: ' . $email_result['message']);
-            log_vpn_action($order_id, 'email_failed', $email_result['message']);
-            update_post_meta(
-                $order_id,
-                '_vpn_last_error',
-                array(
-                    'source'    => 'send_vpn_config_email',
-                    'message'   => $email_result['message'],
-                    'error'     => 'email_failed',
-                    'timestamp' => current_time('mysql'),
-                    'raw'       => $email_result,
-                )
-            );
-
-            return array(
-                'success' => false,
-                'error' => 'email_failed',
-                'message' => 'VPN configuration created but failed to send email: ' . $email_result['message'],
-                'customer_email' => $customer_email,
-                'vpn_config' => $vpn_config
-            );
-        }
+        return array(
+            'success' => false,
+            'error' => 'email_failed',
+            'message' => 'VPN configuration created but failed to send email: ' . $email_result['message'],
+            'customer_email' => $customer_email,
+            'vpn_config' => $vpn_config
+        );
     }
+
 
     return array(
         'success' => false,
@@ -443,7 +409,7 @@ function process_vpn_for_order($order_id, $status = 'success')
  */
 function send_vpn_config_email($to_email, $vpn_config, $order)
 {
-    $site_name = get_bloginfo('name');
+    $site_name = 'tuneliqa';
     $order_id = $order->get_id();
 
     $expires_at = isset($vpn_config['expires_at']) ?
@@ -456,142 +422,137 @@ function send_vpn_config_email($to_email, $vpn_config, $order)
 
     $subject = sprintf('Your VPN Configuration for Order #%s - %s', $order_id, $site_name);
 
-    $message = '
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>' . esc_html($subject) . '</title>
-        <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 5px; }
-            .content { background: white; padding: 30px; border: 1px solid #ddd; border-radius: 5px; margin-top: 20px; }
-            .config-box { background: #f8f9fa; padding: 15px; border-left: 4px solid #007cba; margin: 20px 0; font-family: monospace; word-break: break-all; }
-            .button { display: inline-block; padding: 12px 24px; background: #007cba; color: white; text-decoration: none; border-radius: 4px; margin: 10px 0; }
-            .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #666; }
-            .warning { background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 4px; margin: 20px 0; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>Your VPN Access is Activated!</h1>
-            </div>
-            
-            <div class="content">
-                <p>Hello,</p>
-                <p>Thank you for your purchase! Your VPN subscription has been successfully activated.</p>
-                
-                <div class="warning">
-                    <strong>Important:</strong> Keep this email secure. Your VPN configuration contains sensitive access information.
-                </div>
-                
-                <h3>Order Details:</h3>
-                <ul>
-                    <li><strong>Order Number:</strong> #' . $order_id . '</li>
-                    <li><strong>Activation Date:</strong> ' . date_i18n(get_option('date_format')) . '</li>
-                    <li><strong>Validity:</strong> ' . $expires_at . '</li>
-                    <li><strong>Data Limit:</strong> ' . $total_gb . '</li>
-                </ul>
-                
-                <h3>Your VPN Configuration:</h3>
-                <div class="config-box">' . esc_html($vpn_config['connection_string']) . '</div>
-                
-                <p><strong>Quick Copy:</strong> Select and copy the entire configuration string above.</p>
-                
-                <h3>How to Use:</h3>
-                <ol>
-                    <li>Download <strong>v2rayNG</strong> (Android) or <strong>Shadowrocket</strong> (iOS)</li>
-                    <li>Click "Add Configuration" in the app</li>
-                    <li>Select "Import from clipboard" or "Scan QR code"</li>
-                    <li>The configuration will be automatically applied</li>
-                </ol>
-                
-                <h3>Troubleshooting:</h3>
-                <ul>
-                    <li>Make sure you copy the <strong>entire</strong> configuration string</li>
-                    <li>If connection fails, try restarting the VPN app</li>
-                    <li>Check your internet connection before connecting</li>
-                    <li>Contact support if you continue having issues</li>
-                </ul>
-                
-                <p>If you have any questions, please reply to this email.</p>
-                
-                <p>Best regards,<br>' . $site_name . ' Team</p>
-            </div>
-            
-            <div class="footer">
-                <p>This is an automated message. Please do not reply to this email.</p>
-                <p>&copy; ' . date('Y') . ' ' . $site_name . '. All rights reserved.</p>
-            </div>
-        </div>
-    </body>
-    </html>';
+    //     $message = '
+    //     <!DOCTYPE html>
+    //     <html>
+    //     <head>
+    //         <meta charset="UTF-8">
+    //         <title>' . esc_html($subject) . '</title>
+    //         <style>
+    //             body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    //             .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    //             .header { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 5px; }
+    //             .content { background: white; padding: 30px; border: 1px solid #ddd; border-radius: 5px; margin-top: 20px; }
+    //             .config-box { background: #f8f9fa; padding: 15px; border-left: 4px solid #007cba; margin: 20px 0; font-family: monospace; word-break: break-all; }
+    //             .button { display: inline-block; padding: 12px 24px; background: #007cba; color: white; text-decoration: none; border-radius: 4px; margin: 10px 0; }
+    //             .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #666; }
+    //             .warning { background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 4px; margin: 20px 0; }
+    //         </style>
+    //     </head>
+    //     <body>
+    //         <div class="container">
+    //             <div class="header">
+    //                 <h1>Your VPN Access is Activated!</h1>
+    //             </div>
+
+    //             <div class="content">
+    //                 <p>Hello,</p>
+    //                 <p>Thank you for your purchase! Your VPN subscription has been successfully activated.</p>
+
+    //                 <div class="warning">
+    //                     <strong>Important:</strong> Keep this email secure. Your VPN configuration contains sensitive access information.
+    //                 </div>
+
+    //                 <h3>Order Details:</h3>
+    //                 <ul>
+    //                     <li><strong>Order Number:</strong> #' . $order_id . '</li>
+    //                     <li><strong>Activation Date:</strong> ' . date_i18n(get_option('date_format')) . '</li>
+    //                     <li><strong>Validity:</strong> ' . $expires_at . '</li>
+    //                     <li><strong>Data Limit:</strong> ' . $total_gb . '</li>
+    //                 </ul>
+
+    //                 <h3>Your VPN Configuration:</h3>
+    //                 <div class="config-box">' . esc_html($vpn_config['connection_string']) . '</div>
+
+    //                 <p><strong>Quick Copy:</strong> Select and copy the entire configuration string above.</p>
+
+    //                 <h3>How to Use:</h3>
+    //                 <ol>
+    //                     <li>Download <strong>v2rayNG</strong> (Android) or <strong>Shadowrocket</strong> (iOS)</li>
+    //                     <li>Click "Add Configuration" in the app</li>
+    //                     <li>Select "Import from clipboard" or "Scan QR code"</li>
+    //                     <li>The configuration will be automatically applied</li>
+    //                 </ol>
+
+    //                 <h3>Troubleshooting:</h3>
+    //                 <ul>
+    //                     <li>Make sure you copy the <strong>entire</strong> configuration string</li>
+    //                     <li>If connection fails, try restarting the VPN app</li>
+    //                     <li>Check your internet connection before connecting</li>
+    //                     <li>Contact support if you continue having issues</li>
+    //                 </ul>
+
+    //                 <p>If you have any questions, please reply to this email.</p>
+
+    //                 <p>Best regards,<br>' . $site_name . ' Team</p>
+    //             </div>
+
+    //             <div class="footer">
+    //                 <p>This is an automated message. Please do not reply to this email.</p>
+    //                 <p>&copy; ' . date('Y') . ' ' . $site_name . '. All rights reserved.</p>
+    //             </div>
+    //         </div>
+    //     </body>
+    //     </html>';
 
     $alt_message = "
-Your VPN Configuration for Order #{$order_id}
+    Your VPN Configuration for Order #{$order_id}
 
-Order Details:
-- Order Number: #{$order_id}
-- Activation Date: " . date_i18n(get_option('date_format')) . "
-- Validity: {$expires_at}
-- Data Limit: {$total_gb}
+    Order Details:
+    - Order Number: #{$order_id}
+    - Activation Date: " . date_i18n(get_option('date_format')) . "
+    - Validity: {$expires_at}
+    - Data Limit: {$total_gb}
 
-IMPORTANT: Keep this email secure. Your VPN configuration contains sensitive access information.
+    IMPORTANT: Keep this email secure. Your VPN configuration contains sensitive access information.
 
-Your VPN Configuration:
-{$vpn_config['connection_string']}
+    Your VPN Configuration:
+    {$vpn_config['client']['connection_string']}
 
-How to Use:
-1. Download v2rayNG (Android) or Shadowrocket (iOS)
-2. Click 'Add Configuration' in the app
-3. Select 'Import from clipboard'
-4. Paste the configuration string above
+    How to Use:
+    1. Download v2rayNG (Android) or Shadowrocket (iOS)
+    2. Click 'Add Configuration' in the app
+    3. Select 'Import from clipboard'
+    4. Paste the configuration string above
 
-Troubleshooting:
-- Make sure you copy the ENTIRE configuration string
-- If connection fails, try restarting the VPN app
-- Check your internet connection before connecting
-- Contact support if you continue having issues
+    Troubleshooting:
+    - Make sure you copy the ENTIRE configuration string
+    - If connection fails, try restarting the VPN app
+    - Check your internet connection before connecting
+    - Contact support if you continue having issues
 
-Best regards,
-{$site_name} Team
+    Best regards,
+    {$site_name} Team
 
-This is an automated message. Please do not reply to this email.
-";
+    This is an automated message. Please do not reply to this email.
+    ";
 
-    $headers = array(
-        'Content-Type: text/html; charset=UTF-8',
-        'From: ' . $site_name . ' <' . get_option('admin_email') . '>',
-        'Reply-To: ' . get_option('admin_email'),
-    );
+    // $headers = [
+    //     'Content-Type: text/html; charset=UTF-8',
+    //     'From: ' . $site_name . ' <service@tunnel1.website>',
+    // ];
 
-    $sent = wp_mail($to_email, $subject, $message, $headers);
+    // $sent = wp_mail($to_email, $subject, $message, $headers);
 
-    if (!$sent) {
-        $last_error = error_get_last();
-        $error_details = $last_error ? $last_error['message'] : 'Unknown error';
+    // if (!$sent) {
+    //     $last_error = error_get_last();
+    //     $error_details = $last_error ? $last_error['message'] : 'Unknown error';
 
-        error_log('VPN Email Failed - Order: ' . $order_id . ', Email: ' . $to_email . ', Error: ' . $error_details);
-        log_vpn_action($order_id, 'email_failed', $error_details);
+    //     log_vpn_action($order_id, 'email_failed', $error_details);
 
-        return array(
-            'success' => false,
-            'message' => 'Failed to send email. Error: ' . $error_details,
-            'error_details' => $error_details
-        );
-    }
+    //     return [
+    //         'success' => false,
+    //         'message' => 'Failed to send email. Error: ' . $error_details,
+    //     ];
+    // }
 
-    // plain-text дубликат для совместимости
-    wp_mail($to_email, $subject, $alt_message, array('Content-Type: text/plain; charset=UTF-8'));
+    wp_mail($to_email, $subject, $alt_message, ['Content-Type: text/plain; charset=UTF-8']);
+    log_vpn_action($order_id, 'email_sent', 'HTML & plain-text VPN emails sent to ' . $to_email);
 
-    log_vpn_action($order_id, 'email_sent', 'HTML & plain-text VPN emails sent.');
-
-    return array(
+    return [
         'success' => true,
         'message' => 'Email sent successfully to ' . $to_email
-    );
+    ];
 }
 
 /**
@@ -705,7 +666,6 @@ function resend_vpn_config($order_id)
  * Add resend VPN button in admin
  */
 add_action('woocommerce_admin_order_data_after_billing_address', 'add_resend_vpn_button');
-
 function add_resend_vpn_button($order)
 {
     $order_id = $order->get_id();
@@ -797,18 +757,30 @@ function add_resend_vpn_button($order)
     </script>';
 }
 
-
-add_action('woocommerce_admin_order_data_after_order_details', 'display_vpn_config_in_admin_order');
-
+/**
+ * Add information about VPN config to order (admin)
+ */
+add_action('woocommerce_admin_order_data_after_shipping_address', 'display_vpn_config_in_admin_order');
 function display_vpn_config_in_admin_order($order)
 {
     $order_id = $order->get_id();
     $vpn_connection_string = get_post_meta($order_id, '_vpn_connection_string', true);
-    $config_sent = get_post_meta($order_id, '_vpn_config_sent', true);
+    $vpn_expires_at = get_post_meta($order_id, '_vpn_expires_at', true);
+    // $config_sent = get_post_meta($order_id, '_vpn_config_sent', true);
 
     // Показываем конфиг только если он был сгенерирован и отправлен
-    if ($vpn_connection_string && $config_sent) {
-        echo '<p><strong>VPN Configuration String:</strong><br><code style="white-space: pre-wrap;">' . esc_html($vpn_connection_string) . '</code></p>';
+    if ($vpn_connection_string && $vpn_expires_at) {
+        echo '
+        <p class="form-field form-field-wide">
+            <h4>VPN Configuration String:</h4>
+            <code style="word-wrap: break-word; padding: 0;">' . esc_html($vpn_connection_string) . '</code>
+        </p>';
+
+        echo '
+        <p class="form-field form-field-wide">
+            <h4>Expires at:</h4>
+            <code style="word-wrap: break-word; padding: 0;">' . esc_html($vpn_expires_at) . '</code>;
+        </p>';
     }
 }
 
@@ -816,7 +788,6 @@ function display_vpn_config_in_admin_order($order)
  * AJAX handler for resending VPN config with improved error reporting
  */
 add_action('wp_ajax_resend_vpn_config', 'ajax_resend_vpn_config');
-
 function ajax_resend_vpn_config()
 {
     // Verify nonce and sanitize input
