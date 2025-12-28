@@ -409,142 +409,57 @@ function process_vpn_for_order($order_id)
  */
 function send_vpn_config_email($to_email, $vpn_config, $order)
 {
-    $site_name = 'tuneliqa';
+    $site_name = get_bloginfo('name');
     $order_id = $order->get_id();
 
-    $expires_at = isset($vpn_config['expires_at']) ?
-        date_i18n(get_option('date_format'), strtotime($vpn_config['expires_at'])) :
-        'Lifetime';
+    // $expires_at = isset($vpn_config['expires_at']) ?
+    //     date_i18n(get_option('date_format'), strtotime($vpn_config['expires_at'])) :
+    //     'Lifetime';
 
-    $total_gb = isset($vpn_config['total_gb']) && $vpn_config['total_gb'] > 0 ?
-        $vpn_config['total_gb'] . ' GB' :
-        'Unlimited';
+    // $total_gb = isset($vpn_config['total_gb']) && $vpn_config['total_gb'] > 0 ?
+    //     $vpn_config['total_gb'] . ' GB' :
+    //     'Unlimited';
 
-    $subject = sprintf('Your VPN Configuration for Order #%s - %s', $order_id, $site_name);
+    $subject = sprintf('VPN Ready! #%s - %s', $order_id, $site_name);
 
-    //     $message = '
-    //     <!DOCTYPE html>
-    //     <html>
-    //     <head>
-    //         <meta charset="UTF-8">
-    //         <title>' . esc_html($subject) . '</title>
-    //         <style>
-    //             body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-    //             .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    //             .header { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 5px; }
-    //             .content { background: white; padding: 30px; border: 1px solid #ddd; border-radius: 5px; margin-top: 20px; }
-    //             .config-box { background: #f8f9fa; padding: 15px; border-left: 4px solid #007cba; margin: 20px 0; font-family: monospace; word-break: break-all; }
-    //             .button { display: inline-block; padding: 12px 24px; background: #007cba; color: white; text-decoration: none; border-radius: 4px; margin: 10px 0; }
-    //             .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #666; }
-    //             .warning { background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 4px; margin: 20px 0; }
-    //         </style>
-    //     </head>
-    //     <body>
-    //         <div class="container">
-    //             <div class="header">
-    //                 <h1>Your VPN Access is Activated!</h1>
-    //             </div>
 
-    //             <div class="content">
-    //                 <p>Hello,</p>
-    //                 <p>Thank you for your purchase! Your VPN subscription has been successfully activated.</p>
+    // load HTML template relative this file
+    $mail_html_template = file_get_contents(dirname(__FILE__) . '/mail.html');
+    $mail_txt_template = file_get_contents(dirname(__FILE__) . '/mail.txt');
 
-    //                 <div class="warning">
-    //                     <strong>Important:</strong> Keep this email secure. Your VPN configuration contains sensitive access information.
-    //                 </div>
+    // replace {{var}} to data
+    $message = str_replace(
+        array('{{var:subject}}', '{{var:connection_string}}'),
+        array($subject, $vpn_config['client']['connection_string']),
+        $mail_html_template
+    );
 
-    //                 <h3>Order Details:</h3>
-    //                 <ul>
-    //                     <li><strong>Order Number:</strong> #' . $order_id . '</li>
-    //                     <li><strong>Activation Date:</strong> ' . date_i18n(get_option('date_format')) . '</li>
-    //                     <li><strong>Validity:</strong> ' . $expires_at . '</li>
-    //                     <li><strong>Data Limit:</strong> ' . $total_gb . '</li>
-    //                 </ul>
 
-    //                 <h3>Your VPN Configuration:</h3>
-    //                 <div class="config-box">' . esc_html($vpn_config['connection_string']) . '</div>
+    $alt_message = str_replace(
+        array('{{var:subject}}', '{{var:connection_string}}'),
+        array($subject, $vpn_config['client']['connection_string']),
+        $mail_txt_template
+    );
 
-    //                 <p><strong>Quick Copy:</strong> Select and copy the entire configuration string above.</p>
 
-    //                 <h3>How to Use:</h3>
-    //                 <ol>
-    //                     <li>Download <strong>v2rayNG</strong> (Android) or <strong>Shadowrocket</strong> (iOS)</li>
-    //                     <li>Click "Add Configuration" in the app</li>
-    //                     <li>Select "Import from clipboard" or "Scan QR code"</li>
-    //                     <li>The configuration will be automatically applied</li>
-    //                 </ol>
+    $headers = [
+        'Content-Type: text/html; charset=UTF-8',
+        'From: ' . $site_name . ' <service@tunnel1.website>',
+    ];
 
-    //                 <h3>Troubleshooting:</h3>
-    //                 <ul>
-    //                     <li>Make sure you copy the <strong>entire</strong> configuration string</li>
-    //                     <li>If connection fails, try restarting the VPN app</li>
-    //                     <li>Check your internet connection before connecting</li>
-    //                     <li>Contact support if you continue having issues</li>
-    //                 </ul>
+    $sent = wp_mail($to_email, $subject, $message, $headers);
 
-    //                 <p>If you have any questions, please reply to this email.</p>
+    if (!$sent) {
+        $last_error = error_get_last();
+        $error_details = $last_error ? $last_error['message'] : 'Unknown error';
 
-    //                 <p>Best regards,<br>' . $site_name . ' Team</p>
-    //             </div>
+        log_vpn_action($order_id, 'email_failed', $error_details);
 
-    //             <div class="footer">
-    //                 <p>This is an automated message. Please do not reply to this email.</p>
-    //                 <p>&copy; ' . date('Y') . ' ' . $site_name . '. All rights reserved.</p>
-    //             </div>
-    //         </div>
-    //     </body>
-    //     </html>';
-
-    $alt_message = "
-    Your VPN Configuration for Order #{$order_id}
-
-    Order Details:
-    - Order Number: #{$order_id}
-    - Activation Date: " . date_i18n(get_option('date_format')) . "
-    - Validity: {$expires_at}
-    - Data Limit: {$total_gb}
-
-    IMPORTANT: Keep this email secure. Your VPN configuration contains sensitive access information.
-
-    Your VPN Configuration:
-    {$vpn_config['client']['connection_string']}
-
-    How to Use:
-    1. Download v2rayNG (Android) or Shadowrocket (iOS)
-    2. Click 'Add Configuration' in the app
-    3. Select 'Import from clipboard'
-    4. Paste the configuration string above
-
-    Troubleshooting:
-    - Make sure you copy the ENTIRE configuration string
-    - If connection fails, try restarting the VPN app
-    - Check your internet connection before connecting
-    - Contact support if you continue having issues
-
-    Best regards,
-    {$site_name} Team
-
-    This is an automated message. Please do not reply to this email.
-    ";
-
-    // $headers = [
-    //     'Content-Type: text/html; charset=UTF-8',
-    //     'From: ' . $site_name . ' <service@tunnel1.website>',
-    // ];
-
-    // $sent = wp_mail($to_email, $subject, $message, $headers);
-
-    // if (!$sent) {
-    //     $last_error = error_get_last();
-    //     $error_details = $last_error ? $last_error['message'] : 'Unknown error';
-
-    //     log_vpn_action($order_id, 'email_failed', $error_details);
-
-    //     return [
-    //         'success' => false,
-    //         'message' => 'Failed to send email. Error: ' . $error_details,
-    //     ];
-    // }
+        return [
+            'success' => false,
+            'message' => 'Failed to send email. Error: ' . $error_details,
+        ];
+    }
 
     wp_mail($to_email, $subject, $alt_message, ['Content-Type: text/plain; charset=UTF-8']);
     log_vpn_action($order_id, 'email_sent', 'HTML & plain-text VPN emails sent to ' . $to_email);

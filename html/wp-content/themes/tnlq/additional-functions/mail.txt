@@ -1,0 +1,31 @@
+Hi!
+Payment confirmed. Your VPN is ready.
+
+1. Install the app
+
+* Android
+  https://play.google.com/store/apps/details?id=com.v2raytun.android
+
+* iOS
+  https://apps.apple.com/us/app/v2raytun/id6476628951
+
+* macOS
+  https://apps.apple.com/en/app/v2raytun/id6476628951
+  https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690
+
+* Windows
+  https://storage.v2raytun.com/v2RayTun_Setup.exe
+
+2. Copy your config
+
+{{var:connection_string}}
+
+
+3. Import
+Open the app → Configurations → + → Insert from Clipboard
+
+4. Connect
+Select the profile → Connect
+
+Encrypted tunnel up. No logs. No noise.
+Reply to this email if you need help.
