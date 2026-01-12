@@ -5,7 +5,14 @@ foreach (glob(get_template_directory() . '/additional-functions/*-functions.php'
     require_once $filename;
 }
 
+// Чтобы WordPress не делал редирект на основной домен, нужно добавить фильтры
+add_filter('pre_option_siteurl', function($url) {
+    return 'https://' . $_SERVER['HTTP_HOST'];
+});
 
+add_filter('pre_option_home', function($url) {
+    return 'https://' . $_SERVER['HTTP_HOST'];
+});
 
 add_filter('cfw_get_billing_checkout_fields', 'remove_checkout_fields', 100);
 
