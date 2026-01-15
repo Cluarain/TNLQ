@@ -164,6 +164,7 @@ svg {
     content: "|\a0";
 }
 
+
 .margin-s {
     margin-top: 30px;
 }
@@ -187,6 +188,8 @@ svg {
 .margin-xxxl {
     margin-top: clamp(50px, 3vw, 100px);
 }
+
+
 
 .padding-block-x {
     padding-block: clamp(30px, 3vw, 60px);

@@ -1,33 +1,4 @@
-<dialog id="paymentDialog">
-    <form method="dialog" class="modal-close">
-        <button type="submit">&times;</button>
-    </form>
-    <div id="modal-wrapper" class="modal-wrapper">
-        <div class="modal-content">
-            <form id="paymentForm" class="modal-form" method="POST" action="<?php echo get_template_directory_uri(); ?>/process-payment.php">
-                <?php wp_nonce_field('direct_payment_nonce', '_wpnonce'); ?>
-
-                <div class="modal-heading">
-                    <p class="arrow-sign">enter email — config delivery only.</p>
-                    <p class="arrow-sign">no newsletters. no marketing.</p>
-                </div>
-
-                <div class="form-control-wrapper">
-                    <input class="form-control input" type="email" id="email" name="email" placeholder="Enter your email" required>
-                    <!-- <label class="placeholder arrow-sign" for="email">Enter your email </label> -->
-                </div>
-
-                <input type="hidden" id="productId" name="product_id">
-                <input type="hidden" id="tariffPeriod" name="tariff_period">
-
-                <div class="modal-buttons">
-                    <button type="submit" class="btn btn-primary arrow-sign hover-active-2">Go to payment</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</dialog>
-
+<?php get_template_part('templates/payment-modal') ?>
 <footer id="footer" class="footer padding-block-xxxl">
     <div class="container">
         <div class="footer__inner">

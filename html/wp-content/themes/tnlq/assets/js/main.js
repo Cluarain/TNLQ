@@ -140,33 +140,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // модальное окно для ввода почты
     {
-
-
-
-        //     // Обработка отправки формы
-        //     form.addEventListener('submit', function (e) {
-        //         e.preventDefault();
-        //         const formData = new FormData(this);
-
-        //         fetch('/wp-admin/admin-ajax.php', {
-        //             method: 'POST',
-        //             body: formData
-        //         })
-        //             .then(response => response.json())
-        //             .then(data => {
-        //                 if (data.success) {
-        //                     const originalLink = document.querySelector('a[data-period="' + tariffInput.value + '"]');
-        //                     window.location.href = originalLink.href;
-        //                 } else {
-        //                     alert('Ошибка: ' + data.data);
-        //                 }
-        //             })
-        //             .catch(error => {
-        //                 console.error('Error:', error);
-        //             });
-        //     });
-
-
         var dialog = document.getElementById('paymentDialog');
         var form = document.getElementById('paymentForm');
         var modalWrapper = document.getElementById('modal-wrapper');
@@ -183,18 +156,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 button.addEventListener('click', function (e) {
                     e.preventDefault();
 
-                    const productId = this.dataset.productId;
-                    const period = this.dataset.period;
-
                     // Заполняем скрытые поля
                     var productIdInput = document.getElementById('productId');
                     var tariffInput = document.getElementById('tariffPeriod');
 
                     if (productIdInput) {
-                        productIdInput.value = productId || '';
+                        productIdInput.value = this.dataset.productId || '';
                     }
                     if (tariffInput) {
-                        tariffInput.value = period || '';
+                        tariffInput.value = this.dataset.period || '';
                     }
 
                     // Сбрасываем и показываем форму
@@ -209,7 +179,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // Показываем индикатор загрузки при отправке формы
             form.addEventListener('submit', function () {
-                const submitBtn = this.querySelector('button[type="submit"]');
+                var submitBtn = this.querySelector('button[type="submit"]');
                 if (submitBtn) {
                     submitBtn.textContent = 'Processing...';
                     submitBtn.disabled = true;
@@ -221,15 +191,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // модалка на ответ платежа
     {
-        const urlParams = new URLSearchParams(window.location.search);
-        const paymentResult = urlParams.get('payment_result');
-        const orderId = urlParams.get('order_id');
-        const customerEmail = urlParams.get('customer_email');
+        var urlParams = new URLSearchParams(window.location.search);
+        var paymentResult = urlParams.get('payment_result');
+        var orderId = urlParams.get('order_id');
+        var customerEmail = urlParams.get('customer_email');
+        // var product_id = urlParams.get('product_id');
+        // var promo = urlParams.get('promo');
+        var message = urlParams.get('message');
 
         if (paymentResult) {
             switch (paymentResult) {
                 case 'success':
                 case 'completed':
+                    if (window.gtag) {
+                        gtag('event', 'conversion', {
+                            'send_to': 'AW-XXXXXXXXX/XXXXXXXXX',
+                            // 'value': 1.0, // Значение конверсии (если применимо)
+                            // 'currency': 'USD', // Валюта (если применимо)
+                            'transaction_id': orderId || ''
+                        });
+                    }
+
                     showPaymentModal({
                         type: 'success',
                         title: 'payment confirmed',
@@ -255,6 +237,15 @@ document.addEventListener("DOMContentLoaded", function () {
                         message: `Waiting for blockchain confirmations… We’ll notify you once the transaction is complete.`,
                     });
                     break;
+
+                case 'error':
+                    showPaymentModal({
+                        type: 'error',
+                        title: 'error',
+                        color: 'var(--danger-color)',
+                        message: `Error: ${message}`,
+                    });
+                    break;
             }
 
             // Убираем параметры из URL без перезагрузки
@@ -263,7 +254,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // https://tuneliqa.com/?payment_status=success&order_id=277&key=wc_order_suYLtlZWqW3nr
         function showPaymentModal(options) {
-            const { type, title, color, message, orderId } = options;
+            var { type, title, color, message, orderId } = options;
             var orderIdHtml = orderId ? `<p>Order: #${orderId}</p>` : '';
 
             var modalHtml = `

@@ -319,7 +319,7 @@ function process_vpn_for_order($order_id)
         if ($product) {
             $product_expires = $product->get_attribute('period');
             if ($product_expires) {
-                $expires_days = $product_expires;
+                $expires_days = $product_expires * 30;
             }
         }
     }
@@ -447,9 +447,21 @@ function send_vpn_config_email($to_email, $vpn_config, $order)
         'From: ' . $site_name . ' <service@tunnel1.website>',
     ];
 
-    $sent = wp_mail($to_email, $subject, $message, $headers);
+    // $sent = wp_mail($to_email, $subject, $message, $headers);
+    // if (!$sent) {
+    //     $last_error = error_get_last();
+    //     $error_details = $last_error ? $last_error['message'] : 'Unknown error';
 
-    if (!$sent) {
+    //     log_vpn_action($order_id, 'email_failed', $error_details);
+
+    //     return [
+    //         'success' => false,
+    //         'message' => 'Failed to send email. Error: ' . $error_details,
+    //     ];
+    // }
+
+    $sentAlt = wp_mail($to_email, $subject, $alt_message, ['Content-Type: text/plain; charset=UTF-8']);
+    if (!$sentAlt) {
         $last_error = error_get_last();
         $error_details = $last_error ? $last_error['message'] : 'Unknown error';
 
@@ -460,8 +472,6 @@ function send_vpn_config_email($to_email, $vpn_config, $order)
             'message' => 'Failed to send email. Error: ' . $error_details,
         ];
     }
-
-    wp_mail($to_email, $subject, $alt_message, ['Content-Type: text/plain; charset=UTF-8']);
     log_vpn_action($order_id, 'email_sent', 'HTML & plain-text VPN emails sent to ' . $to_email);
 
     return [
