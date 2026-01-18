@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{var:subject}}</title>
+    <style>
+        body {
+            font-family: monospace, sans-serif;
+            line-height: 1.6;
+            color: #fff;
+            background-color: hsl(0, 0%, 5%);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 1rem;
+            display: flex;
+            flex-flow: column;
+            gap: 0.5em;
+            align-items: center;
+        }
+
+        .content {
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 1.5em;
+        }
+
+        ol {
+            display: flex;
+            flex-flow: column;
+            gap: 0.5em;
+            padding-inline-start: 1.75em;
+
+        }
+
+        ul {
+            list-style-type: "* ";
+            padding-inline-start: 1.25em;
+        }
+
+        a {
+            color: #528FCF;
+            text-decoration: none;
+            text-overflow: ellipsis;
+            word-break: break-all;
+        }
+
+        .header,
+        .footer {
+            color: hsl(0, 0%, 70%);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <img src="https://tuneliqa.com/images/tuneliqa_logo.svg" alt="tuneliqa logo" height="35">
+
+        <div class="header">
+            <h1>
+                Hi! Payment confirmed. Your VPN is ready.
+            </h1>
+        </div>
+
+        <div class="content">
+            <ol>
+                <li>
+                    <div class="item_header">Install the app</div>
+                    <div class="item_body">
+                        <ul>
+                            <li>
+                                Android<br>
+                                <a href="https://play.google.com/store/apps/details?id=com.v2raytun.android"
+                                    target="_blank"
+                                    rel="noopener noreferrer">https://play.google.com/store/apps/details?id=com.v2raytun.android</a>
+                            </li>
+                            <li>
+                                iOS<br>
+                                <a href="https://apps.apple.com/us/app/v2raytun/id6476628951" target="_blank"
+                                    rel="noopener noreferrer">https://apps.apple.com/us/app/v2raytun/id6476628951</a>
+                            </li>
+                            <li>
+                                macOS<br>
+                                <a href="https://apps.apple.com/en/app/v2raytun/id6476628951" target="_blank"
+                                    rel="noopener noreferrer">https://apps.apple.com/en/app/v2raytun/id6476628951</a><br>
+                                <a href="https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690" target="_blank"
+                                    rel="noopener noreferrer">https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690</a>
+                            </li>
+                            <li>
+                                Windows<br>
+                                <a href="https://storage.v2raytun.com/v2RayTun_Setup.exe" target="_blank"
+                                    rel="noopener noreferrer">https://storage.v2raytun.com/v2RayTun_Setup.exe</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li>
+                    <div class="item_header">Copy your config</div>
+                    <div class="item_body">
+                        <code>
+                        {{var:connection_string}}
+                        </code>
+                    </div>
+                </li>
+                <li>
+                    <div class="item_header">Import</div>
+                    <div class="item_body">
+                        Open the app → Configurations → + → Insert from Clipboard
+                    </div>
+                </li>
+                <li>
+                    <div class="item_header">Connect</div>
+                    <div class="item_body">
+                        Select the profile → Connect
+                    </div>
+                </li>
+            </ol>
+        </div>
+
+        <div class="footer">
+            <p>Encrypted tunnel up. No logs. No noise.</p>
+            <p>Reply to this email if you need help.</p>
+        </div>
+    </div>
+</body>
+
+</html>

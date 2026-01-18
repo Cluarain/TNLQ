@@ -6,11 +6,11 @@ foreach (glob(get_template_directory() . '/additional-functions/*-functions.php'
 }
 
 // Чтобы WordPress не делал редирект на основной домен, нужно добавить фильтры
-add_filter('pre_option_siteurl', function($url) {
+add_filter('pre_option_siteurl', function ($url) {
     return 'https://' . $_SERVER['HTTP_HOST'];
 });
 
-add_filter('pre_option_home', function($url) {
+add_filter('pre_option_home', function ($url) {
     return 'https://' . $_SERVER['HTTP_HOST'];
 });
 
@@ -88,9 +88,47 @@ function add_categories_and_tags_to_pages()
 }
 add_action('init', 'add_categories_and_tags_to_pages');
 
+// управление зеркалами
+function is_mirror_domain()
+{
+    $primary_domain = 'tuneliqa.com'; // Укажите ваш основной домен
+    $current_domain = $_SERVER['HTTP_HOST'];
+    return ($current_domain != $primary_domain && $current_domain != 'www.' . $primary_domain);
+}
+
+// 1. Управляем robots
+add_filter('wpseo_robots', function ($robots) {
+    if (is_mirror_domain()) {
+        return 'noindex, follow';
+    }
+    return $robots;
+});
+
+// 2. Управляем канонической ссылкой
+// add_filter('wpseo_canonical', function ($canonical) {
+// if (is_mirror_domain()) {
+//     return 'https://tuneliqa.com' . $_SERVER['REQUEST_URI'];
+// }
+// return $canonical;
+// });
+
+// 3. Отключаем карту сайта для зеркал
+// add_filter('wpseo_sitemap_exclude_post_type', function ($exclude, $post_type) {
+//     if (is_mirror_domain()) {
+//         return true;
+//     }
+//     return $exclude;
+// });
 
 function add_meta_tag()
 {
+    // $primary_domain = 'tuneliqa.com';
+    // $current_domain = $_SERVER['HTTP_HOST'];
+
+    // if ($current_domain != $primary_domain && $current_domain != 'www.' . $primary_domain) {
+    //     echo '<meta name="robots" content="noindex, nofollow" />' . "\n";
+    //     // echo '<link rel="canonical" href="https://' . $primary_domain . $_SERVER['REQUEST_URI'] . '" />' . "\n";
+    // }
     //     <meta name="google" content="notranslate">
     echo '
     <!-- start My custom meta -->
@@ -259,5 +297,3 @@ function change_image_srcset($sources, $size_array, $image_src, $image_meta, $at
     return $sources;
 }
 add_filter('wp_calculate_image_srcset', 'change_image_srcset', 10, 5);
-
-

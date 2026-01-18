@@ -169,7 +169,7 @@ function handle_order_status_change_for_vpn($order_id, $old_status, $new_status,
 /**
  * Create VPN client via Firestarter API
  */
-function create_vpn_client($order_id, $expires_days, $total_gb = 0)
+function create_vpn_client($order_id, $expires_days, $total_gb = 0, $limit_ip = 3)
 {
     $api_url = 'https://portal.firestarter.click/api/clients/';
 
@@ -202,6 +202,7 @@ function create_vpn_client($order_id, $expires_days, $total_gb = 0)
         'body'    => json_encode([
             'expires_days' => $expires_days,
             'total_gb'     => $total_gb,
+            'limit_ip'     => $limit_ip,
         ]),
     ];
 
@@ -428,12 +429,11 @@ function send_vpn_config_email($to_email, $vpn_config, $order)
     $mail_txt_template = file_get_contents(dirname(__FILE__) . '/mail.txt');
 
     // replace {{var}} to data
-    $message = str_replace(
+    $html_message = str_replace(
         array('{{var:subject}}', '{{var:connection_string}}'),
         array($subject, $vpn_config['client']['connection_string']),
         $mail_html_template
     );
-
 
     $alt_message = str_replace(
         array('{{var:subject}}', '{{var:connection_string}}'),
@@ -442,13 +442,8 @@ function send_vpn_config_email($to_email, $vpn_config, $order)
     );
 
 
-    $headers = [
-        'Content-Type: text/html; charset=UTF-8',
-        'From: ' . $site_name . ' <service@tunnel1.website>',
-    ];
-
-    // $sent = wp_mail($to_email, $subject, $message, $headers);
-    // if (!$sent) {
+    // $sent_html = wp_mail($to_email, $subject, $html_message, ['Content-Type: text/html; charset=UTF-8', 'From: ' . $site_name . ' <service@tunnel1.website>']);
+    // if (!$sent_html) {
     //     $last_error = error_get_last();
     //     $error_details = $last_error ? $last_error['message'] : 'Unknown error';
 
@@ -460,8 +455,8 @@ function send_vpn_config_email($to_email, $vpn_config, $order)
     //     ];
     // }
 
-    $sentAlt = wp_mail($to_email, $subject, $alt_message, ['Content-Type: text/plain; charset=UTF-8']);
-    if (!$sentAlt) {
+    $sent_alt = wp_mail($to_email, $subject, $alt_message, ['Content-Type: text/plain; charset=UTF-8']);
+    if (!$sent_alt) {
         $last_error = error_get_last();
         $error_details = $last_error ? $last_error['message'] : 'Unknown error';
 
