@@ -421,8 +421,7 @@ function send_vpn_config_email($to_email, $vpn_config, $order)
     //     $vpn_config['total_gb'] . ' GB' :
     //     'Unlimited';
 
-    $subject = sprintf('VPN Ready! #%s - %s', $order_id, $site_name);
-
+    $subject = sprintf('VPN is ready! #%s - %s', $order_id, $site_name);
 
     // load HTML template relative this file
     $mail_html_template = file_get_contents(dirname(__FILE__) . '/mail.html');

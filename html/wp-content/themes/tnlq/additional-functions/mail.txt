@@ -20,12 +20,13 @@ Payment confirmed. Your VPN is ready.
 
 {{var:connection_string}}
 
-
 3. Import
 Open the app → Configurations → + → Insert from Clipboard
 
 4. Connect
-Select the profile → Connect
+Select the server → Connect
 
-Encrypted tunnel up. No logs. No noise.
+Privacy is a basic human right - not a luxury.
+Tuneliqa exists to defend your right to a private, safe, and independent online life.
+
 Reply to this email if you need help.
