@@ -16,7 +16,7 @@ Payment confirmed. Your VPN is ready.
 * Windows
   https://storage.v2raytun.com/v2RayTun_Setup.exe
 
-2. Copy your config
+2. Copy this link to Clipboard (do not open, just copy)
 
 {{var:connection_string}}
 
