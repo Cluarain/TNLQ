@@ -21,7 +21,9 @@
 
             </div>
             <div class="footer__bottom text-tertiary">
-                <span>(c) 2025 Tuneliqa.</span>
+                <span>
+                    <?php echo "(c) " . date("Y") . " Tuneliqa" ?>
+                </span>
                 <a href="/privacy-policy/" class="hover-active-1">Privacy Policy</a>
                 <a href="/terms-of-service/" class="hover-active-1">Terms of Service</a>
                 <a href="/legal/" class="hover-active-1">Legal and Jurisdiction</a>
