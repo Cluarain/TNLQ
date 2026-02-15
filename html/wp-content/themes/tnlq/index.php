@@ -27,7 +27,7 @@
             } else {
                 $main_content .= render_block($block);
             }
-        }
+        } 
         ?>
 
         <?php add_breadcrumbs_auto() ?>

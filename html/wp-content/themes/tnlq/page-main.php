@@ -14,6 +14,7 @@
 <body <?php body_class() ?>>
     <?php get_header() ?>
     <main id="main" class="main">
+        <?php add_breadcrumbs_auto() ?>
         <?php the_content() ?>
     </main>
     <?php

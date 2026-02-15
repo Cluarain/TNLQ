@@ -5,16 +5,37 @@ Payment confirmed. Your VPN is ready.
 
 * Android
   https://play.google.com/store/apps/details?id=com.v2raytun.android
+  
+  alternative:
+  https://play.google.com/store/apps/details?id=dev.hexasoftware.v2box
 
 * iOS
   https://apps.apple.com/us/app/v2raytun/id6476628951
 
+  alternative:
+  https://apps.apple.com/ru/app/v2box-v2ray-client/id6446814690?platform=iphone
+
 * macOS
   https://apps.apple.com/en/app/v2raytun/id6476628951
+
+  alternative:
   https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690
 
 * Windows
   https://storage.v2raytun.com/v2RayTun_Setup.exe
+
+  alternative:
+  https://github.com/hiddify/hiddify-app/releases/latest/download/Hiddify-Windows-Setup-x64.Msix
+
+* Linux
+  https://github.com/hiddify/hiddify-app/releases/latest/download/Hiddify-Linux-x64.AppImage
+
+* Android TV
+  https://play.google.com/store/apps/details?id=com.v2raytun.android
+
+  alternative:
+  https://play.google.com/store/apps/details?id=com.v2raytun.android
+
 
 2. Copy this link to Clipboard (do not open, just copy)
 

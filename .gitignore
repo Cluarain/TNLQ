@@ -24,3 +24,4 @@ html/wp-content/plugins/*
 
 # htaccess
 /.htaccess
+.svg-backup/

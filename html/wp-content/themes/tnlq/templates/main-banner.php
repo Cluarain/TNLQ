@@ -6,9 +6,34 @@ $defaults = array(
 );
 extract(parse_args_filtered($args, $defaults));
 ?>
+<style>
+    @media (max-width: 1920px) {
+
+        .main-banner__img {
+            /* top: -10%; */
+
+            &>* {
+                transform: scale(1.2);
+            }
+        }
+    }
+
+    @media (max-width: 1020px) {
+
+        .main-banner__img {
+            top: -20%;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .main-banner__img {
+            top: -40%;
+        }
+    }
+</style>
 
 <section class="main-banner">
-    <div class="main-banner__img">
+    <div class="main-banner__img bottom__gradient">
         <?php
         echo get_attachment_image_by_name(
             'hole',

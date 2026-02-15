@@ -320,7 +320,7 @@ function process_vpn_for_order($order_id)
         if ($product) {
             $product_expires = $product->get_attribute('period');
             if ($product_expires) {
-                $expires_days = $product_expires * 30;
+                $expires_days = $product_expires;
             }
         }
     }

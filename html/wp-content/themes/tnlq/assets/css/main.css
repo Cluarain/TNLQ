@@ -46,6 +46,7 @@
 
     --border-primary: hsl(0, 0%, 100%);
     --border-secondary: hsl(0, 0%, 85%);
+    --border-tertiary: hsl(0, 0%, 33%);
     --card-shadow: 5px 5px 0 0 var(--text-tertiary);
     /* в макете */
     --main-text-padding: 5.5rem;
@@ -137,6 +138,12 @@ svg {
     font-size: clamp(28px, 3.5vw, 48px);
     font-weight: normal;
 }
+
+.project__subtitle {
+    font-size: clamp(15px, 1.7vw, 20px);
+    font-weight: normal;
+}
+
 
 .arrow-sign::before {
     content: ">\a0";
@@ -350,6 +357,10 @@ header {
         height: auto;
     }
 
+
+}
+
+.bottom__gradient {
     &::after {
         content: "";
         position: absolute;
@@ -406,10 +417,6 @@ header {
     font-weight: normal;
 }
 
-.pricing__subtitle {
-    font-size: clamp(15px, 1.7vw, 20px);
-}
-
 
 .pricing {
     position: relative;
@@ -448,8 +455,10 @@ header {
     padding: clamp(27px, 4.3vw, 60px) clamp(19px, 2vw, 35px);
     box-shadow: var(--card-shadow);
 
-    display: grid;
-    align-items: center;
+    display: flex;
+    align-items: stretch;
+    flex-flow: column;
+    justify-content: space-between;
 }
 
 .pricing__card-period {
@@ -734,7 +743,7 @@ header {
 }
 
 .tuneliqa-different__item {
-    padding: clamp(23px, 3vw, 45px) clamp(20px, 3vw, 40px);
+    padding: clamp(23px, 3vw, 35px) clamp(20px, 3vw, 30px);
     display: grid;
     grid-template-columns: auto 1fr;
     border: 1px solid hsl(0, 0%, 33%);
@@ -1062,16 +1071,6 @@ input:-internal-autofill-selected {
     width: auto;
 }
 
-@media (max-width: 1920px) {
-
-    .main-banner__img {
-        /* top: -10%; */
-
-        &>* {
-            transform: scale(1.2);
-        }
-    }
-}
 
 @media (max-width: 1880px) {
     .resist-mass__img>img {
@@ -1090,10 +1089,6 @@ input:-internal-autofill-selected {
 
     .accordion-body {
         margin-inline: 0;
-    }
-
-    .main-banner__img {
-        top: -20%;
     }
 
     .header__nav__inner {
@@ -1178,9 +1173,6 @@ input:-internal-autofill-selected {
 }
 
 @media (max-width: 768px) {
-    .main-banner__img {
-        top: -40%;
-    }
 
     .tuneliqa-different__advantages,
     .privacy-matters__content,
