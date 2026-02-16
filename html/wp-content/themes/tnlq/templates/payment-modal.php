@@ -4,7 +4,7 @@
     </form>
     <div id="modal-wrapper" class="modal-wrapper">
         <div class="modal-content">
-            <form id="paymentForm" class="modal-form" method="POST" action="<?php echo get_template_directory_uri(); ?>/process-payment.php">
+            <form id="paymentForm" class="modal-form" method="POST" action="/process-payment.php">
                 <?php wp_nonce_field('direct_payment_nonce', '_wpnonce') ?>
 
                 <div class="modal-heading">

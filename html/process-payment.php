@@ -6,7 +6,7 @@
 
 // Загружаем WordPress
 define('WP_USE_THEMES', false);
-require_once('../../../wp-load.php');
+require_once('./wp-load.php');
 
 // Проверяем, что это POST запрос
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -25,7 +25,7 @@ $coupon_code = isset($_POST['promo']) ? sanitize_text_field(wp_unslash($_POST['p
 
 if (!$product_id || !is_email($email)) {
     // wp_die(esc_html__('Invalid product or email', 'tnlq'));
-    showClientError($email, $product_id, $coupon_code, esc_html__('Invalid product or email', 'tnlq'));
+    showClientError($email, $product_id, $coupon_code, __('Invalid product or email', 'tnlq'));
 }
 
 try {
@@ -89,7 +89,7 @@ try {
             update_post_meta($order->get_id(), '_applied_coupon', $coupon_code);
         } else {
             increment_failed_coupon_attempts($email);
-            showClientError($email, $product_id, $coupon_code, "Invalid coupon code", $order);
+            showClientError($email, $product_id, $coupon_code, __("Invalid coupon code", 'tnlq'), $order);
             // Получаем конкретную причину невалидности купона
             // $error_message = __('Invalid coupon code', 'tnlq');
             // throw new Exception($error_message);
@@ -188,7 +188,7 @@ try {
     }
 } catch (Exception $e) {
     error_log('Direct payment error: ' . $e->getMessage());
-    showClientError($email, $product_id, $coupon_code, "Error creating order. Please contact support or try again later.");
+    showClientError($email, $product_id, $coupon_code, "Please contact support or try again later.");
 }
 
 

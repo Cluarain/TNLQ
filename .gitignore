@@ -13,8 +13,8 @@ html/wp-includes/
 html/index.php
 html/license.txt
 html/readme.html
-html/*.php
-
+html/wp-*.php
+html/xmlrpc.php
 html/wp-config.php
 html/wp-content/plugins/*
 

@@ -20,10 +20,16 @@ extract(parse_args_filtered($args, $defaults));
 ?>
 
 <style>
+    .main-bannerV2 {
+        overflow: hidden;
+        position: relative;
+    }
+
     .main-bannerV2__img {
         position: absolute;
-        z-index: 0;
+        z-index: -1;
         opacity: 0.5;
+        height: 100%;
 
         &>* {
             object-fit: contain;
@@ -32,16 +38,57 @@ extract(parse_args_filtered($args, $defaults));
         }
     }
 
+    .main-bannerV2__img__small {
+        position: absolute;
+        z-index: -1;
+
+        &.left {
+            --size: clamp(150px, 30vw, 440px);
+            inset-inline-start: 0;
+            height: var(--size);
+            width: var(--size);
+            filter: blur(clamp(4px, 1vw, 10px));
+
+            transform: rotate(90deg) translate(0, 30%);
+        }
+
+
+        &.right {
+            --size: clamp(75px, 15vw, 220px);
+            inset-inline-end: 0;
+            height: var(--size);
+            width: var(--size);
+
+            transform: translate(30%, 0);
+        }
+    }
+
     .main-bannerV2__inner {
         display: flex;
         flex-flow: column;
         gap: 20px;
         align-items: center;
-        justify-content: center;
+        /* justify-content: center;  */
+        text-align: center;
+    }
+
+    .main-bannerV2__inner-container {
+        text-align: center;
     }
 
     .main-bannerV2__inner__title {
         text-transform: uppercase;
+        position: relative;
+    }
+
+    .main-bannerV2__inner__title__img {
+        --size: clamp(45px, 10vw, 140px);
+        position: absolute;
+        inset-inline-start: 0%;
+        top: 0%;
+        height: var(--size);
+        width: var(--size);
+        transform: rotate(-18deg) translate(-200%, 0%);
     }
 
     .main-bannerV2__inner__subtitle {
@@ -53,12 +100,11 @@ extract(parse_args_filtered($args, $defaults));
         flex-flow: column;
         gap: 200px;
         z-index: 1;
-        margin-inline: clamp(23px, 12.5vw, 224px);
+        /* margin-inline: clamp(23px, 12.5vw, 224px); */
         padding-block-end: 20px;
     }
 
     .main-bannerV2__inner-tag {
-        text-align: center;
         font-size: clamp(16px, 2.6vw, 32px);
     }
 
@@ -69,6 +115,8 @@ extract(parse_args_filtered($args, $defaults));
         gap: clamp(20px, 2.8vw, 34px);
         padding: clamp(35px, 4vw, 50px);
         z-index: 1;
+        max-width: 850px;
+        margin-inline: auto;
     }
 
     .main-bannerV2__buttons {
@@ -96,6 +144,27 @@ extract(parse_args_filtered($args, $defaults));
         text-align: center;
         font-size: clamp(14px, 2.8vw, 32px);
     }
+
+    @media (max-width: 768px) {
+        .main-bannerV2__img>* {
+            object-position: center;
+            transform: scale(2.5);
+        }
+
+        .main-bannerV2__img__small {
+            &.left {
+                bottom: 10%;
+            }
+
+            &.right {
+                top: 20%;
+            }
+        }
+
+        .main-bannerV2__inner__title__img {
+            transform: rotate(-18deg) translate(0%, -150%);
+        }
+    }
 </style>
 
 <section class="main-bannerV2">
@@ -113,12 +182,25 @@ extract(parse_args_filtered($args, $defaults));
         );
         ?>
     </div>
+
+    <div class="main-bannerV2__img__small left">
+        <?php echo get_attachment_image_by_name('bucks', 'full', false, ['svg-inline' => true]) ?>
+    </div>
+
+    <div class="main-bannerV2__img__small right">
+        <?php echo get_attachment_image_by_name('bucks', 'full', false, ['svg-inline' => true]) ?>
+    </div>
     <div class="container">
         <div class="main-bannerV2__container">
             <div class="main-bannerV2__inner-container">
                 <div class="main-bannerV2__inner" style="padding-block: clamp(100px, 25vw, 235px)">
                     <h1 class="main-bannerV2__inner__title project__title">
                         <span class="font-l"><?php echo $title ?></span>
+
+                        <div class="main-bannerV2__inner__title__img">
+                            <?php echo get_attachment_image_by_name('diamond', 'full', false, ['svg-inline' => true]) ?>
+                        </div>
+
                     </h1>
                     <p class="main-bannerV2__inner__subtitle project__subtitle text-secondary">
                         <?php echo $subtitle ?>
