@@ -10,6 +10,7 @@
     <main id="main" class="main">
 
         <?php
+        // НИ В КОЕМ СЛУЧАЕ НЕ МЕНЯТЬ ЛОГИКУ СТАНДАРТНОГО ШАБЛОНА
         // Получаем контент и парсим блоки
         $post_content = get_the_content();
         $blocks = parse_blocks($post_content);

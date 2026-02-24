@@ -24,6 +24,7 @@ extract(parse_args_filtered($args, $defaults));
 <style>
     .step-by-step {
         background: var(--bg-secondary);
+        overflow: hidden;
     }
 
     .step-by-step__inner__container {
@@ -72,7 +73,7 @@ extract(parse_args_filtered($args, $defaults));
         font-size: clamp(24px, 2.5vw, 28px);
     }
 
-    @media (max-width: 1750px) {
+    @media (max-width: 1500px) {
         .step-by-step__inner__container {
             grid-template-columns: 1fr;
             padding-inline-start: 35px;

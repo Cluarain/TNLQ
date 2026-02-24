@@ -11,7 +11,7 @@
     <?php wp_head() ?>
 </head>
 
-<body <?php body_class() ?>>
+<body>
     <?php get_header() ?>
     <main id="main" class="main">
         <?php add_breadcrumbs_auto() ?>

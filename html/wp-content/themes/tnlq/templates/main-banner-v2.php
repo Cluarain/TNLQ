@@ -89,6 +89,11 @@ extract(parse_args_filtered($args, $defaults));
         height: var(--size);
         width: var(--size);
         transform: rotate(-18deg) translate(-200%, 0%);
+        z-index: -2;
+
+        &>* {
+            object-fit: contain;
+        }
     }
 
     .main-bannerV2__inner__subtitle {
@@ -184,11 +189,15 @@ extract(parse_args_filtered($args, $defaults));
     </div>
 
     <div class="main-bannerV2__img__small left">
-        <?php echo get_attachment_image_by_name('bucks', 'full', false, ['svg-inline' => true]) ?>
+        <?php
+        echo get_attachment_image_by_name('bucks');
+        ?>
     </div>
 
     <div class="main-bannerV2__img__small right">
-        <?php echo get_attachment_image_by_name('bucks', 'full', false, ['svg-inline' => true]) ?>
+        <?php
+        echo get_attachment_image_by_name('bucks');
+        ?>
     </div>
     <div class="container">
         <div class="main-bannerV2__container">
@@ -198,7 +207,7 @@ extract(parse_args_filtered($args, $defaults));
                         <span class="font-l"><?php echo $title ?></span>
 
                         <div class="main-bannerV2__inner__title__img">
-                            <?php echo get_attachment_image_by_name('diamond', 'full', false, ['svg-inline' => true]) ?>
+                            <?php echo get_attachment_image_by_name('diamond') ?>
                         </div>
 
                     </h1>
