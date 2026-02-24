@@ -1,5 +1,6 @@
 Hi!
 Payment confirmed. Your VPN is ready.
+The subscription is valid until: {{var:date_expire}}
 
 1. Install the app
 

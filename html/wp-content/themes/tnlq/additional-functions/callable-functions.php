@@ -189,8 +189,6 @@ function get_svg_inline_by_attachmentID($attachmentID)
   if (strpos($svg, '<title>') === false) {
     $alt_text = get_post_meta($attachmentID, '_wp_attachment_image_alt', true);
     if (!empty($alt_text)) {
-
-
       // Вставляем title как первый дочерний элемент внутри svg
       $svg = preg_replace(
         '/(<svg[^>]*>)(.*?)(<\/svg>)/s',

@@ -422,21 +422,25 @@ function send_vpn_config_email($to_email, $vpn_config, $order)
     //     'Unlimited';
 
     $subject = sprintf('VPN is ready! #%s - %s', $order_id, $site_name);
+    $expires_timestamp = strtotime($vpn_config['expires_at']);
+    $expire_date = date('j M Y', $expires_timestamp);
 
     // load HTML template relative this file
     $mail_html_template = file_get_contents(dirname(__FILE__) . '/mail.html');
     $mail_txt_template = file_get_contents(dirname(__FILE__) . '/mail.txt');
 
-    // replace {{var}} to data
-    $html_message = str_replace(
-        array('{{var:subject}}', '{{var:connection_string}}'),
-        array($subject, $vpn_config['client']['connection_string']),
-        $mail_html_template
-    );
+    $array_replace_from =  array('{{var:subject}}', '{{var:connection_string}}', '{{var:date_expire}}');
+    $array_replace_to =    array($subject, $vpn_config['client']['connection_string'], $expire_date);
 
+    // replace {{var}} to data
+    // $html_message = str_replace(
+    //     $array_replace_from,
+    //     $array_replace_to,
+    //     $mail_html_template
+    // );
     $alt_message = str_replace(
-        array('{{var:subject}}', '{{var:connection_string}}'),
-        array($subject, $vpn_config['client']['connection_string']),
+        $array_replace_from,
+        $array_replace_to,
         $mail_txt_template
     );
 
