@@ -42,22 +42,47 @@ if (! class_exists('WooCommerce')) {
 
 function generate_reminder_promocode($order_id)
 {
-    // Генерируем 5 случайных букв и цифр
-    $random_suffix = wp_generate_password(5, false);
-    $coupon_code = 'TUNNEL10-' . strtoupper($random_suffix);
+    $prefix = 'TUNNEL10-';
+    $max_attempts = 10; // максимальное число попыток, чтобы избежать бесконечного цикла
+    $attempt = 0;
 
+    do {
+        // Генерируем случайный суффикс (5 символов: буквы и цифры)
+        $suffix = strtoupper(wp_generate_password(5, false));
+        $coupon_code = $prefix . $suffix;
+        $attempt++;
+
+        // Если превышено число попыток – логируем ошибку и выходим
+        if ($attempt > $max_attempts) {
+            my_error_log($order_id, 'promocode_error', 'Не удалось создать уникальный код после ' . $max_attempts . ' попыток');
+            return null;
+        }
+
+        // Проверяем, существует ли уже купон с таким кодом
+    } while (wc_get_coupon_id_by_code($coupon_code));
+
+    // Теперь код точно уникален, создаём купон
     $coupon = new WC_Coupon();
     $coupon->set_code($coupon_code);
-    $coupon->set_amount(10); // Сумма скидки
-    $coupon->set_discount_type('percent'); // Тип скидки (процент)
-
-    // Установка срока действия на 10 дней от текущего момента
-    $expiry_date = date('Y-m-m', strtotime('+10 days'));
-    $coupon->set_date_expires($expiry_date);
+    $coupon->set_amount(10);
+    $coupon->set_discount_type('percent');
+    $coupon->set_date_expires(strtotime('+10 days'));
     $coupon->set_individual_use(true);
     $coupon->set_usage_limit(1);
-    $coupon->save();
 
+    try {
+        $coupon->save();
+    } catch (Exception $e) {
+        my_error_log($order_id, 'promocode_exception', $e->getMessage());
+        return null;
+    }
+
+    if (! $coupon->get_id()) {
+        my_error_log($order_id, 'promocode_error', 'Не удалось сохранить купон');
+        return null;
+    }
+
+    $expiry_date = $coupon->get_date_expires() ? $coupon->get_date_expires()->date('Y-m-d') : '';
     update_post_meta($order_id, '_vpn_reminder_promocode', $coupon_code);
     update_post_meta($order_id, '_vpn_reminder_promocode_expire', $expiry_date);
 
@@ -75,11 +100,8 @@ function vpn_send_expiration_reminders()
     // Дата и время через 5 дней от сейчас
     $three_days_later_timestamp = strtotime('+5 days', $now_timestamp);
 
-    my_error_log(0, 'three_days_later_timestamp', $three_days_later_timestamp);
-
     // Выбираем все оплаченные заказы, у которых есть _vpn_expires_at
     $args = [
-        'post_type'      => 'wc-orders',
         'post_status'    => 'wc-completed', // только выполненные (оплаченные) заказы
         'posts_per_page' => -1,              // все сразу (если заказов очень много, лучше пагинация)
         'meta_query'     => [
@@ -111,6 +133,20 @@ function vpn_send_expiration_reminders()
             if (! empty($reminder_sent)) {
                 continue; // уже отправляли
             }
+
+            // Дополнительная проверка: заказ должен быть старше 12 часов
+            $created_date = $order->get_date_created();
+            if (! $created_date) {
+                my_error_log($order_id, 'skip_no_creation_date', 'Дата создания заказа отсутствует');
+                continue;
+            }
+            $created_timestamp = $created_date->getTimestamp();
+            $hours_since_creation = ($now_timestamp - $created_timestamp) / 3600;
+            if ($hours_since_creation < 12) {
+                my_error_log($order_id, 'skip_recent_order', sprintf('Заказ создан %.1f часов назад, пропускаем', $hours_since_creation));
+                continue;
+            }
+
             // Получаем email клиента
             $customer_email = $order->get_billing_email();
             if (empty($customer_email)) {
@@ -118,6 +154,10 @@ function vpn_send_expiration_reminders()
             }
 
             $gen_promo_code = generate_reminder_promocode($order_id);
+            if (empty($gen_promo_code)) {
+                my_error_log($order_id, 'gen_promo_code', "NULL промокод");
+                continue;
+            }
 
             $expire_date = date('j M Y', $expires_timestamp);
             $subject = sprintf('Your VPN is about to expire! %s - %s', $expire_date, get_bloginfo('name'));
