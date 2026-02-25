@@ -413,8 +413,8 @@ function send_vpn_config_email($to_email, $vpn_config, $order)
     $site_name = get_bloginfo('name');
     $order_id = $order->get_id();
 
-    // $expires_at = isset($vpn_config['expires_at']) ?
-    //     date_i18n(get_option('date_format'), strtotime($vpn_config['expires_at'])) :
+    // $expires_at = isset($vpn_config['client']['expires_at']) ?
+    //     date_i18n(get_option('date_format'), strtotime($vpn_config['client']['expires_at'])) :
     //     'Lifetime';
 
     // $total_gb = isset($vpn_config['total_gb']) && $vpn_config['total_gb'] > 0 ?
@@ -422,14 +422,14 @@ function send_vpn_config_email($to_email, $vpn_config, $order)
     //     'Unlimited';
 
     $subject = sprintf('VPN is ready! #%s - %s', $order_id, $site_name);
-    $expires_timestamp = strtotime($vpn_config['expires_at']);
+    $expires_timestamp = strtotime($vpn_config['client']['expires_at']);
     $expire_date = date('j M Y', $expires_timestamp);
 
     // load HTML template relative this file
     $mail_html_template = file_get_contents(dirname(__FILE__) . '/mail.html');
     $mail_txt_template = file_get_contents(dirname(__FILE__) . '/mail.txt');
 
-    $array_replace_from =  array('{{var:subject}}', '{{var:connection_string}}', '{{var:date_expire}}');
+    $array_replace_from =  array('{{var:subject}}', '{{var:connection_string}}', '{{var:expire_date}}');
     $array_replace_to =    array($subject, $vpn_config['client']['connection_string'], $expire_date);
 
     // replace {{var}} to data
@@ -495,6 +495,7 @@ function resend_vpn_config($order_id)
     }
 
     $vpn_config = get_post_meta($order_id, '_vpn_config', true);
+    log_vpn_action($order_id, 'vpn_config', json_encode($vpn_config));
 
     if ($vpn_config && isset($vpn_config['connection_string'])) {
         $customer_email = $order->get_billing_email();
@@ -552,6 +553,8 @@ function resend_vpn_config($order_id)
             );
         }
     } else {
+
+
         $result = process_vpn_for_order($order_id, 'success');
 
         if ($result['success']) {
@@ -608,8 +611,8 @@ function add_resend_vpn_button($order)
         }
 
         if ($vpn_config && isset($vpn_config['connection_string'])) {
-            echo '<p><strong>Expires:</strong> ' . (isset($vpn_config['expires_at']) ?
-                date_i18n(get_option('date_format'), strtotime($vpn_config['expires_at'])) : 'N/A') . '</p>';
+            echo '<p><strong>Expires:</strong> ' . (isset($vpn_config['client']['expires_at']) ?
+                date_i18n(get_option('date_format'), strtotime($vpn_config['client']['expires_at'])) : 'N/A') . '</p>';
             echo '<p><strong>Data Limit:</strong> ' . (isset($vpn_config['total_gb']) ?
                 $vpn_config['total_gb'] . ' GB' : 'Unlimited') . '</p>';
             echo '<p><strong>Config String (short):</strong><br><code style="white-space: pre-wrap;">' .
@@ -689,22 +692,41 @@ function display_vpn_config_in_admin_order($order)
     $order_id = $order->get_id();
     $vpn_connection_string = get_post_meta($order_id, '_vpn_connection_string', true);
     $vpn_expires_at = get_post_meta($order_id, '_vpn_expires_at', true);
-    // $config_sent = get_post_meta($order_id, '_vpn_config_sent', true);
+    // $vpn_config_sent = get_post_meta($order_id, '_vpn_config_sent', true);
+    echo '<div class="vpn-config-info-block" style="display: flex; flex-flow: column; gap:.5rem">';
 
     // Показываем конфиг только если он был сгенерирован и отправлен
     if ($vpn_connection_string && $vpn_expires_at) {
         echo '
-        <p class="form-field form-field-wide">
-            <h4>VPN Configuration String:</h4>
+        <div class="">
+            <h4 style="margin: 0">VPN Configuration String:</h4>
             <code style="word-wrap: break-word; padding: 0;">' . esc_html($vpn_connection_string) . '</code>
-        </p>';
+        </div>';
 
         echo '
-        <p class="form-field form-field-wide">
-            <h4>Expires at:</h4>
-            <code style="word-wrap: break-word; padding: 0;">' . esc_html($vpn_expires_at) . '</code>;
-        </p>';
+        <div class="_wpdm-social-share-admin-menu">
+            <h4 style="margin: 0">Expires at:</h4>
+            <code style="word-wrap: break-word; padding: 0;">' . esc_html(str_replace('T', ' ', $vpn_expires_at)) . '</code>
+        </div>';
     }
+
+    $vpn_reminder_promocode = get_post_meta($order_id, '_vpn_reminder_promocode', true);
+    $vpn_reminder_sent = get_post_meta($order_id, '_vpn_reminder_sent', true);
+    if ($vpn_reminder_promocode && $vpn_reminder_sent) {
+        echo '
+        <div class="_wpdm-social-share-admin-menu">
+            <h4 style="margin: 0">Reminder sent:</h4>
+            <code style="padding: 0;">' . esc_html($vpn_reminder_sent) . '</code>
+        </div>';
+
+        echo '
+        <div class="_wpdm-social-share-admin-menu">
+            <h4 style="margin: 0">Reminder promo-code:</h4>
+            <code style="padding: 0;">' . esc_html($vpn_reminder_promocode) . '</code>
+        </div>';
+    }
+
+    echo '</div>';
 }
 
 /**

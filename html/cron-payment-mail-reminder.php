@@ -1,8 +1,23 @@
 <?php
 
+// Защита от прямого доступа через браузер
+if (php_sapi_name() !== 'cli') {
+    // Устанавливаем заголовки для предотвращения индексации
+    header('HTTP/1.0 403 Forbidden');
+    header('X-Robots-Tag: noindex, nofollow');
+    echo '<!DOCTYPE html><html><head><meta name="robots" content="noindex,nofollow"></head><body><center><h1>403 Forbidden</h1></center></body></html>';
+    exit;
+}
+
+// Дополнительная проверка на прямой вызов
+defined('ABSPATH') || exit;
+
 /**
  * Скрипт для отправки напоминаний об окончании подписки за 3 дня.
  * Запускать по cron: 0 12 * * * php /var/www/html/cron-payment-mail-reminder.php
+ * 
+ * Защита от прямого доступа: скрипт проверяет, что запускается в CLI режиме,
+ * иначе возвращает HTTP 403 ошибку и заголовки noindex/nofollow.
  */
 
 // Подключаем WordPress, чтобы использовать его функции
@@ -98,36 +113,23 @@ function vpn_send_expiration_reminders()
     $now_timestamp = strtotime($now);
 
     // Дата и время через 5 дней от сейчас
-    $three_days_later_timestamp = strtotime('+5 days', $now_timestamp);
+    $some_days_later_timestamp = strtotime('+5 days', $now_timestamp);
 
-    // Выбираем все оплаченные заказы, у которых есть _vpn_expires_at
-    $args = [
-        'post_status'    => 'wc-completed', // только выполненные (оплаченные) заказы
-        'posts_per_page' => -1,              // все сразу (если заказов очень много, лучше пагинация)
-        'meta_query'     => [
-            [
-                'key'     => '_vpn_expires_at',
-                'compare' => 'EXISTS',       // только заказы с этой метой
-            ],
-        ],
-    ];
-
-    $orders = wc_get_orders($args); // используем wc_get_orders для надёжности
+    // Выбираем все оплаченные заказы
+    $orders = wc_get_orders([
+        'status'    => 'completed',
+        'limit'     => -1,
+    ]);
 
     foreach ($orders as $order) {
         $order_id = $order->get_id();
 
         // Получаем дату окончания
-        $expires_at = get_post_meta($order_id, '_vpn_expires_at', true);
-        if (empty($expires_at)) {
-            continue; // на всякий случай, хотя meta_query уже отфильтровал
-        }
+        $vpn_config = get_post_meta($order_id, '_vpn_config', true);
+        $expires_timestamp = $vpn_config['client']['expires_at_unix'];
 
-        $expires_timestamp = strtotime($expires_at);
-
-        my_error_log(0, 'expires_timestamp', $expires_timestamp);
         // Проверяем: конфиг ещё активен (expires_at > now) И expires_at <= now+5 дней
-        if ($expires_timestamp > $now_timestamp && $expires_timestamp <= $three_days_later_timestamp) {
+        if ($expires_timestamp > $now_timestamp && $expires_timestamp <= $some_days_later_timestamp) {
             // Проверяем, не отправляли ли уже напоминание для этого заказа
             $reminder_sent = get_post_meta($order_id, '_vpn_reminder_sent', true);
             if (! empty($reminder_sent)) {
@@ -142,7 +144,7 @@ function vpn_send_expiration_reminders()
             }
             $created_timestamp = $created_date->getTimestamp();
             $hours_since_creation = ($now_timestamp - $created_timestamp) / 3600;
-            if ($hours_since_creation < 12) {
+            if ($hours_since_creation < 0) {
                 my_error_log($order_id, 'skip_recent_order', sprintf('Заказ создан %.1f часов назад, пропускаем', $hours_since_creation));
                 continue;
             }
@@ -165,7 +167,7 @@ function vpn_send_expiration_reminders()
             $mail_txt_template = file_get_contents(dirname(__FILE__) . '/cron-mail.txt');
             $alt_message = str_replace(
                 array('{{var:subject}}', '{{var:expire_date}}', '{{var:gen_promo_code}}', '{{var:main_page_url}}'),
-                array($subject, $expire_date, $gen_promo_code, site_url('#pricing')),
+                array($subject, $expire_date, $gen_promo_code, site_url('/#pricing')),
                 $mail_txt_template
             );
 
@@ -176,9 +178,9 @@ function vpn_send_expiration_reminders()
                 // Сохраняем отметку об отправке (дата отправки)
                 update_post_meta($order_id, '_vpn_reminder_sent', current_time('mysql'));
                 // Можно также записать в лог для отладки
-                my_error_log($order_id, 'mail_sent', "Напоминание отправлено на email {$customer_email}");
+                my_error_log($order_id, 'reminder_mail_sent', "Напоминание отправлено на email {$customer_email}");
             } else {
-                my_error_log($order_id, 'mail_sent', "Ошибка отправки письма");
+                my_error_log($order_id, 'reminder_mail_sent', "Ошибка отправки напоминающего письма");
             }
         }
     }

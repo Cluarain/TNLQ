@@ -1,11 +1,8 @@
-Subject: 5 days left — keep your tunnel alive ⚠️
-
 Hi,
 
-Your VPN access expires on:
-{{var:date_expire}}
+Your VPN access expires on: {{var:expire_date}}
 
-In 5 days your tunnel goes offline.
+Soon your tunnel goes offline.
 
 To keep everything running smoothly, we’ve added a renewal coupon just for you:
 
@@ -14,8 +11,7 @@ Valid for 10 days from this email.
 
 Use it when placing your new order and stay encrypted without interruption.
 
-👉 Renew now:
-{{var:main_page_url}}
+👉 Renew now: {{var:main_page_url}}
 
 No logs. No limits. No downtime.
 
