@@ -7,13 +7,56 @@ $defaults = array(
 extract(parse_args_filtered($args, $defaults));
 ?>
 <style>
+    .main-banner {
+        position: relative;
+    }
+
+    .main-banner__img {
+        --offset-y: 200px;
+        position: absolute;
+        top: calc(-1 * var(--offset-y));
+        z-index: -1;
+        /* width: 100%; */
+        max-width: 100%;
+        height: calc(100% + var(--offset-y));
+        overflow: hidden;
+        display: flex;
+        inline-size: 100%;
+
+        &>* {
+            /* max-height: inherit; */
+            width: 100%;
+            object-fit: cover;
+            height: auto;
+        }
+    }
+
+    .main-banner__inner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-flow: column;
+        gap: 3.125rem;
+        padding-block: clamp(100px, 30vw, 400px);
+        text-align: center;
+        position: relative;
+    }
+
+    .main-banner__inner__buttons {
+        display: flex;
+        flex-flow: row wrap;
+        gap: 2.5rem;
+        justify-content: center;
+    }
+
+
     @media (max-width: 1920px) {
 
         .main-banner__img {
             /* top: -10%; */
 
             &>* {
-                transform: scale(1.2);
+                transform: scale(1.7);
             }
         }
     }
