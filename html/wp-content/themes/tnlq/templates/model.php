@@ -68,9 +68,9 @@ extract(parse_args_filtered($args, $defaults));
 
         <div class="commission-model__inner">
             <div class="commission-model__img">
-                <svg width="137" height="137" viewBox="0 0 137 137" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M68.11 136.22L58.71 90.79L19.95 116.27L45.43 77.5L0 68.11L45.43 58.71L19.95 19.95L58.71 45.43L68.11 0L77.5 45.43L116.27 19.95L90.81 58.71L136.24 68.11L90.81 77.5L116.29 116.27L77.52 90.79L68.11 136.22ZM59.39 89.14L68.11 131.28L76.81 89.14L112.81 112.78L89.17 76.78L131.31 68.07L89.17 59.36L112.81 23.36L76.81 46.99L68.1 4.86L59.38 46.99L23.44 23.44L47.07 59.44L4.94 68.11L47.07 76.82L23.44 112.82L59.39 89.14Z" fill="#66BB6A" />
-                </svg>
+                <?php
+                echo get_attachment_image_by_name('star8', 'full', false, ['svg-inline' => true]);
+                ?>
             </div>
 
             <div class="commission-model__card margin-m">
