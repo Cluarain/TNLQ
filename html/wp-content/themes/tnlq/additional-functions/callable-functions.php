@@ -6,6 +6,63 @@ function add_breadcrumbs_auto()
     yoast_breadcrumb('<div class="breadcrumbs container">', '</div>');
   }
 }
+
+
+
+/**
+ * Получает реальный IP-адрес пользователя (IPv4 или IPv6) за Cloudflare.
+ *
+ * @return string|false IP-адрес или false, если не удалось определить.
+ */
+function get_real_user_ip()
+{
+  // 1. Приоритет у специального заголовка Cloudflare
+  // Именно он содержит реальный IP посетителя, прошедшего через их сеть
+  if (! empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+    $ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
+  }
+  // 2. Если сайт не за Cloudflare, но за другим прокси (проверяем X-Forwarded-For)
+  elseif (! empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+    // В этом заголовке может быть список IP. Берем самый первый (он самый удаленный).
+    $ip_list = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+    $ip = trim($ip_list[0]);
+  }
+  // 3. Стандартный способ (без прокси)
+  elseif (! empty($_SERVER['REMOTE_ADDR'])) {
+    $ip = $_SERVER['REMOTE_ADDR'];
+  } else {
+    return false;
+  }
+
+  // Дополнительная очистка (для безопасности)
+  $ip = sanitize_text_field(wp_unslash($ip));
+
+  // Валидация: проверяем, что это действительно валидный IP (v4 или v6)
+  // filter_var с FILTER_VALIDATE_IP поддерживает оба формата
+  if (filter_var($ip, FILTER_VALIDATE_IP)) {
+    return $ip;
+  }
+
+  // Если валидация не прошла, возвращаем REMOTE_ADDR как крайнюю меру
+  return ! empty($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : false;
+}
+
+
+function check_if_in_tunnel($client_ip)
+{
+  $node_ips_file = '/opt/server_scripts/node_ips.txt';
+  $in_tunnel = false;
+  // Финальная проверка файла
+  if (file_exists($node_ips_file)) {
+    $node_ips = file($node_ips_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+    if (in_array($client_ip, $node_ips)) {
+      $in_tunnel = true;
+    }
+  }
+  return $in_tunnel;
+}
+
 // function get_relative_theme_file_uri($path = '')
 // {
 //   // Получаем полный URI до файла темы

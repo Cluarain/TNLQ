@@ -54,7 +54,6 @@ add_action('parse_query', 'disable_search_filter');
 // устанавливаем глобальные переменные после запуска темы
 add_action('after_setup_theme', function () {
     $GLOBALS['client_ip'] = $_SERVER['REMOTE_ADDR'];
-    $GLOBALS['client_status'] = 'Not in the Tunnel';
 
     $GLOBALS['why-tuneliqa_link'] = '#why-tuneliqa';
     $GLOBALS['pricing_link'] = '#pricing';

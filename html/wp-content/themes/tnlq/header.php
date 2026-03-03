@@ -1,7 +1,15 @@
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P4JFQH6L"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
+
+
+<?php
+
+$client_ip = get_real_user_ip();
+$in_tunnel = check_if_in_tunnel($client_ip);
+
+?>
 
 <header id="header">
     <div class="container">
@@ -10,12 +18,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <div class="header__ip">
                     <span>Your IP: </span>
                     <span class="text-tertiary">
-                        <?php print_global_var('client_ip') ?>
+                        <?php echo $client_ip ?>
                     </span>
                 </div>
                 <div class="header__status">
                     <span>Your status: </span>
-                    <span class="text-quaternary"><?php print_global_var('client_status') ?></span>
+                    <span class="text-<?php echo $in_tunnel ? 'secondary' : 'quaternary'; ?>">
+                        <?php echo $in_tunnel ? 'In the Tunnel' : 'Not in the Tunnel'; ?>
+                    </span>
                 </div>
             </div>
             <div class="header__label__box">
@@ -33,13 +43,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <div id="mobile_burger" class="header__nav__inner__mobile__burger hover-active-1" style="<?php echo $css_burger ?>"></div>
                     <div class="header__nav__inner__mobile__modal">
                         <span class="header__nav__inner__mobile__modal__title project__title"><span class="font-l">Menu</span></span>
-                        <a href="<?php print_global_var('why-tuneliqa_link') ?>" class="hover-active-1 nav-link">Why
-                            Tuneliqa</a>
+                        <a href="<?php print_global_var('why-tuneliqa_link') ?>" class="hover-active-1 nav-link">Why Tuneliqa</a>
                         <a href="<?php print_global_var('pricing_link') ?>" class="hover-active-1 nav-link">Pricing</a>
                         <a href="<?php print_global_var('privacy-matters_link') ?>" class="hover-active-1 nav-link">Privacy</a>
                         <a href="<?php print_global_var('faq_link') ?>" class="hover-active-1 nav-link">FAQ</a>
-                        <a href="<?php print_global_var('contact_link') ?>"
-                            class="text-success hover-active-1 nav-link arrow-sign">contact</a>
+                        <a href="/affiliate" class="text-success active-2 hover-active-1 nav-link arrow-sign">Affiliate</a>
                     </div>
                 </div>
                 <a href="/" class="tnlq-logo">
@@ -52,8 +60,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <a href="<?php print_global_var('pricing_link') ?>" class="hover-active-1 nav-link">Pricing</a>
                     <a href="<?php print_global_var('privacy-matters_link') ?>" class="hover-active-1 nav-link">Privacy</a>
                     <a href="<?php print_global_var('faq_link') ?>" class="hover-active-1 nav-link">FAQ</a>
-                    <a href="<?php print_global_var('contact_link') ?>"
-                        class="text-success hover-active-1 hover-active-2 nav-link arrow-sign">contact</a>
+                    <a href="/affiliate" class="text-success hover-active-1 active-2 nav-link arrow-sign">Affiliate</a>
                     <a href="<?php print_global_var('pricing_link') ?>" class="btn btn-lg btn-transparent hover-active-2 arrow-sign">View Plans</a>
                 </div>
             </nav>
