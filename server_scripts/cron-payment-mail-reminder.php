@@ -1,16 +1,16 @@
 <?php
 
-// Защита от прямого доступа через браузер
-if (php_sapi_name() !== 'cli') {
-    // Устанавливаем заголовки для предотвращения индексации
-    header('HTTP/1.0 403 Forbidden');
-    header('X-Robots-Tag: noindex, nofollow');
-    echo '<!DOCTYPE html><html><head><meta name="robots" content="noindex,nofollow"></head><body><center><h1>403 Forbidden</h1></center></body></html>';
-    exit;
-}
+// // Защита от прямого доступа через браузер
+// if (php_sapi_name() !== 'cli') {
+//     // Устанавливаем заголовки для предотвращения индексации
+//     header('HTTP/1.0 403 Forbidden');
+//     header('X-Robots-Tag: noindex, nofollow');
+//     echo '<!DOCTYPE html><html><head><meta name="robots" content="noindex,nofollow"></head><body><center><h1>403 Forbidden</h1></center></body></html>';
+//     exit;
+// }
 
-// Дополнительная проверка на прямой вызов
-defined('ABSPATH') || exit;
+// // Дополнительная проверка на прямой вызов
+// defined('ABSPATH') || exit;
 
 /**
  * Скрипт для отправки напоминаний об окончании подписки за 3 дня.
@@ -21,9 +21,7 @@ defined('ABSPATH') || exit;
  */
 
 // Подключаем WordPress, чтобы использовать его функции
-require_once(dirname(__FILE__) . '/wp-load.php');
-
-
+require_once('/var/www/html/wp-load.php');
 
 /**
  * Log VPN actions for debugging
@@ -120,6 +118,7 @@ function vpn_send_expiration_reminders()
         'status'    => 'completed',
         'limit'     => -1,
     ]);
+    my_error_log(0, 'init_reminder', 'Reminder with promo initialization');
 
     foreach ($orders as $order) {
         $order_id = $order->get_id();
@@ -167,7 +166,7 @@ function vpn_send_expiration_reminders()
             $mail_txt_template = file_get_contents(dirname(__FILE__) . '/cron-mail.txt');
             $alt_message = str_replace(
                 array('{{var:subject}}', '{{var:expire_date}}', '{{var:gen_promo_code}}', '{{var:main_page_url}}'),
-                array($subject, $expire_date, $gen_promo_code, site_url('/#pricing')),
+                array($subject, $expire_date, $gen_promo_code, 'https://tuneliqa.com/#pricing'),
                 $mail_txt_template
             );
 

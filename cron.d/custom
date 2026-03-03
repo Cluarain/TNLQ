@@ -1,0 +1,1 @@
+0 10 * * * php /opt/server_scripts/cron-payment-mail-reminder.php
