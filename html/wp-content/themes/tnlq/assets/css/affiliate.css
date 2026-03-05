@@ -116,7 +116,7 @@
         font-size: clamp(16px, 1.5vw, 20px);
         cursor: pointer;
         font-family: inherit;
-        color: inherit;
+        color: var(--text-primary);
         background: var(--accent-color);
         display: flex;
         margin-inline: auto;
