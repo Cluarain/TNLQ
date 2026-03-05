@@ -109,6 +109,21 @@ body {
     }
 }
 
+@keyframes blinking-text {
+    0% {
+        color: currentColor;
+    }
+
+    50% {
+        color: transparent;
+    }
+
+    100% {
+        color: currentColor;
+    }
+}
+
+
 
 .hover-active-svg-fill {
     &>svg {

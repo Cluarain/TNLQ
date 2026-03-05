@@ -8,8 +8,10 @@ $defaults = array(
         ['tag' => 'Forever.'],
     ],
     'cta_title' => 'Begin to earn',
-    'button1' => 'Get started',
-    'button2' => 'Login',
+    'button1_text' => 'Get started',
+    'button1_link' => '/affiliate-registration/',
+    'button2_text' => 'Login',
+    'button2_link' => '/affiliate-login/',
     'button_tags' => [
         ['tag' => 'Fast payouts'],
         ['tag' => 'No KYC'],
@@ -228,8 +230,8 @@ extract(parse_args_filtered($args, $defaults));
                     <?php echo $cta_title ?>
                 </p>
                 <div class="main-bannerV2__buttons">
-                    <a href="#" class="main-bannur__button btn btn-primary arrow-sign hover-active-2"><?php echo $button1 ?></a>
-                    <a href="#" class="main-bannur__button btn btn-secondary arrow-sign hover-active-2"><?php echo $button2 ?></a>
+                    <a href="<?php echo $button1_link ?>" class="main-bannur__button btn btn-primary arrow-sign hover-active-2"><?php echo $button1_text ?></a>
+                    <a href="<?php echo $button2_link ?>" class="main-bannur__button btn btn-secondary arrow-sign hover-active-2"><?php echo $button2_text ?></a>
                 </div>
                 <div class="main-bannerV2__buttons-tags text-secondary">
                     <?php

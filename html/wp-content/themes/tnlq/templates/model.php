@@ -57,7 +57,7 @@ extract(parse_args_filtered($args, $defaults));
     }
 
     .commission-model-highlight {
-        color: #A123A1;
+        color: var(--affiliate-color);
         font-size: clamp(48px, 5vw, 64px);
     }
 </style>

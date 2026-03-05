@@ -7,7 +7,7 @@ $defaults = array(
     'card_title' => 'GET ACCESS TO AFFILIATE PORTAL',
     'card_subtitle' => 'Built on proven affiliate infrastructure. <br>Used by thousands of programs.',
     'card_button_text' => 'BEGIN TO EARN',
-    'card_button_link' => '#',
+    'card_button_link' => '/affiliate-area/',
 );
 
 extract(parse_args_filtered($args, $defaults));

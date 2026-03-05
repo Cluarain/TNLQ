@@ -1,0 +1,154 @@
+.affwp-form {
+    max-width: 370px;
+    margin-inline: auto;
+    background-color: var(--bg-quaternary);
+    padding-inline: 25px;
+    padding-block: 60px;
+    text-align: center;
+
+
+    & p:not(:has(.affwp-user-remember)) {
+        position: relative;
+
+        &:has(textarea:not(:placeholder-shown)),
+        &:has(textarea:focus-visible),
+        &:has(input:not(:placeholder-shown)),
+        &:has(input:focus-visible) {
+            &>label {
+                transform: translateY(-160%);
+                font-size: .8em;
+                width: 0
+            }
+        }
+
+        &>label {
+            color: var(--text-secondary);
+            position: absolute;
+            white-space: nowrap;
+            inset-inline-start: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: var(--main-transition);
+            transition-property: font-size, transform;
+            padding: 0 20px;
+            pointer-events: none;
+            user-select: none;
+
+            &[for="affwp-promotion-method"] {
+                top: 31px;
+            }
+        }
+    }
+
+    & fieldset {
+        display: flex;
+        flex-flow: column;
+        gap: 1rem;
+    }
+
+    & input.required,
+    & .affwp-field {
+        padding: 20px;
+        border: 1px solid var(--border-secondary);
+        background: transparent;
+        font-family: inherit;
+        color: var(--text-primary);
+        font-size: inherit;
+        caret-color: var(--success-color);
+    }
+
+    & .affwp-field-label {
+        text-align: start;
+        position: relative;
+
+        &:has(.required) {
+            & .required {
+                display: none;
+            }
+
+            &::after {
+                content: "*";
+                color: var(--affiliate-color);
+                position: absolute;
+                top: -5px;
+            }
+        }
+    }
+
+    & .affwp-user-remember {
+        display: flex;
+        flex-flow: row;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+    }
+
+    & input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        position: relative;
+
+        &::before {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border: 1px solid var(--border-secondary);
+            background-color: var(--bg-quaternary);
+        }
+
+        &:checked::after {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent-color);
+            top: 4px;
+            left: 4px;
+        }
+    }
+
+    & input[type="submit"] {
+        padding: 1.2rem 1rem;
+        width: 100%;
+        max-width: 250px;
+        border: 1px solid transparent;
+        font-size: clamp(16px, 1.5vw, 20px);
+        cursor: pointer;
+        font-family: inherit;
+        color: inherit;
+        background: var(--accent-color);
+        display: flex;
+        margin-inline: auto;
+        margin-block-start: 2rem;
+
+        transition: var(--main-transition);
+        transition-property: transform, opacity;
+
+        &:hover {
+            animation: blinking-text 1.5s infinite;
+        }
+    }
+
+    & .affwp-lost-password {
+        display: none;
+
+        margin-block-start: .5rem;
+
+        &>a {
+            transition: border-color var(--main-transition);
+            border-bottom: 1px solid var(--border-tertiary);
+        }
+
+        &:hover {
+            &>a {
+                border-color: var(--border-primary);
+            }
+        }
+    }
+
+    & textarea {
+        resize: vertical;
+        min-height: 62px;
+    }
+}

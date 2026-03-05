@@ -178,6 +178,13 @@ function add_scripts_and_styles()
     // ['strategy' => 'async', 'in_footer' => true ]
     wp_enqueue_script('main', getShortFileLink($main_js), [], getShortFileHash($main_js), true);
 
+    
+    if (is_page() && strpos(get_post_field('post_name'), 'affiliate-') !== false) {
+        $affiliate_css = get_relative_theme_file_uri('/assets/css/affiliate' . $isMinify . '.css');
+        wp_enqueue_style('affiliate', getShortFileLink($affiliate_css), [], getShortFileHash($affiliate_css));
+    }
+
+
     $typewriter_js = get_relative_theme_file_uri('/assets/js/typewriter.min.js');
     wp_enqueue_script('typewriter', getShortFileLink($typewriter_js), [], getShortFileHash($typewriter_js), ['strategy' => 'async', 'in_footer' => true]);
 }
