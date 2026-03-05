@@ -103,9 +103,6 @@ def get_all_ips(subscription_url):
         print("Could not extract domains from connection strings")
         return []
     
-    print(f"Found unique domains: {len(domains)}")
-    print("Domains:", ", ".join(domains))
-    
     # Resolve domains to IPs (in parallel)
     ips = []
     with ThreadPoolExecutor(max_workers=4) as executor:
@@ -137,7 +134,7 @@ def save_ips_to_file(ips, filename=None):
     with open(filename, 'w') as f:
         for ip in sorted(ips):
             f.write(f"{ip}\n")
-    print(f"\nIP addresses saved to file: {filename}")
+    print(f"IP addresses saved to file: {filename}")
 
 def main():
     # Insert your subscription URL here
@@ -149,12 +146,12 @@ def main():
     ips = get_all_ips(subscription_url)
     
     if ips:
-        print(f"\n✅ Found unique IP addresses: {len(ips)}")
+        print(f"✅ Found unique IP addresses: {len(ips)}")
 
         # Save to file
         save_ips_to_file(ips)
     else:
-        print("\n❌ Could not get IP addresses")
+        print("❌ Could not get IP addresses")
 
 if __name__ == "__main__":
     main()
