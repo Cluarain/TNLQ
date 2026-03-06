@@ -143,6 +143,8 @@ function add_meta_tag()
     "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,"script","dataLayer","GTM-P4JFQH6L");</script>
     <!-- End Google Tag Manager -->
+
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     ';
 }
 add_action('wp_head', 'add_meta_tag');
