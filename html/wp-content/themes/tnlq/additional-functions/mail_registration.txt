@@ -1,0 +1,8 @@
+Congratulations!
+
+Your affiliate application on https://tuneliqa.com has been accepted!
+
+Log into your affiliate area at https://tuneliqa.com/affiliate/affiliate-login/
+
+Login: {{var:user_login}}
+Password: {{var:user_password}}
