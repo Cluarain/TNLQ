@@ -112,6 +112,7 @@ try {
         $order->set_status('completed');
         $order->set_payment_method('free_gateway'); // Можно установить виртуальный метод оплаты
         $order->save();
+        set_order_affiliate_from_cookie($order->get_id());
 
         // Создаем URL для успешной оплаты
         $success_url = add_query_arg(array(
@@ -145,6 +146,7 @@ try {
 
     $order->set_payment_method($nowpayments_gateway);
     $order->save(); // Сохраняем изменения с платежным методом
+    set_order_affiliate_from_cookie($order->get_id());
 
     // Создаем URL для успешной оплаты и отмены
     $success_url = add_query_arg(array(
@@ -211,7 +213,7 @@ function showClientError($email, $product_id, $coupon_code, $message, $need_dele
 
 function increment_failed_coupon_attempts($email)
 {
-    $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    $ip_address = get_real_user_ip() ?? 'unknown';
     $identifier = md5($email . $ip_address);
     $attempts_key = 'coupon_attempts_' . $identifier;
 
@@ -224,7 +226,7 @@ function increment_failed_coupon_attempts($email)
 
 function reset_coupon_attempts($email)
 {
-    $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    $ip_address =  get_real_user_ip() ?? 'unknown';
     $identifier = md5($email . $ip_address);
     $attempts_key = 'coupon_attempts_' . $identifier;
     $blocked_key = 'coupon_blocked_' . $identifier;
@@ -235,7 +237,7 @@ function reset_coupon_attempts($email)
 
 function check_coupon_rate_limit($email)
 {
-    $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    $ip_address =  get_real_user_ip() ?? 'unknown';
     $identifier = md5($email . $ip_address); // Комбинируем email и IP для лучшей идентификации
 
     $attempts_key = 'coupon_attempts_' . $identifier;
@@ -258,4 +260,42 @@ function check_coupon_rate_limit($email)
     }
 
     return true;
+}
+
+
+/**
+ * Сохраняет ID партнёра из cookie AffiliateWP в мета-поля заказа
+ *
+ * @param int $order_id ID созданного заказа.
+ */
+function set_order_affiliate_from_cookie($order_id)
+{
+    // Проверяем, активен ли AffiliateWP
+    if (! function_exists('affiliate_wp')) {
+        return;
+    }
+
+    // Проверяем наличие cookie с ID партнёра
+    if (empty($_COOKIE['affwp_ref'])) {
+        return;
+    }
+
+    $affiliate_id = intval($_COOKIE['affwp_ref']);
+    if ($affiliate_id <= 0) {
+        return;
+    }
+
+    // Убеждаемся, что партнёр действительно существует
+    if (!affwp_get_affiliate($affiliate_id)) {
+        return;
+    }
+
+    // Сохраняем ID партнёра в мета-поле заказа
+    update_post_meta($order_id, '_affwp_affiliate_id', $affiliate_id);
+
+    // Если есть cookie с ID визита – сохраняем и его (для более точной статистики)
+    if (! empty($_COOKIE['affwp_ref_visit_id'])) {
+        $visit_id = intval($_COOKIE['affwp_ref_visit_id']);
+        update_post_meta($order_id, '_affwp_visit_id', $visit_id);
+    }
 }

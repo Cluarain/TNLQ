@@ -54,7 +54,9 @@ function wp_scripts_styles_dequeue()
     }
 
     wp_deregister_style('dashicons');
-    wp_deregister_script('jquery');
+
+    // jquery НЕОБХОДИМ ДЛЯ ПЛАГИНА affiliate-wp
+    // wp_deregister_script('jquery');
 }
 add_action('wp_enqueue_scripts', 'wp_scripts_styles_dequeue');
 
@@ -77,6 +79,16 @@ add_action('wp_print_styles', 'disable_plugins_styles', 20);
 add_action('wp_footer', function () {
     wp_dequeue_style('core-block-supports');
 });
+
+
+
+// проверяет роль пользователя и скрывает панель для всех, кто не является администратором
+add_action('after_setup_theme', function () {
+    if (!current_user_can('manage_options')) {
+        show_admin_bar(false);
+    }
+});
+
 
 // add_action('template_redirect', function () {
 
