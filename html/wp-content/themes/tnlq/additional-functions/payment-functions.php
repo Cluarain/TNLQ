@@ -426,8 +426,8 @@ function send_vpn_config_email($to_email, $vpn_config, $order)
     $expire_date = date('j M Y', $expires_timestamp);
 
     // load HTML template relative this file
-    $mail_html_template = file_get_contents(dirname(__FILE__) . '/mail.html');
-    $mail_txt_template = file_get_contents(dirname(__FILE__) . '/mail.txt');
+    $mail_html_template = file_get_contents(get_template_directory() . '/mail_templates/mail.html');
+    $mail_txt_template = file_get_contents(get_template_directory() . '/mail_templates/mail.txt');
 
     $array_replace_from =  array('{{var:subject}}', '{{var:connection_string}}', '{{var:expire_date}}');
     $array_replace_to =    array($subject, $vpn_config['client']['connection_string'], $expire_date);

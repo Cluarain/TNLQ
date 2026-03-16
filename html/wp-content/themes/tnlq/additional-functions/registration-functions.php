@@ -17,7 +17,7 @@ function send_login_credentials_email($user_id)
     $site_name = get_bloginfo('name');
     $subject = sprintf('Affiliate Application Accepted! %s', $site_name);
 
-    $mail_txt_template = file_get_contents(dirname(__FILE__) . '/mail_registration.txt');
+    $mail_txt_template = file_get_contents(get_template_directory() . '/mail_templates/mail_registration.txt');
 
     $array_replace_from =  array('{{var:user_login}}', '{{var:user_password}}');
     $array_replace_to =    array($login, $password);
