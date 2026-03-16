@@ -132,17 +132,8 @@ function add_meta_tag()
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="preload" href="/assets/fonts/IBM_Plex_Mono/IBMPlexMono-Regular.woff2" as="font" type="font/woff2" fetchpriority="high" crossorigin>
     <link rel="preload" href="/assets/fonts/IBM_Plex_Mono/IBMPlexMono-Bold.woff2" as="font" type="font/woff2" fetchpriority="high" crossorigin>
-    <!-- / end My custom meta -->
-
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start":
-    new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
-    "https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,"script","dataLayer","GTM-P4JFQH6L");</script>
-    <!-- End Google Tag Manager -->
-
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <!-- / end My custom meta -->
     ';
 }
 add_action('wp_head', 'add_meta_tag');
