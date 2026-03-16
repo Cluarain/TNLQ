@@ -28,7 +28,7 @@ require_once('/var/www/html/wp-load.php');
  */
 function my_error_log($order_id, $action, $details = '')
 {
-    $log_file = WP_CONTENT_DIR . '/vpn-logs/' . date('Y-m-d') . '.log';
+    $log_file = '/var/www/html/wp-content/vpn-logs/' . date('Y-m-d') . '.log';
     $log_dir = dirname($log_file);
 
     if (!file_exists($log_dir)) {
