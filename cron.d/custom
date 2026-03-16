@@ -1,4 +1,6 @@
 # mail renew config reminder
-0 10 * * * php /opt/server_scripts/cron-payment-mail-reminder.php
+0 10 * * * /usr/bin/php /opt/server_scripts/cron-payment-mail-reminder.php >> /tmp/cron-payment-mail-reminder.log 2>&1
 # logs rotation 30 days
 0  0 * * * find "/var/www/html/wp-content/vpn-logs/" -name "*.log" -type f -mtime +30 -delete
+# Clean WC orders without email every Monday morning
+0 2 * * 1 /usr/bin/php /opt/server_scripts/clean_wc_orders.php >> /tmp/clean_wc_orders.log 2>&1
