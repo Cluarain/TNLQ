@@ -264,7 +264,7 @@ function check_coupon_rate_limit($email)
 
 
 /**
- * Сохраняет ID партнёра из cookie AffiliateWP в мета-поля заказа
+ * Сохраняет ID партнёра из cookie AffiliateWP в мета-поля заказа и создает реферал
  *
  * @param int $order_id ID созданного заказа.
  */
@@ -285,17 +285,189 @@ function set_order_affiliate_from_cookie($order_id)
         return;
     }
 
-    // Убеждаемся, что партнёр действительно существует
-    if (!affwp_get_affiliate($affiliate_id)) {
+    // Убеждаемся, что партнёр действительно существует и активен
+    $affiliate = affwp_get_affiliate($affiliate_id);
+    if (!$affiliate || $affiliate->status !== 'active') {
         return;
+    }
+
+    // Проверяем, является ли это саморефералом (партнер пытается сделать заказ под своим же аккаунтом)
+    $order = wc_get_order($order_id);
+    if (!$order) {
+        return;
+    }
+
+    $customer_email = $order->get_billing_email();
+    $affiliate_user_id = affwp_get_affiliate_user_id($affiliate_id);
+    $affiliate_user = get_userdata($affiliate_user_id);
+
+    if ($affiliate_user && $customer_email === $affiliate_user->user_email) {
+        // Это самореферал, проверяем настройки
+        $self_referral_setting = affiliate_wp()->settings->get('fraud_prevention_self_referrals', 'reject');
+
+        if ('reject' === $self_referral_setting) {
+            // Отклоняем самореферал
+            return;
+        } elseif ('flag' === $self_referral_setting) {
+            // Помечаем реферал для ручной проверки
+            update_post_meta($order_id, '_affwp_needs_review', true);
+        }
+        // 'allow' - разрешаем самореферал
     }
 
     // Сохраняем ID партнёра в мета-поле заказа
     update_post_meta($order_id, '_affwp_affiliate_id', $affiliate_id);
 
     // Если есть cookie с ID визита – сохраняем и его (для более точной статистики)
+    $visit_id = false;
     if (! empty($_COOKIE['affwp_ref_visit_id'])) {
         $visit_id = intval($_COOKIE['affwp_ref_visit_id']);
         update_post_meta($order_id, '_affwp_visit_id', $visit_id);
+    }
+
+    // Проверяем, не был ли уже создан реферал для этого заказа
+    $existing_referral = affwp_get_referral_by('reference', $order_id, 'woocommerce');
+    if (!is_wp_error($existing_referral)) {
+        // Реферал уже существует, не создаем новый
+        error_log("Referral already exists for order {$order_id}, skipping creation");
+        return;
+    }
+
+    error_log("No existing referral found for order {$order_id}, proceeding with referral creation");
+
+    // Получаем детали заказа для создания реферала
+    $order_total = $order->get_total();
+    $order_date = $order->get_date_created()->date('Y-m-d H:i:s');
+
+    // Получаем список товаров в заказе (используем формат, как в интеграции WooCommerce)
+    $products = array();
+    foreach ($order->get_items() as $key => $product) {
+        $products[] = array(
+            'name' => $product['name'],
+            'id' => $product['product_id'],
+            'price' => $product['line_total'],
+            'quantity' => $product['qty']
+        );
+    }
+
+    // Формируем описание реферала
+    $description = implode(', ', array_column($products, 'name'));
+
+    // Рассчитываем сумму реферала на основе настроек партнера и товаров
+    $referral_amount = 0;
+    $affiliate_rate = affwp_get_affiliate_rate($affiliate_id, false, '', $order_id);
+    $rate_type = affwp_get_affiliate_rate_type($affiliate_id);
+
+    if ('percentage' === $rate_type) {
+        $referral_amount = round($order_total * $affiliate_rate, 2);
+    } else { // flat rate
+        // Для фиксированной ставки может быть настроена по продуктам или по заказу
+        if (affwp_is_per_order_rate($affiliate_id)) {
+            $referral_amount = $affiliate_rate;
+        } else {
+            // Расчет по каждому продукту
+            foreach ($order->get_items() as $key => $product) {
+                $product_id = $product['product_id'];
+                $item_total = $product['line_total'];
+
+                // Проверяем, есть ли специальная ставка для этого продукта
+                $product_rate = get_post_meta($product_id, '_affwp_woocommerce_product_rate', true);
+                $product_rate_type = get_post_meta($product_id, '_affwp_woocommerce_product_rate_type', true);
+
+                if ($product_rate) {
+                    if ('percentage' === $product_rate_type) {
+                        $referral_amount += round($item_total * $product_rate, 2);
+                    } else {
+                        $referral_amount += $product_rate * $product['qty'];
+                    }
+                } else {
+                    // Используем общую ставку партнера
+                    if ('percentage' === $rate_type) {
+                        $referral_amount += round($item_total * $affiliate_rate, 2);
+                    } else {
+                        // Для фиксированной ставки на продукт - обычно берется за единицу
+                        $referral_amount += $affiliate_rate * $product['qty'];
+                    }
+                }
+            }
+        }
+    }
+
+    // Добавим отладочную информацию для проверки расчетов
+    error_log("Order total: {$order_total}, Affiliate rate: {$affiliate_rate}, Rate type: {$rate_type}, Calculated referral amount: {$referral_amount}");
+
+    // Проверяем, не отключены ли рефералы для каких-то продуктов
+    foreach ($order->get_items() as $key => $product) {
+        $product_id = $product['product_id'];
+        $referrals_disabled = get_post_meta($product_id, '_affwp_woocommerce_referrals_disabled', true);
+
+        if ($referrals_disabled) {
+            // Рефералы отключены для этого продукта
+            $referral_amount = 0;
+            break;
+        }
+    }
+
+    // Проверяем, нужно ли игнорировать нулевые рефералы
+    if ($referral_amount == 0 && affiliate_wp()->settings->get('ignore_zero_referrals')) {
+        error_log("Referral amount is 0 and ignore_zero_referrals is enabled, skipping referral creation");
+        return;
+    }
+
+    // Дополнительная проверка: если сумма очень маленькая, но не ноль, все равно создаем реферал
+    if ($referral_amount > 0) {
+        error_log("Creating referral with amount: {$referral_amount}");
+    }
+
+    $payment_method = $order->get_payment_method();
+
+    // Если метод оплаты не определился, ставим дефолтное значение
+    if (empty($payment_method)) {
+        $payment_method = 'woocommerce';
+    }
+
+    // Создаем реферал
+    $referral_data = array(
+        'affiliate_id' => $affiliate_id,
+        'amount'       => $referral_amount,
+        'description'  => $description,
+        'reference'    => $order_id,
+        'context'      => 'woocommerce', // !!! Указываем правильный контекст для интеграции с WooCommerce !!! ВАЖНО !!!
+        'campaign'     => !empty($_COOKIE['affwp_campaign']) ? sanitize_text_field($_COOKIE['affwp_campaign']) : '',
+        'status'       => 'pending', // Статус будет изменен на 'unpaid' после подтверждения оплаты
+        'products'     => $products,
+        'date'         => $order_date,
+        'type'         => 'sale'
+    );
+
+    // Добавляем ID визита, если он есть
+    if ($visit_id) {
+        $referral_data['visit_id'] = $visit_id;
+    }
+
+    // Создаем реферал в системе
+    $referral_id = affwp_add_referral($referral_data);
+
+    if ($referral_id) {
+        // Добавляем заметку к заказу о созданном реферале
+        $order->add_order_note(
+            sprintf(
+                /* translators: %1$s is the referral URL, %2$s is the formatted money amount, and %3$s is the affiliate's name. */
+                __('Referral %1$s created. Amount %2$s recorded for %3$s', 'affiliate-wp'),
+                affwp_admin_link(
+                    'referrals',
+                    esc_html("#{$referral_id}"),
+                    array(
+                        'action'      => 'edit_referral',
+                        'referral_id' => $referral_id,
+                    )
+                ),
+                affwp_currency_filter(affwp_format_amount($referral_amount)),
+                affiliate_wp()->affiliates->get_affiliate_name($affiliate_id)
+            )
+        );
+        error_log("Successfully created referral #{$referral_id} with amount {$referral_amount} for order {$order_id}");
+    } else {
+        error_log("Failed to create referral for order {$order_id} with amount {$referral_amount}");
     }
 }
