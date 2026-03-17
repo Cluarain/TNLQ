@@ -11,19 +11,20 @@ input[type="hidden"] {
 .cf-turnstile {
     height: 65px;
     margin-top: var(--spacing-m);
+    filter: saturate(0.8) brightness(0.9);
 }
 
-.affwp-form {
-    max-width: 370px;
-    margin-inline: auto;
+.affwp-form-container {
+    max-width: 420px;
+    margin-inline: auto !important;
     background-color: var(--bg-quaternary);
     padding-inline: 25px;
     padding-block: 60px;
     text-align: center;
-
+    /* 
     legend {
         display: contents;
-    }
+    } */
 
     /* & p:has(input[type="hidden"]):not(:has(*:not(input[type="hidden"]))) {
         display: none;
@@ -163,7 +164,7 @@ input[type="hidden"] {
     }
 
     & .affwp-lost-password {
-        display: none;
+        /* display: none; */
 
         margin-block-start: .5rem;
 
