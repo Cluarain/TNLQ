@@ -1,26 +1,20 @@
 <?php
 
-// // Защита от прямого доступа через браузер
-// if (php_sapi_name() !== 'cli') {
-//     // Устанавливаем заголовки для предотвращения индексации
-//     header('HTTP/1.0 403 Forbidden');
-//     header('X-Robots-Tag: noindex, nofollow');
-//     echo '<!DOCTYPE html><html><head><meta name="robots" content="noindex,nofollow"></head><body><center><h1>403 Forbidden</h1></center></body></html>';
-//     exit;
-// }
-
-// // Дополнительная проверка на прямой вызов
-// defined('ABSPATH') || exit;
-
 /**
- * Скрипт для отправки напоминаний об окончании подписки за 3 дня.
- * Запускать по cron: 0 12 * * * php /var/www/html/cron-payment-mail-reminder.php
- * 
- * Защита от прямого доступа: скрипт проверяет, что запускается в CLI режиме,
- * иначе возвращает HTTP 403 ошибку и заголовки noindex/nofollow.
+ * Скрипт для отправки напоминаний об окончании подписки.
  */
 
-// Подключаем WordPress, чтобы использовать его функции
+// --- НАСТРОЙКИ БЕЗОПАСНОСТИ И ЛОГИРОВАНИЯ ---
+// Запрещаем вывод ошибок в консоль/лог (чтобы cron не слал спам root'y)
+error_reporting(0);
+ini_set('display_errors', 0);
+
+// Проверяем, что скрипт запущен из консоли
+if (php_sapi_name() !== 'cli') {
+    die('Access denied');
+}
+
+// Подключаем WordPress
 require_once('/var/www/html/wp-load.php');
 
 /**
@@ -28,12 +22,12 @@ require_once('/var/www/html/wp-load.php');
  */
 function my_error_log($order_id, $action, $details = '')
 {
-    $log_file = '/var/www/html/wp-content/vpn-logs/' . date('Y-m-d') . '.log';
-    $log_dir = dirname($log_file);
-
+    $log_dir = '/var/www/html/wp-content/vpn-logs';
     if (!file_exists($log_dir)) {
         wp_mkdir_p($log_dir);
     }
+
+    $log_file = $log_dir . '/' . date('Y-m-d') . '.log';
 
     $log_entry = sprintf(
         "[%s] Order #%s: %s %s\n",
@@ -43,9 +37,9 @@ function my_error_log($order_id, $action, $details = '')
         $details
     );
 
+    // Пишем в файл с блокировкой, чтобы не повредить лог при одновременном запуске
     file_put_contents($log_file, $log_entry, FILE_APPEND | LOCK_EX);
 }
-
 
 // Убедимся, что WooCommerce активен
 if (! class_exists('WooCommerce')) {
@@ -55,26 +49,31 @@ if (! class_exists('WooCommerce')) {
 
 function generate_reminder_promocode($order_id)
 {
+    // 1. Проверяем, не создавали ли мы уже промокод для этого заказа
+    $existing_code = get_post_meta($order_id, '_vpn_reminder_promocode', true);
+    if (!empty($existing_code)) {
+        // Проверяем, существует ли купон в WooCommerce (могли удалить вручную)
+        $coupon_id = wc_get_coupon_id_by_code($existing_code);
+        if ($coupon_id) {
+            return $existing_code; // Возвращаем существующий валидный код
+        }
+    }
+
     $prefix = 'TUNNEL10-';
-    $max_attempts = 10; // максимальное число попыток, чтобы избежать бесконечного цикла
+    $max_attempts = 10;
     $attempt = 0;
 
     do {
-        // Генерируем случайный суффикс (5 символов: буквы и цифры)
         $suffix = strtoupper(wp_generate_password(5, false));
         $coupon_code = $prefix . $suffix;
         $attempt++;
 
-        // Если превышено число попыток – логируем ошибку и выходим
         if ($attempt > $max_attempts) {
             my_error_log($order_id, 'promocode_error', 'Не удалось создать уникальный код после ' . $max_attempts . ' попыток');
             return null;
         }
-
-        // Проверяем, существует ли уже купон с таким кодом
     } while (wc_get_coupon_id_by_code($coupon_code));
 
-    // Теперь код точно уникален, создаём купон
     $coupon = new WC_Coupon();
     $coupon->set_code($coupon_code);
     $coupon->set_amount(10);
@@ -101,59 +100,77 @@ function generate_reminder_promocode($order_id)
 
     return $coupon_code;
 }
+
 /**
  * Основная функция проверки и отправки уведомлений
  */
 function vpn_send_expiration_reminders()
 {
-    // Текущая дата и время в WordPress (с учётом часового пояса)
     $now = current_time('mysql');
     $now_timestamp = strtotime($now);
-
-    // Дата и время через 5 дней от сейчас
     $some_days_later_timestamp = strtotime('+5 days', $now_timestamp);
 
-    // Выбираем все оплаченные заказы
+    // --- ОПТИМИЗАЦИЯ ЗАПРОСА ---
+    // Не выбираем ВСЕ заказы (-1). Ограничиваем выборку последними 2 годами 
+    $date_one_year_ago = date('Y-m-d', strtotime('-2 year', $now_timestamp));
+
     $orders = wc_get_orders([
         'status'    => 'completed',
-        'limit'     => -1,
+        'limit'     => -1, // Можно оставить -1, так как date_query сильно ограничит выборку
+        'date_query' => array(
+            array(
+                'after'     => $date_one_year_ago,
+                'inclusive' => true,
+            ),
+        ),
     ]);
-    my_error_log(0, 'init_reminder', 'Reminder with promo initialization');
+
+    my_error_log(0, 'init_reminder', 'Найдено заказов для проверки: ' . count($orders));
 
     foreach ($orders as $order) {
         $order_id = $order->get_id();
 
         // Получаем дату окончания
         $vpn_config = get_post_meta($order_id, '_vpn_config', true);
+
+        // Пропускаем, если нет конфига или даты
+        if (empty($vpn_config) || empty($vpn_config['client']['expires_at_unix'])) {
+            continue;
+        }
+
         $expires_timestamp = $vpn_config['client']['expires_at_unix'];
 
         // Проверяем: конфиг ещё активен (expires_at > now) И expires_at <= now+5 дней
         if ($expires_timestamp > $now_timestamp && $expires_timestamp <= $some_days_later_timestamp) {
-            // Проверяем, не отправляли ли уже напоминание для этого заказа
+
+            // Проверяем, не отправляли ли уже напоминание
             $reminder_sent = get_post_meta($order_id, '_vpn_reminder_sent', true);
             if (! empty($reminder_sent)) {
-                continue; // уже отправляли
+                continue;
             }
 
-            // Дополнительная проверка: заказ должен быть старше 12 часов
+            // --- ИСПРАВЛЕНИЕ ЛОГИКИ ---
+            // Проверка: заказ должен быть старше 12 часов
             $created_date = $order->get_date_created();
             if (! $created_date) {
-                my_error_log($order_id, 'skip_no_creation_date', 'Дата создания заказа отсутствует');
-                continue;
-            }
-            $created_timestamp = $created_date->getTimestamp();
-            $hours_since_creation = ($now_timestamp - $created_timestamp) / 3600;
-            if ($hours_since_creation < 0) {
-                my_error_log($order_id, 'skip_recent_order', sprintf('Заказ создан %.1f часов назад, пропускаем', $hours_since_creation));
                 continue;
             }
 
-            // Получаем email клиента
+            $created_timestamp = $created_date->getTimestamp();
+            $hours_since_creation = ($now_timestamp - $created_timestamp) / 3600;
+
+            // Меняем условие на правильное (больше 12 часов)
+            if ($hours_since_creation < 12) {
+                // my_error_log($order_id, 'skip_recent_order', sprintf('Заказ создан %.1f часов назад, пропускаем', $hours_since_creation));
+                continue;
+            }
+
             $customer_email = $order->get_billing_email();
             if (empty($customer_email)) {
                 continue;
             }
 
+            // Генерируем (или получаем существующий) промокод
             $gen_promo_code = generate_reminder_promocode($order_id);
             if (empty($gen_promo_code)) {
                 my_error_log($order_id, 'gen_promo_code', "NULL промокод");
@@ -163,7 +180,13 @@ function vpn_send_expiration_reminders()
             $expire_date = date('j M Y', $expires_timestamp);
             $subject = sprintf('Your VPN is about to expire! %s - %s', $expire_date, get_bloginfo('name'));
 
-            $mail_txt_template = file_get_contents(dirname(__FILE__) . '/cron-mail.txt');
+            $template_path = get_template_directory() . '/mail_templates/cron-mail.txt';
+            if (!file_exists($template_path)) {
+                my_error_log($order_id, 'template_missing', 'Файл шаблона не найден');
+                continue;
+            }
+
+            $mail_txt_template = file_get_contents($template_path);
             $alt_message = str_replace(
                 array('{{var:subject}}', '{{var:expire_date}}', '{{var:gen_promo_code}}', '{{var:main_page_url}}'),
                 array($subject, $expire_date, $gen_promo_code, 'https://tuneliqa.com/#pricing'),
@@ -171,15 +194,13 @@ function vpn_send_expiration_reminders()
             );
 
             // Отправляем письмо
-            $mail_sent = wp_mail($customer_email, $subject, $alt_message);
+            $mail_sent = wp_mail($customer_email, $subject, $alt_message, ['Content-Type: text/plain; charset=UTF-8']);
 
             if ($mail_sent) {
-                // Сохраняем отметку об отправке (дата отправки)
                 update_post_meta($order_id, '_vpn_reminder_sent', current_time('mysql'));
-                // Можно также записать в лог для отладки
                 my_error_log($order_id, 'reminder_mail_sent', "Напоминание отправлено на email {$customer_email}");
             } else {
-                my_error_log($order_id, 'reminder_mail_sent', "Ошибка отправки напоминающего письма");
+                my_error_log($order_id, 'reminder_mail_fail', "Ошибка отправки письма (wp_mail returned false)");
             }
         }
     }
