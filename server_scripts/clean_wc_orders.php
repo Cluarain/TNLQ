@@ -6,22 +6,20 @@
  */
 
 // Убедимся, что скрипт запускается из CLI
+error_reporting(0);
+ini_set('display_errors', 0);
+
+// Проверяем, что скрипт запущен из консоли
 if (php_sapi_name() !== 'cli') {
-    die('Этот скрипт должен запускаться из командной строки');
+    die('Access denied');
 }
 
 // Подключаем WordPress
-$wp_load_path = '/var/www/html/wp-load.php';
-
-if (file_exists($wp_load_path)) {
-    require_once $wp_load_path;
-} else {
-    die('WordPress не найден по пути: ' . $wp_load_path . "\n");
-}
+require_once('/var/www/html/wp-load.php');
 
 // Проверяем, установлен ли WooCommerce
 if (!class_exists('WooCommerce') || !function_exists('wc_get_orders')) {
-    die('WooCommerce не установлен или не активирован' . "\n");
+    die("WooCommerce not installed\n");
 }
 
 /**
@@ -32,9 +30,7 @@ function clean_wc_pending_orders_without_email() {
     
     // Вычисляем дату неделю назад
     $one_week_ago = date('Y-m-d H:i:s', strtotime('-7 days'));
-    
-    echo "Поиск заказов старше: " . $one_week_ago . "\n";
-    
+        
     // Получаем заказы со статусом pending, без email и старше недели
     $args = array(
         'status' => 'pending',
@@ -46,11 +42,11 @@ function clean_wc_pending_orders_without_email() {
     $order_ids = wc_get_orders($args);
     
     if (empty($order_ids)) {
-        echo "Нет заказов для удаления.\n";
+        echo "No orders for deletion.\n";
         return;
     }
     
-    echo "Найдено " . count($order_ids) . " заказов со статусом pending старше недели.\n";
+    echo "Find " . count($order_ids) . " pending orders older 1 week.\n";
     
     $deleted_count = 0;
     
@@ -71,17 +67,15 @@ function clean_wc_pending_orders_without_email() {
             
             if ($result) {
                 $deleted_count++;
-                error_log("Удален заказ #" . $order_id . " без email от " . $order->get_date_created());
+                error_log("Order #" . $order_id . " from " . $order->get_date_created() . "was deleted");
             } else {
-                error_log("Не удалось удалить заказ #" . $order_id);
+                error_log("Couldn't delete order #" . $order_id);
             }
         }
     }
     
-    echo "Удалено $deleted_count заказов без email и со статусом pending, старше недели.\n";
+    echo "Deleted $deleted_count of orders without email and with pending status, older than a week.\n";
 }
 
 // Выполняем очистку
 clean_wc_pending_orders_without_email();
-
-echo "Задача завершена: " . date('Y-m-d H:i:s') . "\n";
