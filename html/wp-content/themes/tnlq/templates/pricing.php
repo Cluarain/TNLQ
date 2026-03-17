@@ -70,6 +70,7 @@ extract(parse_args_filtered($args, $defaults));
                         $buy_button_label = $buy_buttons;
                         $disc_label = '5 devices';
 
+                        $best_plan = null;
                         $period = round((int)$card["period"] / 30);
                         if ($period == 0) {
                             $price_mon = '$' . $card["total_price"] . ' / ' . $card["period"] * 24 . ' hr';
@@ -113,7 +114,6 @@ extract(parse_args_filtered($args, $defaults));
                                 data-period="<?php echo $period ?>"
                                 data-price="<?php echo $price_total ?>"><?php echo $buy_button_label  ?>
                             </button>
-                            <!-- <a href="<?php echo $tariff_url ?>" aria-label="Buy button" data-period="<?php echo $period ?>" class="btn btn-warning pricing__card-button arrow-sign margin-m hover-active-2"><?php echo $buy_buttons ?></a> -->
                         </div>
                 <?php
 
