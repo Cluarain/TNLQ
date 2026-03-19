@@ -47,6 +47,7 @@ function wp_scripts_styles_dequeue()
     wp_deregister_style('wp-block-library-theme');
     wp_deregister_style('wp-blocks-style');
     wp_dequeue_style('wp-block-library');
+    wp_dequeue_style('affwp-forms');
 
     wp_dequeue_style('global-styles');
     if (current_user_can('update_core')) {

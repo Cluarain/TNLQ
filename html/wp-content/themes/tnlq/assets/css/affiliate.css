@@ -15,12 +15,15 @@ input[type="hidden"] {
 }
 
 .affwp-form-container {
+    position: relative;
+    margin-top: 3rem;
     max-width: 420px;
     margin-inline: auto !important;
     background-color: var(--bg-quaternary);
     padding-inline: 25px;
     padding-block: 60px;
     text-align: center;
+    margin-bottom: 3rem;
     /* 
     legend {
         display: contents;
@@ -48,7 +51,7 @@ input[type="hidden"] {
             &>label {
                 transform: translateY(-120%);
                 top: 0;
-                font-size: .8em;
+                font-size: .9em;
                 width: 0
             }
         }
@@ -72,12 +75,17 @@ input[type="hidden"] {
         }
     }
 
-    /* 
+
     & fieldset {
-        display: flex;
-        flex-flow: column;
-        gap: 2rem;
-    } */
+        border: none;
+
+        & legend {
+            font-size: 120%;
+            margin-bottom: 1em;
+        }
+    }
+
+
 
     & input.required,
     & .affwp-field {
@@ -88,6 +96,7 @@ input[type="hidden"] {
         color: var(--text-primary);
         font-size: inherit;
         caret-color: var(--success-color);
+        width: 100%;
     }
 
     & .affwp-field-label {
@@ -114,6 +123,7 @@ input[type="hidden"] {
         align-items: center;
         justify-content: center;
         gap: .5rem;
+        cursor: pointer;
     }
 
     & input[type="checkbox"] {
@@ -184,4 +194,433 @@ input[type="hidden"] {
         resize: vertical;
         min-height: 62px;
     }
+}
+
+#affwp-affiliate-dashboard {
+    padding-block: 2rem;
+
+
+    & input:not([name="submit"], [type="submit"]) {
+        padding: 1rem;
+        border: 1px solid var(--border-primary);
+        background: transparent;
+        font-family: inherit;
+        font-size: inherit;
+        color: var(--text-primary);
+        caret-color: var(--success-color);
+    }
+
+    & select {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-image: url('data:image/svg+xml;utf8,<svg fill="%23fff" height="24px" viewBox="0 0 24 24" width="24px" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 0.5rem center;
+
+        &::-ms-expand {
+            display: none;
+        }
+
+        &>option {
+            background-color: var(--bg-quaternary);
+            padding: 0.5rem;
+        }
+    }
+
+    & select,
+    & input[type="submit"],
+    & input[name="submit"],
+    & button {
+        padding: 1rem 1.2rem;
+        border: 1px solid var(--text-primary);
+        background-color: transparent;
+        font-size: inherit;
+        font-family: inherit;
+        cursor: pointer;
+        color: inherit;
+        transition: filter var(--main-transition);
+
+        &:active,
+        &:hover {
+            filter: var(--glow);
+        }
+
+        &.affwp-tooltip {
+            padding: 5px;
+            border: none
+        }
+    }
+
+
+    & input[type="submit"] {
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+    }
+
+    & h4 {
+        margin-bottom: 1.5rem;
+    }
+}
+
+.affwp-modal__button {
+    padding: 1rem 1.2rem;
+    border: 1px solid var(--border-quaternary);
+    background-color: transparent;
+    font-size: inherit;
+    font-family: inherit;
+    cursor: pointer;
+    color: inherit;
+}
+
+#affwp-affiliate-dashboard-tabs {
+    display: flex;
+    /* gap: 1rem; */
+    row-gap: 1rem;
+    flex-flow: row wrap;
+    list-style: none;
+    margin-bottom: 2rem;
+
+    & .affwp-affiliate-dashboard-tab {
+        padding-inline: 0.75rem;
+        padding-block: 0.2rem;
+        border-bottom: 1px solid currentColor;
+        transition: var(--main-transition);
+        transition-property: color, border-color, filter;
+
+        &.active {
+            color: var(--success-color);
+        }
+
+        &:hover {
+            color: var(--accent-color);
+            filter: var(--glow);
+        }
+
+        &::before {
+            content: ">";
+        }
+    }
+}
+
+.affwp-affiliate-link__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .5rem;
+
+    /* &.affwp-affiliate-link__header {
+        display: grid;
+    } */
+}
+
+.affwp-tab-content {
+    /* margin-top: 2rem; */
+}
+
+.affwp-card__content,
+.affwp-card__footer {
+    margin-top: 1rem;
+}
+
+.affwp-card__content--form {
+    display: grid;
+    gap: 1rem;
+
+    &>div:first-child {
+        display: flex;
+        flex-flow: row wrap;
+        gap: .75rem;
+        align-items: center;
+    }
+}
+
+.affwp-notice {
+    padding: .75rem;
+    border: 1px solid var(--warning-color);
+    margin-bottom: 2rem;
+    position: sticky;
+    top: 50px;
+    background-color: var(--bg-secondary);
+}
+
+.affwp-errors {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translate(0%, -100%);
+    text-align: center;
+    width: 100%;
+
+    &>p.affwp-error {
+        margin: 0;
+        color: var(--danger-color);
+    }
+}
+
+
+.affwp-graph {
+    margin-top: 1.5rem;
+    filter: hue-rotate(180deg) invert(1);
+}
+
+.affwp-wrap {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-flow: row wrap;
+    gap: .75rem;
+    align-items: center;
+}
+
+/* Tooltips */
+.affwp-card__tooltip {
+    cursor: help;
+}
+
+.affwp-card__tooltip p {
+    margin-bottom: 1rem;
+}
+
+.affwp-card__tooltip svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.tippy-box[data-theme~="affwp"] .tippy-content {
+    padding: 1rem;
+}
+
+.tippy-box[data-theme~="affwp"] .tippy-content p {
+    margin-bottom: 1rem;
+}
+
+.tippy-box[data-theme~="affwp"] .tippy-content p:last-child {
+    margin-bottom: 0;
+}
+
+#affwp-flot-tooltip {
+    color: #000;
+}
+
+/* End Tooltips */
+
+/* Affiliate Link Card */
+.affwp-card.affwp-affiliate-link {
+    margin-bottom: 1.5rem;
+}
+
+.affwp-affiliate-link__display {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+/* End Affiliate Link Card */
+
+/* Link Sharing */
+.affwp-link-sharing {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    color: var(--affiliate-color);
+}
+
+.affwp-link-sharing__options {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.affwp-link-sharing__icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 30px;
+    height: 30px;
+}
+
+.affwp-link-sharing__icon svg {
+    width: 2rem;
+    height: 2rem;
+    /* color: rgba(0, 0, 0, 0.75); */
+}
+
+.affwp-link-sharing__x>svg>path {
+    fill: #fff !important;
+}
+
+.affwp-link-sharing__qrcode {
+    cursor: pointer;
+}
+
+
+
+table.affwp-table {
+    text-align: left;
+    width: 100%;
+    border: none;
+    border-collapse: collapse;
+    word-wrap: break-word;
+    table-layout: auto;
+    margin-top: 2rem;
+}
+
+table.affwp-table th,
+table.affwp-table td {
+    text-align: left;
+    border: 1px solid var(--border-quaternary);
+    color: var(--text-secondary);
+    padding: 0.3em 1em;
+    max-width: 100%;
+}
+
+table.affwp-table th {
+    background: var(--bg-tertiary);
+    font-weight: bold;
+}
+
+
+/* Responsive table styling for mobile resolutions */
+.affwp-table-responsive td:before {
+    content: attr(data-th) ":\00a0";
+    font-weight: bold;
+    display: none;
+}
+
+#affwp-custom-link-generator {
+    margin-top: 3rem;
+}
+
+.affwp-custom-link-row {
+    display: flex;
+    justify-content: space-between;
+    gap: .5rem;
+    flex-flow: row wrap;
+    align-items: center;
+}
+
+#affwp-url,
+#affwp-usdt-bsc-wallet,
+#affwp-payment-email {
+    flex: 1 1;
+    max-width: 50%;
+    min-width: 200px;
+}
+
+
+#ui-datepicker-div {
+    padding: 5px;
+    background-color: var(--bg-tertiary);
+
+    & .ui-datepicker-header {
+        display: flex;
+        flex-flow: row;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+
+        & .ui-datepicker-next,
+        & .ui-datepicker-prev {
+            position: absolute;
+            cursor: pointer;
+            padding: 5px;
+
+            & .ui-icon {
+                display: none;
+            }
+        }
+
+        & .ui-datepicker-prev {
+            inset-inline-start: 0;
+
+            &::before {
+                content: '<';
+            }
+        }
+
+        & .ui-datepicker-next {
+            inset-inline-end: 0;
+
+            &::after {
+                content: '>';
+            }
+        }
+    }
+
+}
+
+table.ui-datepicker-calendar {
+
+    .ui-datepicker-current-day {
+        color: var(--accent-color);
+    }
+
+    .ui-state-highlight {
+        color: var(--success-color);
+    }
+
+    & td>a {
+        padding: 3px;
+        transition: background-color var(--main-transition);
+
+        &:active,
+        &:hover {
+            background-color: var(--accent-color);
+            color: var(--text-primary);
+        }
+    }
+}
+
+@media (min-width: 480px) {
+
+    #affwp-affiliate-dashboard-url-generator .affwp-affiliate-link,
+    .affwp-affiliate-link__display {
+        flex-direction: row;
+    }
+
+    .affwp-affiliate-link__input {
+        flex-grow: 1;
+    }
+}
+
+
+@media (max-width: 768px) {
+    #affwp-affiliate-dashboard-campaign-stats .affwp-table-responsive td.affwp-table-no-data {
+        display: block;
+    }
+
+    #affwp-affiliate-dashboard-visits .affwp-table-responsive td.affwp-table-no-data::before,
+    #affwp-affiliate-dashboard-payouts .affwp-table-responsive td.affwp-table-no-data::before,
+    #affwp-affiliate-dashboard-referrals .affwp-table-responsive td.affwp-table-no-data::before {
+        display: none;
+    }
+
+    .affwp-table-responsive td:last-child {
+        margin-bottom: 20px;
+    }
+
+    .affwp-table-responsive td:first-child {
+        background-color: var(--bg-tertiary);
+    }
+
+    .affwp-table-responsive td::before {
+        display: inline-block;
+    }
+
+    .affwp-table-responsive th {
+        display: none;
+    }
+
+    .affwp-table-responsive td {
+        display: flex;
+        justify-content: space-between;
+    }
+}
+
+.affwp-hidden {
+    display: none;
 }

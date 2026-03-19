@@ -49,6 +49,8 @@
     --border-primary: hsl(0, 0%, 100%);
     --border-secondary: hsl(0, 0%, 85%);
     --border-tertiary: hsl(0, 0%, 33%);
+    --border-quaternary: hsl(0, 0%, 15%);
+
     --card-shadow: 5px 5px 0 0 var(--text-tertiary);
     /* в макете */
     --main-text-padding: 5.5rem;
