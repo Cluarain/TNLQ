@@ -53,28 +53,28 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Находим любую ссылку с href="#..."
-    document.addEventListener('click', function (e) {
-        var link = e.target.closest('a[href^="#"]');
+    // // Находим любую ссылку с href="#..."
+    // document.addEventListener('click', function (e) {
+    //     var link = e.target.closest('a[href^="#"]');
 
-        if (!link) return; // Если клик не по такой ссылке, выходим
+    //     if (!link) return; // Если клик не по такой ссылке, выходим
 
-        var targetId = link.getAttribute('href').substring(1); // Получаем ID без "#"
+    //     var targetId = link.getAttribute('href').substring(1); // Получаем ID без "#"
 
-        if (!targetId) return; // Если пустой ID (например, href="#"), выходим
+    //     if (!targetId) return; // Если пустой ID (например, href="#"), выходим
 
-        e.preventDefault(); // Отменяем стандартное поведение
+    //     e.preventDefault(); // Отменяем стандартное поведение
 
-        var targetElement = document.getElementById(targetId); // Ищем элемент с таким ID
+    //     var targetElement = document.getElementById(targetId); // Ищем элемент с таким ID
 
-        if (targetElement) {
-            // Элемент найден — плавно скроллим к нему
-            targetElement.scrollIntoView({ behavior: 'smooth' });
-        } else {
-            // Элемент не найден — редиректим на главную с якорем
-            window.location.href = '/' + '#' + targetId;
-        }
-    });
+    //     if (targetElement) {
+    //         // Элемент найден — плавно скроллим к нему
+    //         targetElement.scrollIntoView({ behavior: 'smooth' });
+    //     } else {
+    //         // Элемент не найден — редиректим на главную с якорем
+    //         window.location.href = '/' + '#' + targetId;
+    //     }
+    // });
 
     // Typewriter
     {

@@ -53,11 +53,11 @@ add_action('parse_query', 'disable_search_filter');
 
 // устанавливаем глобальные переменные после запуска темы
 add_action('after_setup_theme', function () {
-    $GLOBALS['why-tuneliqa_link'] = '#why-tuneliqa';
-    $GLOBALS['pricing_link'] = '#pricing';
-    $GLOBALS['privacy-matters_link'] = '#privacy-matters';
-    $GLOBALS['faq_link'] = '#faq';
-    $GLOBALS['contact_link'] = '#footer';
+    $GLOBALS['why-tuneliqa_link'] =  site_url('#why-tuneliqa');
+    $GLOBALS['pricing_link'] =  site_url('#pricing');
+    $GLOBALS['privacy-matters_link'] =  site_url('#privacy-matters');
+    $GLOBALS['faq_link'] =  site_url('#faq');
+    $GLOBALS['contact_link'] = site_url('#footer');
 
 
     $GLOBALS['telegram_link'] = 'https://t.me/tuneliqa';
@@ -169,7 +169,7 @@ function add_scripts_and_styles()
     // ['strategy' => 'async', 'in_footer' => true ]
     wp_enqueue_script('main', getShortFileLink($main_js), [], getShortFileHash($main_js), true);
 
-    
+
     if (is_page() && strpos(get_post_field('post_name'), 'affiliate-') !== false) {
         $affiliate_css = get_relative_theme_file_uri('/assets/css/affiliate' . $isMinify . '.css');
         wp_enqueue_style('affiliate', getShortFileLink($affiliate_css), [], getShortFileHash($affiliate_css));
