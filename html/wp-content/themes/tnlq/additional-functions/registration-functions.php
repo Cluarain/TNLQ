@@ -21,12 +21,18 @@ function send_login_credentials_email($user_id)
 
     $array_replace_from =  array('{{var:user_login}}', '{{var:user_password}}');
     $array_replace_to =    array($login, $password);
-   
+
     $alt_message = str_replace(
         $array_replace_from,
         $array_replace_to,
         $mail_txt_template
     );
 
-    wp_mail($email , $subject, $alt_message, ['Content-Type: text/plain; charset=UTF-8']);
+    $sent_alt = wp_mail($email, $subject, $alt_message, ['Content-Type: text/plain; charset=UTF-8']);
+    if (!$sent_alt) {
+        $last_error = error_get_last();
+        $error_details = $last_error ? $last_error['message'] : 'Unknown error';
+
+        log_vpn_action(0, 'email_failed', $error_details);
+    }
 }
