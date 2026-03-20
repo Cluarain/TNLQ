@@ -310,6 +310,10 @@ header {
     gap: .25rem 5rem;
 }
 
+.client-ip {
+    word-break: break-all;
+}
+
 .header__nav {
     position: relative;
 }
@@ -1026,6 +1030,12 @@ input:-internal-autofill-selected {
     margin-top: 110px;
     padding-block: 20px;
     color: var(--text-quaternary);
+
+    & span {
+        display: flex;
+        flex-flow: row wrap;
+        align-items: center;
+    }
 }
 
 .breadcrumb_last {

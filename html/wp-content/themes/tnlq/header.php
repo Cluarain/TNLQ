@@ -11,7 +11,7 @@ $in_tunnel = check_if_in_tunnel($client_ip);
             <div class="header__label__box">
                 <div class="header__ip">
                     <span>Your IP: </span>
-                    <span class="text-tertiary">
+                    <span class="client-ip text-tertiary">
                         <?php echo $client_ip ?>
                     </span>
                 </div>
