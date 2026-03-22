@@ -90,13 +90,14 @@ add_action('affwp_affiliate_dashboard_before_submit',  'add_usdt_bsc_wallet_to_p
 /**
  * Добавляем отображение USDT BSC кошелька в админке при редактировании партнера
  */
-function display_usdt_bsc_wallet_in_admin($affiliate) {
+function display_usdt_bsc_wallet_in_admin($affiliate)
+{
     if (!$affiliate) {
         return;
     }
-    
+
     $usdt_bsc_wallet = affwp_get_affiliate_meta($affiliate->affiliate_id, 'usdt_bsc_wallet', true);
-    
+
     echo '<tr class="form-row">';
     echo '<th scope="row">';
     echo '<label for="usdt_bsc_wallet">' . __("USDT BSC Wallet", "affiliate-wp") . '</label>';
@@ -113,3 +114,44 @@ function display_usdt_bsc_wallet_in_admin($affiliate) {
 }
 add_action('affwp_edit_affiliate_end', 'display_usdt_bsc_wallet_in_admin', 10, 1);
 
+
+
+
+function display_affiliate_earnings()
+{
+    $dates = affwp_get_report_dates();
+
+    $start = $dates['year'] . '-' . $dates['m_start'] . '-' . $dates['day'];
+    $end   = $dates['year_end'] . '-' . $dates['m_end'] . '-' . $dates['day_end'];
+
+    $date  = array(
+        'start' => $start,
+        'end'   => $end
+    );
+
+    $referrals = affiliate_wp()->referrals->get_referrals(array(
+        'orderby'      => 'date',
+        'order'        => 'ASC',
+        'date'         => $date,
+        'number'       => -1,
+    ));
+
+    $data = array(
+        'pending'  => 0,
+        'unpaid' => 0,
+        'paid' => 0,
+        'rejected' => 0,
+    );
+
+    foreach ($referrals as $referral) {
+        $data[$referral->status] += $referral->amount;
+    }
+
+    echo '
+    <div id="affwp-affiliate-dashboard-balance">
+        <span class="balance_unpaid">Unpaid: $' . $data['unpaid'] . '</span>
+        <span class="balance_paid">Paid: $' . $data['paid'] . '</span>
+    </div>
+    ';
+}
+add_action('affwp_affiliate_dashboard_top', 'display_affiliate_earnings', 10, 0);

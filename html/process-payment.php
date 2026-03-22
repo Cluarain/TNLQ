@@ -414,18 +414,6 @@ function set_order_affiliate_from_cookie($order_id)
         return;
     }
 
-    // Дополнительная проверка: если сумма очень маленькая, но не ноль, все равно создаем реферал
-    if ($referral_amount > 0) {
-        error_log("Creating referral with amount: {$referral_amount}");
-    }
-
-    $payment_method = $order->get_payment_method();
-
-    // Если метод оплаты не определился, ставим дефолтное значение
-    if (empty($payment_method)) {
-        $payment_method = 'woocommerce';
-    }
-
     // Создаем реферал
     $referral_data = array(
         'affiliate_id' => $affiliate_id,
