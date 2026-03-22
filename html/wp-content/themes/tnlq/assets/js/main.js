@@ -194,6 +194,7 @@ document.addEventListener("DOMContentLoaded", function () {
         var urlParams = new URLSearchParams(window.location.search);
         var paymentResult = urlParams.get('payment_result');
         var orderId = urlParams.get('order_id');
+        var amountTotal = urlParams.get('amount_total');
         var customerEmail = urlParams.get('customer_email');
         // var product_id = urlParams.get('product_id');
         // var promo = urlParams.get('promo');
@@ -204,11 +205,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 case 'success':
                 case 'completed':
                     if (window.gtag) {
-                        gtag('event', 'conversion', {
-                            'send_to': 'AW-XXXXXXXXX/XXXXXXXXX',
-                            // 'value': 1.0, // Значение конверсии (если применимо)
-                            // 'currency': 'USD', // Валюта (если применимо)
-                            'transaction_id': orderId || ''
+                        gtag('event', 'purchase', {
+                            transaction_id: orderId,
+                            value: parseFloat(amountTotal) || 0,
+                            currency: "USD"
                         });
                     }
 

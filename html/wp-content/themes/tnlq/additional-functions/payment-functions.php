@@ -32,6 +32,7 @@ function handle_nowpayments_redirects()
                     'payment_result' => 'success',
                     'order_id' => $order->get_id(),
                     'customer_email' => urlencode($order->get_billing_email()),
+                    'amount_total' => $order->get_total(),
                     'np_id' => $np_id
                 ), site_url('/')));
                 exit;
