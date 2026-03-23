@@ -58,7 +58,8 @@
     /* как по мне это лучше */
     --main-text-padding: 3.625rem;
 
-    --active-shadow: 0px 0px 5px var(--text-primary);
+    --active-shadow: 2px 2px 4px hsl(0, 0%, 0%, .5);
+
     --main-transition: 0.3s ease-out;
 
     --glow: drop-shadow(0 0 3px currentColor);
@@ -242,6 +243,10 @@ svg {
 
 .text-success {
     color: var(--success-color);
+}
+
+.text-affiliate {
+    color: var(--affiliate-color);
 }
 
 .btn {

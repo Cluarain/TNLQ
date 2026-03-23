@@ -201,8 +201,7 @@ input[type="hidden"] {
     display: grid;
     grid-template-columns: auto 1fr;
     grid-template-rows: auto;
-    gap: 2rem;
-    padding-block: 3rem;
+    padding-block: 5rem 3rem;
 
     & input:not([name="submit"], [type="submit"]) {
         padding: 1rem;
@@ -269,53 +268,61 @@ input[type="hidden"] {
 
 #affwp-affiliate-dashboard-balance {
     position: absolute;
+    top: 0;
     display: flex;
     flex-flow: row wrap;
-    gap: 2rem;
+    gap: 22px;
+    align-items: center;
+    padding: 0.2rem 0.75rem;
+    border: 1px solid var(--border-tertiary);
 
-    & .balance_unpaid {
-        color: var(--success-color);
-    }
-
-    & .balance_paid {
-        color: var(--affiliate-color);
+    & .balance-str {
+        display: flex;
+        flex-flow: column;
+        /* gap: 0.15rem; */
     }
 }
 
 #affwp-affiliate-dashboard-tabs {
     display: flex;
-    gap: 1rem;
     flex-flow: column;
     list-style: none;
     grid-column: 1;
-    grid-row: 1 / span 5;
-    padding-inline-end: 2rem;
+    grid-row: 1 / span 10;
+    margin-inline-end: 2rem;
     border-inline-end: 1px solid var(--border-secondary);
 
     & .affwp-affiliate-dashboard-tab {
-        /* padding-inline: 0.75rem; */
-        padding-block: 0.2rem;
-        /* border-bottom: 1px solid currentColor; */
         transition: var(--main-transition);
         transition-property: color, border-color, filter;
+        border-inline-end: 3px solid transparent;
+        margin-inline-end: -1.5px;
 
-        &.active {
-            color: var(--success-color);
-        }
-
-        &:hover {
-            color: var(--accent-color);
-            filter: var(--glow);
+        &>a {
+            padding-block: 0.75rem;
+            padding-inline-end: 2rem;
+            display: block;
 
             &::before {
-                animation: blinking 1.5s infinite;
+                content: "> ";
+                opacity: 0.75;
+                transition: opacity var(--main-transition);
             }
         }
 
-        &::before {
-            content: ">";
-            opacity: 0.75;
-            transition: opacity var(--main-transition);
+        &.active {
+            color: var(--success-color);
+            border-color: currentColor;
+        }
+
+        &:hover {
+            border-color: currentColor;
+            color: var(--accent-color);
+            filter: var(--glow);
+
+            &>a::before {
+                animation: blinking 1.5s infinite;
+            }
         }
     }
 }
@@ -409,28 +416,37 @@ input[type="hidden"] {
 /* Tooltips */
 .affwp-card__tooltip {
     cursor: help;
+    display: flex;
+
+    & p {
+        margin-bottom: 1rem;
+    }
+
+    & svg {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
 }
 
-.affwp-card__tooltip p {
-    margin-bottom: 1rem;
-}
-
-.affwp-card__tooltip svg {
-    width: 1.25rem;
-    height: 1.25rem;
+.tippy-arrow {
+    color: var(--bg-tertiary);
+    filter: drop-shadow(var(--active-shadow));
 }
 
 .tippy-box[data-theme~="affwp"] .tippy-content {
+    background-color: var(--bg-tertiary);
     padding: 1rem;
+    filter: drop-shadow(var(--active-shadow));
+
+    & p {
+        margin-bottom: 1rem;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
 }
 
-.tippy-box[data-theme~="affwp"] .tippy-content p {
-    margin-bottom: 1rem;
-}
-
-.tippy-box[data-theme~="affwp"] .tippy-content p:last-child {
-    margin-bottom: 0;
-}
 
 #affwp-flot-tooltip {
     color: #000;
@@ -459,6 +475,10 @@ input[type="hidden"] {
     align-items: center;
     gap: 0.5rem;
     margin-top: 1.5rem;
+
+}
+
+.affwp-link-sharing__text {
     color: var(--affiliate-color);
 }
 
@@ -636,16 +656,24 @@ table.ui-datepicker-calendar {
 
     #affwp-affiliate-dashboard-tabs {
         flex-flow: row wrap;
+        margin: 0 0 2rem 0;
+
+        &>.affwp-affiliate-dashboard-tab {
+            margin: 0;
+            border: none;
+        }
     }
 
     #affwp-affiliate-dashboard-campaign-stats .affwp-table-responsive td.affwp-table-no-data {
         display: block;
     }
 
-    #affwp-affiliate-dashboard-visits .affwp-table-responsive td.affwp-table-no-data::before,
-    #affwp-affiliate-dashboard-payouts .affwp-table-responsive td.affwp-table-no-data::before,
-    #affwp-affiliate-dashboard-referrals .affwp-table-responsive td.affwp-table-no-data::before {
-        display: none;
+    #affwp-affiliate-dashboard-referrals,
+    #affwp-affiliate-dashboard-payouts,
+    #affwp-affiliate-dashboard-visits {
+        & .affwp-table-responsive td.affwp-table-no-data::before {
+            display: none;
+        }
     }
 
     .affwp-table-responsive {
