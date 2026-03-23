@@ -204,13 +204,12 @@ document.addEventListener("DOMContentLoaded", function () {
             switch (paymentResult) {
                 case 'success':
                 case 'completed':
-                    if (window.gtag) {
-                        gtag('event', 'purchase', {
-                            transaction_id: orderId,
-                            value: parseFloat(amountTotal) || 0,
-                            currency: "USD"
-                        });
-                    }
+                    dataLayer.push({
+                        event: "purchase",
+                        transaction_id: orderId,
+                        value: parseFloat(amountTotal) || 0,
+                        currency: "USD"
+                    });
 
                     showPaymentModal({
                         type: 'success',

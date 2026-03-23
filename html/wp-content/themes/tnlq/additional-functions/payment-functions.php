@@ -46,7 +46,7 @@ function handle_nowpayments_redirects()
             }
         }
     }
-
+    // https://tuneliqa.com/?payment_status=success&order_id=576&key=wc_order_CEXyv4IgpNKNX
     // 2. ОБРАБОТКА НОВЫХ URL (?payment_status=success&order_id=...&key=...)
     if (isset($_GET['payment_status']) && $_GET['payment_status'] === 'success') {
         $order_id = (isset($_GET['order_id']) ? intval($_GET['order_id']) : 0);
@@ -59,13 +59,16 @@ function handle_nowpayments_redirects()
                 wp_safe_redirect(add_query_arg(array(
                     'payment_result' => 'success',
                     'order_id' => $order->get_id(),
+                    'amount_total' => $order->get_total(),
                     'customer_email' => urlencode($order->get_billing_email())
                 ), site_url('/')));
                 exit;
             } else {
                 wp_safe_redirect(add_query_arg(array(
                     'payment_result' => 'pending',
-                    'order_id' => $order->get_id()
+                    'order_id' => $order->get_id(),
+                    'amount_total' => $order->get_total(),
+                    'customer_email' => urlencode($order->get_billing_email())
                 ), site_url('/')));
                 exit;
             }
