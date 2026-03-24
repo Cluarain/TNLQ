@@ -1,23 +1,11 @@
 <?php
-
 // подключаем все файлы функций из папки
 foreach (glob(get_template_directory() . '/additional-functions/*-functions.php') as $filename) {
     require_once $filename;
 }
 
-// Чтобы WordPress не делал редирект на основной домен, нужно добавить фильтры
-add_filter('pre_option_siteurl', function ($url) {
-    return 'https://' . $_SERVER['HTTP_HOST'];
-});
 
-add_filter('pre_option_home', function ($url) {
-    return 'https://' . $_SERVER['HTTP_HOST'];
-});
-
-add_filter('cfw_get_billing_checkout_fields', 'remove_checkout_fields', 100);
-
-function remove_checkout_fields($fields)
-{
+add_filter('cfw_get_billing_checkout_fields', function ($fields) {
     echo "remove_checkout_fields";
     print_r($fields);
 
@@ -31,7 +19,7 @@ function remove_checkout_fields($fields)
 
     print_r($fields);
     return $fields;
-}
+}, 100);
 
 // Set billing address fields to not required
 add_filter('woocommerce_checkout_fields', 'unrequire_checkout_fields');
@@ -53,16 +41,14 @@ add_action('parse_query', 'disable_search_filter');
 
 // устанавливаем глобальные переменные после запуска темы
 add_action('after_setup_theme', function () {
-    $GLOBALS['why-tuneliqa_link'] =  site_url('#why-tuneliqa');
-    $GLOBALS['pricing_link'] =  site_url('#pricing');
-    $GLOBALS['privacy-matters_link'] =  site_url('#privacy-matters');
-    $GLOBALS['faq_link'] =  site_url('#faq');
-    $GLOBALS['contact_link'] = site_url('#footer');
-
+    $GLOBALS['why-tuneliqa_link'] =  '/#why-tuneliqa';
+    $GLOBALS['pricing_link'] = '/#pricing';
+    $GLOBALS['privacy-matters_link'] =  '/#privacy-matters';
+    $GLOBALS['faq_link'] =  '/#faq';
+    $GLOBALS['contact_link'] = '/#footer';
 
     $GLOBALS['telegram_link'] = 'https://t.me/tuneliqa';
     $GLOBALS['twitter_link'] = 'xxx';
-
 
     // добавляем поддержку title-tag
     add_theme_support('title-tag');
@@ -71,10 +57,15 @@ add_action('after_setup_theme', function () {
 // печатаем глобальную переменную если такая существует
 function print_global_var($var)
 {
+    echo get_global_var($var);
+}
+
+function get_global_var($var)
+{
     if (isset($GLOBALS[$var])) {
-        echo $GLOBALS[$var];
+        return $GLOBALS[$var];
     }
-    echo null; // Возвращаем null, если переменной нет
+    return null;
 }
 
 // поддержка таксономий для страниц
@@ -88,18 +79,55 @@ add_action('init', 'add_categories_and_tags_to_pages');
 // управление зеркалами
 function is_mirror_domain()
 {
-    $primary_domain = 'tuneliqa.com'; // Укажите ваш основной домен
+    $primary_domain = 'tuneliqa.com';
     $current_domain = $_SERVER['HTTP_HOST'];
     return ($current_domain != $primary_domain && $current_domain != 'www.' . $primary_domain);
 }
-
-// 1. Управляем robots
 add_filter('wpseo_robots', function ($robots) {
     if (is_mirror_domain()) {
         return 'noindex, follow';
     }
     return $robots;
 });
+
+function rw_relative_urls()
+{
+    if (is_feed() || get_query_var('sitemap'))
+        return;
+
+    $filters = array(
+        'post_link',
+        'post_type_link',
+        // 'page_link',
+        'attachment_link',
+        'get_shortlink',
+        'post_type_archive_link',
+        'get_pagenum_link',
+        'get_comments_pagenum_link',
+        'term_link',
+        'search_link',
+        'day_link',
+        'month_link',
+        'year_link'
+    );
+
+    foreach ($filters as $filter) {
+        add_filter($filter, 'wp_make_link_relative');
+    }
+
+    // Добавляем обработку ссылок в хлебных крошках Yoast SEO
+    add_filter('wpseo_breadcrumb_single_link_info', 'make_yoast_breadcrumb_url_relative');
+}
+
+function make_yoast_breadcrumb_url_relative($link_info)
+{
+    if (isset($link_info['url'])) {
+        $link_info['url'] = wp_make_link_relative($link_info['url']);
+    }
+    return $link_info;
+}
+
+add_action('template_redirect', 'rw_relative_urls');
 
 // 2. Управляем канонической ссылкой
 // add_filter('wpseo_canonical', function ($canonical) {
@@ -266,6 +294,7 @@ add_action('wp_footer', function () {
     <noscript><link rel="stylesheet" href="' . $animations_url . '"></noscript>
     ';
 });
+
 
 
 function change_attachment_image_src($image, $attachment_id, $size, $icon)

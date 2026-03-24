@@ -3,6 +3,35 @@
 $client_ip = get_real_user_ip();
 $in_tunnel = check_if_in_tunnel($client_ip);
 
+
+$why_link = get_global_var('why-tuneliqa_link');
+$pricing_link = get_global_var('pricing_link');
+$privacy_link = get_global_var('privacy-matters_link');
+$faq_link = get_global_var('faq_link');
+
+
+$affiliate_link_label = <<<HTML
+<a href="/affiliate/" class="text-success active-2 hover-active-1 nav-link arrow-sign">Affiliate</a>
+HTML;
+
+if (is_user_logged_in()) {
+    $affiliate_link_label = <<<HTML
+        <div class="nav-links-group-v">
+            <a href="/affiliate/" class="text-success active-2 hover-active-1 nav-link arrow-sign">Affiliate</a>
+            <a href="/affiliate/affiliate-area/" class="text-affiliate hover-active-1 hover-active-2 nav-link arrow-sign">Area</a>
+        </div>
+    HTML;
+}
+
+
+$nav_links = <<<HTML
+    <a href="{$why_link}" class="hover-active-1 nav-link">Why Tuneliqa</a>
+    <a href="{$pricing_link}" class="hover-active-1 nav-link">Pricing</a>
+    <a href="{$privacy_link}" class="hover-active-1 nav-link">Privacy</a>
+    <a href="{$faq_link}" class="hover-active-1 nav-link">FAQ</a>
+    {$affiliate_link_label}
+HTML;
+
 ?>
 
 <header id="header">
@@ -37,11 +66,7 @@ $in_tunnel = check_if_in_tunnel($client_ip);
                     <div id="mobile_burger" class="header__nav__inner__mobile__burger hover-active-1" style="<?php echo $css_burger ?>"></div>
                     <div class="header__nav__inner__mobile__modal">
                         <span class="header__nav__inner__mobile__modal__title project__title"><span class="font-l">Menu</span></span>
-                        <a href="<?php print_global_var('why-tuneliqa_link') ?>" class="hover-active-1 nav-link">Why Tuneliqa</a>
-                        <a href="<?php print_global_var('pricing_link') ?>" class="hover-active-1 nav-link">Pricing</a>
-                        <a href="<?php print_global_var('privacy-matters_link') ?>" class="hover-active-1 nav-link">Privacy</a>
-                        <a href="<?php print_global_var('faq_link') ?>" class="hover-active-1 nav-link">FAQ</a>
-                        <a href="/affiliate" class="text-success active-2 hover-active-1 nav-link arrow-sign">Affiliate</a>
+                        <?php echo $nav_links ?>
                     </div>
                 </div>
                 <a href="/" class="tnlq-logo">
@@ -49,12 +74,7 @@ $in_tunnel = check_if_in_tunnel($client_ip);
                     <?php echo get_attachment_image_by_name('tuneliqa_logo') ?>
                 </a>
                 <div class="header__nav__inner__desktop">
-                    <a href="<?php print_global_var('why-tuneliqa_link') ?>" class="hover-active-1 nav-link">Why
-                        Tuneliqa</a>
-                    <a href="<?php print_global_var('pricing_link') ?>" class="hover-active-1 nav-link">Pricing</a>
-                    <a href="<?php print_global_var('privacy-matters_link') ?>" class="hover-active-1 nav-link">Privacy</a>
-                    <a href="<?php print_global_var('faq_link') ?>" class="hover-active-1 nav-link">FAQ</a>
-                    <a href="/affiliate" class="text-success hover-active-1 active-2 nav-link arrow-sign">Affiliate</a>
+                    <?php echo $nav_links ?>
                     <a href="<?php print_global_var('pricing_link') ?>" class="btn btn-lg btn-transparent hover-active-2 arrow-sign">View Plans</a>
                 </div>
             </nav>

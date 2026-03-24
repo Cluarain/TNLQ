@@ -351,6 +351,12 @@ header {
     font-size: clamp(16px, 1.5vw, 20px);
 }
 
+.nav-links-group-v {
+    display: flex;
+    flex-flow: column;
+}
+
+
 .bottom__gradient {
     &::after {
         content: "";
