@@ -10,4 +10,4 @@
 0 2 * * 1 root /usr/bin/php /opt/server_scripts/clean_wc_orders.php >> /tmp/clean_wc_orders.log 2>&1
 
 # Backup wordpress database 
-0 6 * * * www-data /opt/server_scripts/do_wp_db_backup.sh >> /tmp/do_wp_db_backup.log 2>&1
+0 6 * * * root /opt/server_scripts/do_wp_db_backup.sh >> /tmp/do_wp_db_backup.log 2>&1

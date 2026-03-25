@@ -13,7 +13,7 @@ WP_ROOT="/var/www/html"
 if command -v wp &> /dev/null; then
     cd "$WP_ROOT" || exit 1
     # Создаём дамп через wp-cli (уже сжатый gzip)
-    wp db export - | gzip > "$BACKUP_DIR/db_$(date +%Y%m%d_%H%M%S).sql.gz"
+    wp db export - --allow-root | gzip > "$BACKUP_DIR/db_$(date +%Y%m%d_%H%M%S).sql.gz"
     echo "Backup via wp-cli created"
 else
     # --- Альтернативный вариант: читаем параметры из wp-config.php ---
