@@ -8,7 +8,8 @@ html/wp-admin/
 html/wp-content/index.php
 html/wp-content/languages
 html/wp-content/upgrade
-html/wp-content/uploads
+html/wp-content/uploads/*
+!html/wp-content/uploads/images/
 html/wp-includes/
 html/index.php
 html/license.txt
