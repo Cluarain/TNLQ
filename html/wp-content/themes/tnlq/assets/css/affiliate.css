@@ -269,6 +269,7 @@ input[type="hidden"] {
 #affwp-affiliate-dashboard-balance {
     position: absolute;
     top: 0;
+    left: 1ch;
     display: flex;
     flex-flow: row wrap;
     gap: 22px;
@@ -294,13 +295,15 @@ input[type="hidden"] {
 
     & .affwp-affiliate-dashboard-tab {
         transition: var(--main-transition);
-        transition-property: color, border-color, filter;
+        transition-property: color, border-color, filter, background-color;
         border-inline-end: 3px solid transparent;
         margin-inline-end: -1.5px;
+        padding-inline-start: 1ch;
 
         &>a {
             padding-block: 0.75rem;
             padding-inline-end: 2rem;
+
             display: block;
 
             &::before {
@@ -310,13 +313,17 @@ input[type="hidden"] {
             }
         }
 
+        &.active,
+        &:hover {
+            border-color: currentColor;
+            background-color: color-mix(in srgb, currentcolor 5%, transparent);
+        }
+
         &.active {
             color: var(--success-color);
-            border-color: currentColor;
         }
 
         &:hover {
-            border-color: currentColor;
             color: var(--accent-color);
             filter: var(--glow);
 
