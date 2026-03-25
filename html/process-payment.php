@@ -169,9 +169,6 @@ try {
         return $cancel_url;
     });
 
-    // Сохраняем email в мета-данные заказа
-    update_post_meta($order->get_id(), '_billing_email', $email);
-
     // Теперь получаем URL оплаты через NOWPayments
     $result = $nowpayments_gateway->process_payment($order->get_id());
     if (is_array($result) && isset($result['result']) && $result['result'] === 'success' && !empty($result['redirect'])) {
@@ -179,7 +176,6 @@ try {
 
         // Сохраняем URL оплаты в мета-данные заказа (опционально)
         update_post_meta($order->get_id(), '_payment_url', $payment_url);
-        update_post_meta($order->get_id(), 'Payment URL', $payment_url);
 
         // Перенаправляем на страницу оплаты NOWPayments
         wp_redirect($payment_url);
@@ -196,8 +192,9 @@ try {
 
 function showClientError($email, $product_id, $coupon_code, $message, $need_delete_order = null)
 {
-    // if ($need_delete_order) {
-    //     wp_delete_post($need_delete_order->get_id(), true);
+    // if ($need_delete_order && is_a($need_delete_order, 'WC_Order')) {
+    //     $need_delete_order->delete(true); // true = удалить навсегда
+    //     error_log("Order #{$need_delete_order->get_id()} deleted due to error: {$message}");
     // }
 
     $error_url = add_query_arg(array(
@@ -205,8 +202,9 @@ function showClientError($email, $product_id, $coupon_code, $message, $need_dele
         'email' => $email,
         'product_id' => $product_id,
         'promo' => $coupon_code,
-        'message' => $message,
+        'message' => urlencode($message),
     ), site_url('/'));
+
     wp_redirect($error_url);
     exit;
 }
