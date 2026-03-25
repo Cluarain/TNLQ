@@ -16,10 +16,7 @@ HTML;
 
 if (is_user_logged_in()) {
     $affiliate_link_label = <<<HTML
-        <div class="nav-links-group-v">
-            <a href="/affiliate/" class="text-success active-2 hover-active-1 nav-link arrow-sign">Affiliate</a>
-            <a href="/affiliate/affiliate-area/" class="text-affiliate hover-active-1 hover-active-2 nav-link arrow-sign">Area</a>
-        </div>
+        <a href="/affiliate/affiliate-area/" class="text-affiliate hover-active-1 hover-active-2 nav-link arrow-sign">Affiliate Area</a>
     HTML;
 }
 

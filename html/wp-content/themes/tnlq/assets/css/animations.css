@@ -78,7 +78,7 @@ body {
 
 .hover-active-2 {
     transition: var(--main-transition);
-    transition-property: transform, opacity;
+    transition-property: transform, opacity, color, filter;
 
     &:hover {
         &::before {
