@@ -284,4 +284,30 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById(`${type}PaymentDialog`).showModal();
         }
     }
+
+    /**
+     * Читает все куки, начинающиеся с префикса 'vpn_config_data_'
+     * @returns {Object} Объект { [cookieName]: parsedData }
+     */
+    function getVpnConfigCookies() {
+        return document.cookie
+            .split('; ')
+            .reduce((acc, cookie) => {
+                var [cookieName, cookieValue] = cookie.split('=');
+
+                if (cookieName.startsWith('vpn_config_data_')) {
+                    try {
+                        acc[cookieName] = JSON.parse(decodeURIComponent(cookieValue));
+                    } catch (e) {
+                        console.warn(`Error parse string ${cookieName}:`, e);
+                        acc[cookieName] = cookieValue; // fallback к сырому значению
+                    }
+                }
+                return acc;
+            }, {});
+    }
+    var vpnConfigs = getVpnConfigCookies();
+    if (vpnConfigs) {
+        console.log(vpnConfigs);
+    }
 });

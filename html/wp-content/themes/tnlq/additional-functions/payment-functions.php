@@ -130,6 +130,71 @@ function handle_nowpayments_redirects()
 }
 
 /**
+ * Установка cookie с информацией о VPN-конфиге при успешной оплате
+ */
+// add_action('template_redirect', 'set_vpn_config_cookie_on_success', 20);
+function set_vpn_config_cookie_on_success()
+{
+    // Проверяем, есть ли параметр успешной оплаты в URL
+    if (isset($_GET['payment_result']) && $_GET['payment_result'] === 'success') {
+        $order_id = isset($_GET['order_id']) ? intval($_GET['order_id']) : 0;
+
+        if ($order_id) {
+            $order = wc_get_order($order_id);
+
+            // Проверяем, что заказ существует и имеет статус "completed" или "processing"
+            if ($order && in_array($order->get_status(), array('completed', 'processing'))) {
+                // Получаем информацию о VPN-конфиге из метаданных заказа
+                $vpn_connection_string = get_post_meta($order_id, '_vpn_connection_string', true);
+                $vpn_expires_at = get_post_meta($order_id, '_vpn_expires_at', true);
+
+                if ($vpn_connection_string) {
+                    // Подготовим данные для cookie в формате JSON
+                    $vpn_data = array(
+                        'connection_string' => $vpn_connection_string,
+                        'expires_at' => $vpn_expires_at,
+                        'order_id' => $order_id,
+                        'customer_email' => $order->get_billing_email()
+                    );
+
+                    $vpn_data_json = wp_json_encode($vpn_data);
+
+                    // Используем время истечения VPN из метаданных заказа
+                    $expiry = strtotime($vpn_expires_at);
+
+                    // Проверяем, что дата истечения корректна, иначе устанавливаем на 30 дней
+                    if ($expiry === false || $expiry < time()) {
+                        $expiry = time() + (30 * 24 * 60 * 60); // 30 дней
+                    }
+
+                    // Устанавливаем cookie с информацией о VPN-конфиге
+                    setcookie(
+                        'vpn_config_data_' . $order_id,
+                        $vpn_data_json,
+                        [
+                            'expires' => $expiry,
+                            'path' => '/',
+                            'domain' => '',
+                            'secure' => is_ssl(),
+                            'httponly' => false,  // ← Разрешаем доступ из JS
+                            'samesite' => 'Lax'   // ← Дополнительно: защита от CSRF
+                        ]
+                    );
+
+                    // Логируем установку cookie
+                    log_vpn_action($order_id, 'cookie_set', 'VPN config cookie set for order #' . $order_id . ' with status ' . $order->get_status());
+                } else {
+                    // Если VPN конфиг еще не создан, но заказ оплачен, возможно стоит подождать и повторить попытку позже
+                    log_vpn_action($order_id, 'cookie_set_failed', 'VPN config not found for order #' . $order_id . ' with status ' . $order->get_status());
+                }
+            } else {
+                log_vpn_action($order_id, 'cookie_set_failed', 'Order #' . $order_id . ' does not exist or has incorrect status');
+            }
+        }
+    }
+}
+
+/**
  * Обработка изменения статуса заказа для отправки VPN конфигурации
  */
 add_action('woocommerce_order_status_changed', 'handle_order_status_change_for_vpn', 10, 4);
