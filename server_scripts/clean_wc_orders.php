@@ -43,11 +43,11 @@ function clean_wc_pending_orders_without_email()
     $order_ids = wc_get_orders($args);
 
     if (empty($order_ids)) {
-        echo "No orders for deletion.\n";
+        log_echo("No orders for deletion.");
         return;
     }
 
-    echo "Find " . count($order_ids) . " pending orders older 1 week.\n";
+    log_echo("Find " . count($order_ids) . " pending orders older 1 week.");
 
     $deleted_count = 0;
 
@@ -70,7 +70,12 @@ function clean_wc_pending_orders_without_email()
         }
     }
 
-    echo "Deleted $deleted_count of orders without email and with pending status, older than a week.\n";
+    log_echo("Deleted $deleted_count of orders without email and with pending status, older than a week.");
+}
+
+function log_echo($text)
+{
+    echo date('Y-m-d H:i:s') . " -- $text\n";
 }
 
 // Выполняем очистку
