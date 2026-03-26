@@ -178,6 +178,12 @@ add_action('admin_head', function () {
     </style>';
 }, 999);
 
+
+function get_relative_theme_file_uri($path = '')
+{
+    return wp_make_link_relative(get_theme_file_uri($path));
+}
+
 function add_scripts_and_styles()
 {
     $isMinify = '';

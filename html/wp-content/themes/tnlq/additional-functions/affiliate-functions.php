@@ -116,7 +116,7 @@ add_action('affwp_edit_affiliate_end', 'display_usdt_bsc_wallet_in_admin', 10, 1
 
 
 
-
+// показывает модалку со всеми заработанными суммами 
 function display_affiliate_earnings()
 {
     $dates = affwp_get_report_dates();

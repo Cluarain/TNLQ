@@ -88,11 +88,6 @@ function check_if_in_tunnel($client_ip)
 //   return substr($hash, 0, 6);
 // }
 
-function get_relative_theme_file_uri($path = '')
-{
-  return wp_make_link_relative(get_theme_file_uri($path));
-}
-
 function getShortFileLink($path = '')
 {
   // на входе путь вида /wp-content/themes/tnlq/assets/css/animations.css

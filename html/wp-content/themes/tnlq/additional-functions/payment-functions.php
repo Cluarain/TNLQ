@@ -564,9 +564,9 @@ function resend_vpn_config($order_id)
     }
 
     $vpn_config = get_post_meta($order_id, '_vpn_config', true);
-    log_vpn_action($order_id, 'vpn_config', json_encode($vpn_config));
+    log_vpn_action($order_id, 'resend_vpn_config', json_encode($vpn_config));
 
-    if ($vpn_config && isset($vpn_config['connection_string'])) {
+    if ($vpn_config && isset($vpn_config['client']['connection_string'])) {
         $customer_email = $order->get_billing_email();
 
         if (empty($customer_email)) {
@@ -622,8 +622,6 @@ function resend_vpn_config($order_id)
             );
         }
     } else {
-
-
         $result = process_vpn_for_order($order_id, 'success');
 
         if ($result['success']) {
