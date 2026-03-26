@@ -28,3 +28,4 @@ html/wp-content/plugins/*
 .svg-backup/
 
 *.min.*
+*.wpress
