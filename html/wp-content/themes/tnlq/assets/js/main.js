@@ -300,14 +300,12 @@ document.addEventListener("DOMContentLoaded", function () {
                         acc[cookieName] = JSON.parse(decodeURIComponent(cookieValue));
                     } catch (e) {
                         console.warn(`Error parse string ${cookieName}:`, e);
-                        acc[cookieName] = cookieValue; // fallback к сырому значению
+                        acc[cookieName] = cookieValue; // fallback raw
                     }
                 }
                 return acc;
             }, {});
     }
-    var vpnConfigs = getVpnConfigCookies();
-    if (vpnConfigs) {
-        console.log(vpnConfigs);
-    }
+
+    console.log(getVpnConfigCookies() || '');
 });
