@@ -1,7 +1,6 @@
 <?php
 
-$client_ip = get_real_user_ip();
-$in_tunnel = check_if_in_tunnel($client_ip);
+$in_tunnel = check_if_in_tunnel(get_real_user_ip());
 
 
 $why_link = get_global_var('why-tuneliqa_link');
@@ -43,7 +42,7 @@ HTML;
                 </div>
                 <div class="header__status">
                     <span>Your status: </span>
-                    <span class="text-<?php echo $in_tunnel ? 'secondary' : 'quaternary'; ?>">
+                    <span class="text-<?php echo $in_tunnel ? 'success glow' : 'quaternary'; ?>">
                         <?php echo $in_tunnel ? 'In the Tunnel' : 'Not in the Tunnel'; ?>
                     </span>
                 </div>

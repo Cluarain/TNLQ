@@ -24,6 +24,11 @@ extract(parse_args_filtered($args, $defaults));
         gap: 30px;
         border: 1px solid var(--border-tertiary);
         align-items: center;
+
+        & ul,
+        ol {
+            padding-inline-start: 2ch;
+        }
     }
 
     .flowsection__bottom {
