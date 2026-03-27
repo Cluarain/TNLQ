@@ -1,10 +1,23 @@
 <?php
 $defaults = array(
     'title' => 'Commission model',
-    'card_bottom' => 'Client renews monthly or yearly — you earn again.'
+
+    'commission_rate_label' => 'Commission rate:',
+
+    'type_label' => 'Type:',
+    'type_value' => 'Recurring',
+
+    'duration_label' => 'Duration:',
+    'duration_value' => 'Lifetime',
+
+    'card_bottom' => 'Client renews monthly or yearly — you earn again.',
 );
 
 extract(parse_args_filtered($args, $defaults));
+
+// Получаем базовую ставку комиссии из настроек плагина
+$default_rate = affiliate_wp()->settings->get('referral_rate', 10); // По умолчанию 10%, если не установлена
+$commission_rate = $default_rate . '%';
 ?>
 
 <style>
@@ -77,16 +90,16 @@ extract(parse_args_filtered($args, $defaults));
                 <div class="commission-model__card__inner">
                     <div class="commission-model__card__inner__body">
                         <dl>
-                            <dt class="text-secondary">Commission rate:</dt>
-                            <dd class="commission-model-highlight">10%</dd>
+                            <dt class="text-secondary"><?php echo $commission_rate_label ?></dt>
+                            <dd class="commission-model-highlight"><?php echo $commission_rate ?></dd>
                         </dl>
                         <dl>
-                            <dt class="text-secondary">Type:</dt>
-                            <dd class="font-xxl">Recurring</dd>
+                            <dt class="text-secondary"><?php echo $type_label ?></dt>
+                            <dd class="font-xxl"><?php echo $type_value ?></dd>
                         </dl>
                         <dl>
-                            <dt class="text-secondary">Duration:</dt>
-                            <dd class="font-xxl">Lifetime</dd>
+                            <dt class="text-secondary"><?php echo $duration_label ?></dt>
+                            <dd class="font-xxl"><?php echo $duration_value ?></dd>
                         </dl>
                     </div>
                     <div class="commission-model__card__inner__bottom text-secondary">

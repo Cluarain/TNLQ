@@ -1,6 +1,6 @@
 <?php
 $defaults = array(
-    'title' => 'Take Back Your Internet',
+    'title' => 'Affiliate Program',
     'subtitle' => '10% Lifetime Commission',
     'tags' => [
         ['tag' => 'Bring traffic.'],
