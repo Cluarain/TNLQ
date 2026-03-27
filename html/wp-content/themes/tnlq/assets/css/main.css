@@ -28,7 +28,9 @@
     --container-width: calc(var(--content-width) + (var(--container-offset) * 2));
 
     /* --accent-color: hsl(210, 60%, 60%); */
-    --accent-color: #528FCF;
+    /* --accent-color: #528FCF; */
+    --accent-color: #8a2be2;
+
     --success-color: #0E933B;
     --warning-color: hsl(31, 83%, 43%);
     --danger-color: hsl(4, 90%, 60%);
@@ -50,6 +52,14 @@
     --border-secondary: hsl(0, 0%, 85%);
     --border-tertiary: hsl(0, 0%, 33%);
     --border-quaternary: hsl(0, 0%, 15%);
+
+    /* --c2: #c026d3;
+    --c1: #7c3aed;
+    --c3: #2e1065; */
+
+    --pricing-color: #7c3aed;
+    /* --price-highlight-color: linear-gradient(90deg, #8B771F 0%, #537D2A 100%); */
+    --price-highlight-color: linear-gradient(90deg, #c026d3 0%, #2e1065 100%);
 
     --card-shadow: 5px 5px 0 0 var(--text-tertiary);
     /* в макете */
@@ -265,8 +275,8 @@ svg {
     background: var(--accent-color);
 }
 
-.btn-warning {
-    background: var(--warning-color);
+.pricing__card-button {
+    background: var(--pricing-color);
     color: inherit;
 }
 
@@ -499,7 +509,7 @@ header {
     white-space: nowrap;
     font-size: clamp(14px, 1.8vw, 24px);
     /* color: var(--text-secondary); */
-    background: linear-gradient(90deg, #8B771F 0%, #537D2A 100%);
+    background: var(--price-highlight-color);
     padding: clamp(1px, 1.5vw, 2px) clamp(6px, 0.4vw, 10px);
 }
 

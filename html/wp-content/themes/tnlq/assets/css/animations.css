@@ -166,7 +166,7 @@ body {
     background: linear-gradient(120deg, transparent 30%, var(--text-primary) 38%, var(--text-primary) 40%, transparent 48%);
     background-size: 200% 100%;
     background-position: 100% 0;
-    animation: load_placeholder 12s infinite;
+    animation: load_placeholder 7s infinite;
 
 }
 
