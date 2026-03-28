@@ -1,6 +1,6 @@
 <?php
-
-$in_tunnel = check_if_in_tunnel(get_real_user_ip());
+$client_ip = get_real_user_ip();
+$in_tunnel = check_if_in_tunnel($client_ip);
 
 
 $why_link = get_global_var('why-tuneliqa_link');
@@ -15,7 +15,7 @@ HTML;
 
 if (is_user_logged_in()) {
     $affiliate_link_label = <<<HTML
-        <a href="/affiliate/affiliate-area/" class="text-affiliate hover-active-1 hover-active-2 nav-link arrow-sign">Affiliate Area</a>
+        <a href="/affiliate/affiliate-area/" class="text-affiliate bold hover-active-1 hover-active-2 nav-link arrow-sign">Affiliate Area</a>
     HTML;
 }
 
@@ -42,7 +42,7 @@ HTML;
                 </div>
                 <div class="header__status">
                     <span>Your status: </span>
-                    <span class="text-<?php echo $in_tunnel ? 'success glow' : 'quaternary'; ?>">
+                    <span class="<?php echo $in_tunnel ? 'text-success glow bold' : 'text-quaternary'; ?>">
                         <?php echo $in_tunnel ? 'In the Tunnel' : 'Not in the Tunnel'; ?>
                     </span>
                 </div>
