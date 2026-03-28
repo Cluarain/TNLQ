@@ -97,8 +97,8 @@ extract(parse_args_filtered($args, $defaults));
                                     <?php
                                     echo $best_plan ?
                                         '<span class="pricing__card-period-best">
-                                        <span>Popular</span>
-                                    </span>' : '';
+                                    <span>Popular</span>
+                                </span>' : '';
                                     echo $product_title;
                                     ?>
                                 </dt>
@@ -109,7 +109,7 @@ extract(parse_args_filtered($args, $defaults));
                                     <div class="pricing__card-item vertical-sign"><?php echo $disc_label ?></div>
                                 </dd>
                             </dl>
-                            <button class="btn btn-warning pricing__card-button arrow-sign margin-m hover-active-2 buy-now-btn"
+                            <button class="btn btn-warning pricing__card-button arrow-sign crt margin-m hover-active-2 buy-now-btn"
                                 data-product-id="<?php echo $product_id ?>"
                                 data-period="<?php echo $period ?>"
                                 data-price="<?php echo $price_total ?>"><?php echo $buy_button_label  ?>

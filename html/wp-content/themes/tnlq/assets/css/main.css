@@ -56,6 +56,9 @@
     /* --c2: #c026d3;
     --c1: #7c3aed;
     --c3: #2e1065; */
+    --crt-red: rgb(218, 49, 49);
+    --crt-green: rgb(112, 159, 115);
+    --crt-blue: rgb(40, 129, 206);
 
     --pricing-color: #7c3aed;
     /* --price-highlight-color: linear-gradient(90deg, #8B771F 0%, #537D2A 100%); */
@@ -142,6 +145,7 @@ svg {
     max-width: 100%;
     max-height: 100%;
 }
+
 
 .container {
     width: 100%;
@@ -259,6 +263,10 @@ svg {
     color: var(--affiliate-color);
 }
 
+.bold {
+    font-weight: bold;
+}
+
 .btn {
     padding: 1.2rem 1rem;
     border: 1px solid transparent;
@@ -273,11 +281,6 @@ svg {
 
 .btn-primary {
     background: var(--accent-color);
-}
-
-.pricing__card-button {
-    background: var(--pricing-color);
-    color: inherit;
 }
 
 .btn-transparent {
@@ -302,6 +305,34 @@ svg {
 
 .text-balance {
     text-wrap: balance;
+}
+
+
+.crt {
+    text-shadow: 0 0 0.3em currentColor, 1px 1px rgba(255, 0, 255, 0.5),
+        -1px -1px rgba(0, 255, 255, 0.4);
+    position: relative;
+    /* filter: drop-shadow(0 0 0.33em rgb(from currentColor r g b / 0.2)); */
+    box-shadow: 0 0 0.33em rgb(from currentColor r g b / 0.2);
+
+    &:after {
+        content: "";
+        transform: translateZ(0);
+        pointer-events: none;
+        /* opacity: 0.5; */
+        mix-blend-mode: overlay;
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        left: 0;
+        top: 0;
+        z-index: 1;
+
+        background: repeating-linear-gradient(90deg,
+                var(--crt-red) 1px,
+                var(--crt-green) 2px,
+                var(--crt-blue) 3px);
+    }
 }
 
 header {
@@ -460,7 +491,7 @@ header {
 
 .pricing__cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(clamp(200px, 15vw, 270px), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(clamp(178px, 15vw, 270px), 1fr));
     gap: 1rem;
 }
 
@@ -478,7 +509,7 @@ header {
 
 .pricing__card-period {
     text-align: center;
-    font-size: clamp(23px, 3vw, 40px);
+    font-size: clamp(23px, 2.7vw, 40px);
     position: relative;
 }
 
@@ -495,15 +526,18 @@ header {
 }
 
 .pricing__card-button {
+    border: none;
     text-align: center;
+    color: inherit;
     font-size: clamp(18px, 2vw, 32px);
     padding-block: clamp(13px, 1.5vw, 20px);
+    background: linear-gradient(45deg, var(--pricing-color), #2e1065);
 }
 
 .pricing__card-period-best {
     display: block;
     position: absolute;
-    top: -80%;
+    top: -77%;
     left: 50%;
     transform: translateX(-50%);
     white-space: nowrap;
