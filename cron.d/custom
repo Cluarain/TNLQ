@@ -1,6 +1,9 @@
 # sed -i 's/\r$//' /etc/cron.d/custom
 
 # mail renew config reminder 
+0 0 * * * root /usr/bin/python3 /opt/server_scripts/get_node_ips.py >> /tmp/get_node_ips.log 2>&1
+
+# mail renew config reminder 
 0 10 * * * root /usr/bin/php /opt/server_scripts/cron-payment-mail-reminder.php >> /tmp/cron-payment-mail-reminder.log 2>&1
 
 # logs rotation 30 days
