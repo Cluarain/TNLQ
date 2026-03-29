@@ -66,11 +66,46 @@ function clean_wc_pending_orders_without_email()
         if (empty($billing_email) && $price_total == 0) {
             $order->delete(false); // false = trash, true = permanent delete
             $deleted_count++;
-            error_log("Order #" . $order_id . " from " . $order->get_date_created() . "was deleted");
+            log_echo("Order #" . $order_id . " from " . $order->get_date_created() . "was deleted");
         }
     }
 
     log_echo("Deleted $deleted_count of orders without email and with pending status, older than a week.");
+}
+
+function clean_wc_expired_coupons()
+{
+    global $wpdb;
+
+    $args = array(
+        'posts_per_page' => -1,
+        'post_type'      => 'shop_coupon',
+        'post_status'    => 'publish',
+        'meta_query'     => array(
+            'relation' => 'AND',
+            array(
+                'key'     => 'date_expires', // Use 'date_expires' for newer WC versions
+                'value'   => current_time('timestamp'),
+                'compare' => '<='
+            ),
+            array(
+                'key'     => 'date_expires',
+                'value'   => '',
+                'compare' => '!='
+            )
+        )
+    );
+
+    $coupons = get_posts($args);
+    $deleted_count = 0;
+    if (! empty($coupons)) {
+        foreach ($coupons as $coupon) {
+            log_echo($coupon->post_name . " move to trash");
+            wp_trash_post($coupon->ID);
+            $deleted_count++;
+        }
+    }
+    log_echo("Deleted $deleted_count of expired coupons");
 }
 
 function log_echo($text)
@@ -78,5 +113,8 @@ function log_echo($text)
     echo date('Y-m-d H:i:s') . " -- $text\n";
 }
 
-// Выполняем очистку
+// Выполняем очистку заказов
 clean_wc_pending_orders_without_email();
+
+// Выполняем очистку купонов
+clean_wc_expired_coupons();
