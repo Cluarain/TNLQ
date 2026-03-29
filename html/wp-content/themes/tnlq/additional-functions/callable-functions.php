@@ -18,6 +18,9 @@ function get_real_user_ip()
 {
   // 1. Приоритет у специального заголовка Cloudflare
   // Именно он содержит реальный IP посетителя, прошедшего через их сеть
+  // if (! empty($_SERVER['HTTP_CF_PSEUDO_IPV4'])) {
+  //   $ip = $_SERVER['HTTP_CF_PSEUDO_IPV4'];
+  // } 
   if (! empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
     $ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
   }

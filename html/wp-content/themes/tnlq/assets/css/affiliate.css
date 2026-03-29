@@ -316,7 +316,7 @@ input[type="hidden"] {
         &.active,
         &:hover {
             border-color: currentColor;
-            background-color: color-mix(in srgb, currentcolor 5%, transparent);
+            background-color: rgb(from currentColor r g b / .05);
         }
 
         &.active {

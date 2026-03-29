@@ -15,7 +15,7 @@ body {
 
 ::selection {
     color: #fff;
-    background: var(--success-color);
+    background: rgb(from var(--success-color) r g b / 0.5);
 }
 
 .btn {
@@ -166,11 +166,11 @@ body {
     background: linear-gradient(120deg, transparent 30%, var(--text-primary) 38%, var(--text-primary) 40%, transparent 48%);
     background-size: 200% 100%;
     background-position: 100% 0;
-    animation: load_placeholder 7s infinite;
-
+    box-shadow: 0 0 0.33em rgb(from currentColor r g b / 0.2);
+    animation: light_glare 7s infinite;
 }
 
-@keyframes load_placeholder {
+@keyframes light_glare {
     0% {
         background-position: 100% 0;
     }

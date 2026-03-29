@@ -75,7 +75,7 @@
 
     --main-transition: 0.2s ease-out;
 
-    --glow: drop-shadow(0 0 3px currentColor);
+    --glow: drop-shadow(0 0 .12em currentColor);
 }
 
 * {
@@ -327,11 +327,16 @@ svg {
         left: 0;
         top: 0;
         z-index: 1;
-
-        background: repeating-linear-gradient(90deg,
+        background:
+            repeating-linear-gradient(90deg,
                 var(--crt-red) 1px,
                 var(--crt-green) 2px,
                 var(--crt-blue) 3px);
+            /* repeating-linear-gradient(var(--crt-red) 0px,
+                var(--crt-green) 2px,
+                var(--crt-blue) 4px); */
+
+        /* background-blend-mode: screen;  */
     }
 }
 
