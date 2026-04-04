@@ -158,6 +158,13 @@ function get_attachment_image_by_name($attachment_name, $size = 'full', $icon = 
     return null;
   }
 
+  // Кэшируем результат на день (уменьшаем нагрузку)
+  $cache_key = 'attachment_image_by_name__' . $attachment_name;
+  $cached = get_transient($cache_key);
+  if ($cached !== false) {
+    return $cached;
+  }
+
   // Получаем ID вложения по названию
   $attachment = get_posts([
     'post_type'      => 'attachment',
@@ -169,7 +176,6 @@ function get_attachment_image_by_name($attachment_name, $size = 'full', $icon = 
 
   if ($attachment) {
     $attachment_id = $attachment[0]->ID;
-
 
     // Устанавливаем значения по умолчанию
     $default_attrs = [
@@ -204,8 +210,10 @@ function get_attachment_image_by_name($attachment_name, $size = 'full', $icon = 
     }
     // Удаляем их из массива атрибутов, чтобы не передавать в wp_get_attachment_image
     unset($attributes['fetchpriority'], $attributes['lazyload'], $attributes['svg-inline']);
-
-    return wp_get_attachment_image($attachment_id, $size, $icon, $attributes);
+    $attachment_image = wp_get_attachment_image($attachment_id, $size, $icon, $attributes);
+    // Сохраняем в кэш на 24 часа
+    set_transient($cache_key, $attachment_image, DAY_IN_SECONDS);
+    return $attachment_image;
   } else {
     return null;
   }
@@ -213,13 +221,32 @@ function get_attachment_image_by_name($attachment_name, $size = 'full', $icon = 
 
 function get_svg_inline_by_attachmentID($attachmentID)
 {
-  $svg = file_get_contents(wp_get_attachment_url($attachmentID));
+  // Кэшируем результат на день (уменьшаем нагрузку)
+  $cache_key = 'svg_inline_' . $attachmentID;
+  $cached = get_transient($cache_key);
+  if ($cached !== false) {
+    return $cached;
+  }
 
-  // Удаляем XML декларацию если есть, чтобы избежать проблем
+  // Получаем абсолютный путь к файлу на сервере
+  $file_path = get_attached_file($attachmentID);
+  if (!$file_path || !file_exists($file_path)) {
+    // Логируем ошибку, возвращаем пустую строку
+    error_log("SVG file not found for attachment ID: $attachmentID");
+    return '';
+  }
+
+  // Читаем файл напрямую с файловой системы (быстро, без HTTP)
+  $svg = file_get_contents($file_path);
+  if ($svg === false) {
+    error_log("Failed to read SVG file: $file_path");
+    return '';
+  }
+
+  // Далее обработка (удаление XML-декларации, добавление viewBox, title)
   $svg = trim(preg_replace('/<\?xml[^>]+\?>/', '', $svg));
 
   if (strpos($svg, 'viewBox=') === false) {
-    // Extract width and height using regex
     $width_pattern = '/width=("|\')([0-9.]+)("|\')/';
     $height_pattern = '/height=("|\')([0-9.]+)("|\')/';
 
@@ -233,10 +260,8 @@ function get_svg_inline_by_attachmentID($attachmentID)
       $height = $height_matches[2];
     }
 
-    // If both width and height are found, add viewBox
     if ($width && $height) {
       $viewbox = 'viewBox="0 0 ' . $width . ' ' . $height . '"';
-      // Insert viewBox after the opening <svg tag
       $svg = preg_replace('/<svg([^>]*)>/', '<svg$1 ' . $viewbox . '>', $svg);
     }
   }
@@ -244,7 +269,6 @@ function get_svg_inline_by_attachmentID($attachmentID)
   if (strpos($svg, '<title>') === false) {
     $alt_text = get_post_meta($attachmentID, '_wp_attachment_image_alt', true);
     if (!empty($alt_text)) {
-      // Вставляем title как первый дочерний элемент внутри svg
       $svg = preg_replace(
         '/(<svg[^>]*>)(.*?)(<\/svg>)/s',
         '$1<title>' . esc_html($alt_text) . '</title>$2$3',
@@ -253,8 +277,12 @@ function get_svg_inline_by_attachmentID($attachmentID)
     }
   }
 
+  // Сохраняем в кэш на 24 часа
+  set_transient($cache_key, $svg, DAY_IN_SECONDS);
+
   return $svg;
 }
+
 
 function parse_args_filtered($args, $defaults)
 {
