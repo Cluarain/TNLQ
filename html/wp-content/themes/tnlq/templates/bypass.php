@@ -14,7 +14,7 @@ $defaults = array(
 
     'card_title' => 'Ready to escape surveillance?',
     'card_button1' => 'Get Started',
-    'card_button1_link' => '#pricing',
+    'card_button1_link' => '/#pricing',
     'additional_attributes' => '',
 );
 extract(parse_args_filtered($args, $defaults));
