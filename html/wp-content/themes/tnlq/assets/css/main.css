@@ -268,6 +268,7 @@ svg {
 }
 
 .btn {
+    display: inline-block;
     padding: 1.2rem 1rem;
     border: 1px solid transparent;
     font-size: clamp(16px, 1.5vw, 20px);
@@ -332,7 +333,7 @@ svg {
                 var(--crt-red) 1px,
                 var(--crt-green) 2px,
                 var(--crt-blue) 3px);
-            /* repeating-linear-gradient(var(--crt-red) 0px,
+        /* repeating-linear-gradient(var(--crt-red) 0px,
                 var(--crt-green) 2px,
                 var(--crt-blue) 4px); */
 
@@ -1082,7 +1083,7 @@ input:-internal-autofill-selected {
 .footer__bottom {
     display: flex;
     flex-flow: row wrap;
-    gap: 1rem;
+    gap: 1em 2em;
 }
 
 
@@ -1116,7 +1117,15 @@ input:-internal-autofill-selected {
         padding-inline-start: 1.5rem;
     }
 
-    & .wp-block-heading {}
+    & p,
+    & ul,
+    & ol {
+        color: var(--text-secondary);
+    }
+
+    & .wp-block-heading {
+        /* color: var(--accent-color); */
+    }
 
     & hr {
         margin-block: clamp(1rem, 1.5vw, 2rem);
@@ -1125,7 +1134,7 @@ input:-internal-autofill-selected {
 
 .wp-block-separator {
     border: none;
-    border-top: 2px solid var(--text-quaternary);
+    border-top: 1px solid var(--text-quaternary);
 }
 
 .tnlq-logo>* {
