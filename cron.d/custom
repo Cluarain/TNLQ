@@ -1,4 +1,5 @@
 # sed -i 's/\r$//' /etc/cron.d/custom
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # mail renew config reminder 
 0 0 * * * root /usr/bin/python3 /opt/server_scripts/get_node_ips.py >> /tmp/get_node_ips.log 2>&1
