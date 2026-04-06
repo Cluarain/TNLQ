@@ -34,10 +34,6 @@ The subscription is valid until: {{var:expire_date}}
 * Android TV
   https://play.google.com/store/apps/details?id=com.v2raytun.android
 
-  alternative:
-  https://play.google.com/store/apps/details?id=com.v2raytun.android
-
-
 2. Copy this link to Clipboard (do not open, just copy)
 
 {{var:connection_string}}
@@ -47,6 +43,11 @@ Open the app → Configurations → + → Insert from Clipboard
 
 4. Connect
 Select the server → Connect
+
+iOS app not available?
+Change your App Store region:
+Settings → Media & Purchases → Country/Region
+Switch to another country (e.g. Germany or USA) — done.
 
 Privacy is a basic human right - not a luxury.
 Tuneliqa exists to defend your right to a private, safe, and independent online life.
