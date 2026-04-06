@@ -1,0 +1,106 @@
+#svg-editor-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 170000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.svg-editor-content {
+    background: white;
+    width: 90%;
+    height: 90%;
+    max-width: 1200px;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.svg-editor-header {
+    padding: 20px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+}
+
+.svg-editor-header h2 {
+    margin: 0;
+    color: #1d2327;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #646970;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 3px;
+}
+
+.close-button:hover {
+    background: #dcdcde;
+    color: #135e96;
+}
+
+.svg-editor-body {
+    flex: 1;
+    padding: 0;
+    overflow: hidden;
+}
+
+#svg-editor-textarea {
+    width: 100%;
+    height: 100%;
+    border: none;
+    padding: 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: none;
+    box-sizing: border-box;
+    background: #f6f7f7;
+    border-radius: 0;
+}
+
+#svg-editor-textarea:focus {
+    outline: none;
+    background: white;
+}
+
+.svg-editor-footer {
+    padding: 20px;
+    border-top: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+}
+
+.svg-editor-footer .button {
+    margin-right: 10px;
+}
+
+.save-message {
+    font-weight: 500;
+}
+
+/* Стили для кнопки в медиабиблиотеке */
+.svg-edit-button {
+    margin-top: 5px !important;
+}
+
+.attachment-info .svg-edit-button {
+    display: block;
+    width: 100%;
+    text-align: center;
+}
