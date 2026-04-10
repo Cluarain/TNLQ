@@ -16,7 +16,7 @@
                     <input class="form-control input" type="email" autocomplete="true" id="email" name="email" placeholder="Enter your email" required>
 
                     <details style="height: 90px; margin-top: 10px;">
-                        <summary class="btn" style="font-size: inherit; padding: 0; color: var(--text-secondary); text-decoration: underline dotted;">have promocode?</summary>
+                        <summary class="btn summary-promocode-btn">have promocode?</summary>
                         <input class="form-control input" type="promo" id="promo" name="promo" placeholder="Enter your promo">
                     </details>
 
