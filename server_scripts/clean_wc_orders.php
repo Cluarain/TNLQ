@@ -50,6 +50,7 @@ function clean_wc_pending_orders_without_email()
     log_echo("Find " . count($order_ids) . " pending orders older 1 week.");
 
     $deleted_count = 0;
+    $deleted_emails = array();
 
     foreach ($order_ids as $order_id) {
         $order = wc_get_order($order_id);
@@ -58,19 +59,27 @@ function clean_wc_pending_orders_without_email()
             continue;
         }
 
-        // Проверяем, есть ли email у заказа
+        // Получаем email заказа для логирования
         $billing_email = $order->get_billing_email();
-        $price_total = $order->get_total();
 
-        // Если нет email, удаляем заказ
-        if (empty($billing_email) && $price_total == 0) {
-            $order->delete(false); // false = trash, true = permanent delete
-            $deleted_count++;
-            log_echo("Order #" . $order_id . " from " . $order->get_date_created() . "was deleted");
+        // Удаляем все pending заказы старше недели
+        // Сохраняем email если он есть
+        if (!empty($billing_email)) {
+            $deleted_emails[] = $billing_email;
         }
+        
+        $order->delete(false); // false = trash, true = permanent delete
+        $deleted_count++;
+        log_echo("Order #" . $order_id . " from " . $order->get_date_created() . " was deleted");
     }
 
-    log_echo("Deleted $deleted_count of orders without email and with pending status, older than a week.");
+    // Выводим список уникальных удаленных email
+    if (!empty($deleted_emails)) {
+        $unique_emails = array_unique($deleted_emails);
+        log_echo("Unique emails from deleted orders (" . count($unique_emails) . "): " . implode(', ', $unique_emails));
+    }
+
+    log_echo("Deleted $deleted_count pending orders older than a week.");
 }
 
 function clean_wc_expired_coupons()
