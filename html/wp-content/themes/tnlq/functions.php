@@ -45,7 +45,7 @@ add_action('after_setup_theme', function () {
     $GLOBALS['pricing_link'] = '/#pricing';
     $GLOBALS['privacy-matters_link'] =  '/#privacy-matters';
     $GLOBALS['faq_link'] =  '/#faq';
-    $GLOBALS['contact_link'] = '/#footer';
+    $GLOBALS['contact_link'] = 'https://t.me/tuneliqabot';
 
     $GLOBALS['telegram_link'] = 'https://t.me/tuneliqa';
     $GLOBALS['twitter_link'] = 'xxx';
