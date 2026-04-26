@@ -658,205 +658,230 @@ function resend_vpn_config($order_id)
 /**
  * Add resend VPN button in admin
  */
-add_action('woocommerce_admin_order_data_after_billing_address', 'add_resend_vpn_button');
-function add_resend_vpn_button($order)
-{
-    $order_id = $order->get_id();
-    $config_sent = get_post_meta($order_id, '_vpn_config_sent', true);
-    $config_resent = get_post_meta($order_id, '_vpn_config_resent', true);
-    $vpn_config = get_post_meta($order_id, '_vpn_config', true);
-    $last_error = get_post_meta($order_id, '_vpn_last_error', true);
+add_action(
+    'woocommerce_admin_order_data_after_billing_address',
+    function ($order) {
+        $order_id = $order->get_id();
+        $config_sent = get_post_meta($order_id, '_vpn_config_sent', true);
+        $config_resent = get_post_meta($order_id, '_vpn_config_resent', true);
+        $vpn_config = get_post_meta($order_id, '_vpn_config', true);
+        $last_error = get_post_meta($order_id, '_vpn_last_error', true);
 
-    echo '<div class="order_data_column" style="width:100%;">';
-    echo '<h3>VPN Configuration</h3>';
-    echo '<div class="address">';
+        echo '<div class="order_data_column" style="width:100%;">';
+        echo '<h3>VPN Configuration</h3>';
+        echo '<div class="address">';
 
-    if ($config_sent) {
-        echo '<p><strong>Status:</strong> <span style="color:green;">✓ Sent: ' . $config_sent . '</span></p>';
-        if ($config_resent) {
-            echo '<p><strong>Last Resent:</strong> ' . $config_resent . '</p>';
+        if ($config_sent) {
+            echo '<p><strong>Status:</strong> <span style="color:green;">✓ Sent: ' . $config_sent . '</span></p>';
+            if ($config_resent) {
+                echo '<p><strong>Last Resent:</strong> ' . $config_resent . '</p>';
+            }
+
+            if ($vpn_config && isset($vpn_config['connection_string'])) {
+                echo '<p><strong>Expires:</strong> ' . (isset($vpn_config['client']['expires_at']) ?
+                    date_i18n(get_option('date_format'), strtotime($vpn_config['client']['expires_at'])) : 'N/A') . '</p>';
+                echo '<p><strong>Data Limit:</strong> ' . (isset($vpn_config['total_gb']) ?
+                    $vpn_config['total_gb'] . ' GB' : 'Unlimited') . '</p>';
+                echo '<p><strong>Config String (short):</strong><br><code style="white-space: pre-wrap;">' .
+                    esc_html(wp_trim_words($vpn_config['connection_string'], 12, '…')) . '</code></p>';
+            }
+
+            echo '<p><a href="' . admin_url('admin-ajax.php?action=resend_vpn_config&order_id=' . $order_id . '&nonce=' . wp_create_nonce('resend_vpn_' . $order_id)) .
+                '" class="button button-small resend-vpn-btn" data-order-id="' . $order_id . '">Resend VPN Config</a></p>';
+        } else {
+            echo '<p><strong>Status:</strong> <span style="color:red;">Not sent</span></p>';
+            echo '<p><a href="' . admin_url('admin-ajax.php?action=resend_vpn_config&order_id=' . $order_id . '&nonce=' . wp_create_nonce('resend_vpn_' . $order_id)) .
+                '" class="button button-primary button-small resend-vpn-btn" data-order-id="' . $order_id . '">Send VPN Config</a></p>';
         }
 
-        if ($vpn_config && isset($vpn_config['connection_string'])) {
-            echo '<p><strong>Expires:</strong> ' . (isset($vpn_config['client']['expires_at']) ?
-                date_i18n(get_option('date_format'), strtotime($vpn_config['client']['expires_at'])) : 'N/A') . '</p>';
-            echo '<p><strong>Data Limit:</strong> ' . (isset($vpn_config['total_gb']) ?
-                $vpn_config['total_gb'] . ' GB' : 'Unlimited') . '</p>';
-            echo '<p><strong>Config String (short):</strong><br><code style="white-space: pre-wrap;">' .
-                esc_html(wp_trim_words($vpn_config['connection_string'], 12, '…')) . '</code></p>';
+        if (!empty($last_error) && is_array($last_error)) {
+            echo '<div style="margin-top:10px;padding:10px;border:1px solid #f0ad4e;background:#fcf8e3;border-radius:4px;">';
+            echo '<p><strong>Last VPN Error:</strong></p>';
+            if (!empty($last_error['timestamp'])) {
+                echo '<p><strong>Time:</strong> ' . esc_html($last_error['timestamp']) . '</p>';
+            }
+            if (!empty($last_error['source'])) {
+                echo '<p><strong>Source:</strong> ' . esc_html($last_error['source']) . '</p>';
+            }
+            if (!empty($last_error['error'])) {
+                echo '<p><strong>Code:</strong> ' . esc_html($last_error['error']) . '</p>';
+            }
+            if (!empty($last_error['message'])) {
+                echo '<p><strong>Message:</strong><br>' . esc_html($last_error['message']) . '</p>';
+            }
+            echo '</div>';
         }
 
-        echo '<p><a href="' . admin_url('admin-ajax.php?action=resend_vpn_config&order_id=' . $order_id . '&nonce=' . wp_create_nonce('resend_vpn_' . $order_id)) .
-            '" class="button button-small resend-vpn-btn" data-order-id="' . $order_id . '">Resend VPN Config</a></p>';
-    } else {
-        echo '<p><strong>Status:</strong> <span style="color:red;">Not sent</span></p>';
-        echo '<p><a href="' . admin_url('admin-ajax.php?action=resend_vpn_config&order_id=' . $order_id . '&nonce=' . wp_create_nonce('resend_vpn_' . $order_id)) .
-            '" class="button button-primary button-small resend-vpn-btn" data-order-id="' . $order_id . '">Send VPN Config</a></p>';
-    }
-
-    if (!empty($last_error) && is_array($last_error)) {
-        echo '<div style="margin-top:10px;padding:10px;border:1px solid #f0ad4e;background:#fcf8e3;border-radius:4px;">';
-        echo '<p><strong>Last VPN Error:</strong></p>';
-        if (!empty($last_error['timestamp'])) {
-            echo '<p><strong>Time:</strong> ' . esc_html($last_error['timestamp']) . '</p>';
-        }
-        if (!empty($last_error['source'])) {
-            echo '<p><strong>Source:</strong> ' . esc_html($last_error['source']) . '</p>';
-        }
-        if (!empty($last_error['error'])) {
-            echo '<p><strong>Code:</strong> ' . esc_html($last_error['error']) . '</p>';
-        }
-        if (!empty($last_error['message'])) {
-            echo '<p><strong>Message:</strong><br>' . esc_html($last_error['message']) . '</p>';
-        }
         echo '</div>';
-    }
+        echo '</div>';
 
-    echo '</div>';
-    echo '</div>';
-
-    // Add JavaScript for AJAX response handling
-    echo '<script>
-    jQuery(document).ready(function($) {
-        $(".resend-vpn-btn").on("click", function(e) {
-            e.preventDefault();
-            var $btn = $(this);
-            var orderId = $btn.data("order-id");
-            var originalText = $btn.text();
-            
-            $btn.text("Processing...").prop("disabled", true);
-            
-            $.ajax({
-                url: $btn.attr("href"),
-                type: "GET",
-                dataType: "json",
-                success: function(response) {
-                    if (response.success) {
-                        alert("Success: " + response.data.message);
-                        location.reload();
-                    } else {
-                        alert("Error: " + response.data.message + (response.data.details ? "\\nDetails: " + JSON.stringify(response.data.details) : ""));
-                    }
-                },
-                error: function(xhr, status, error) {
-                    alert("AJAX Error: " + error + "\\nStatus: " + status + "\\nResponse: " + xhr.responseText);
-                },
-                complete: function() {
-                    $btn.text(originalText).prop("disabled", false);
-                }
+        // Add JavaScript for AJAX response handling
+        echo '<script>
+            jQuery(document).ready(function($) {
+                $(".resend-vpn-btn").on("click", function(e) {
+                    e.preventDefault();
+                    var $btn = $(this);
+                    var orderId = $btn.data("order-id");
+                    var originalText = $btn.text();
+                    
+                    $btn.text("Processing...").prop("disabled", true);
+                    
+                    $.ajax({
+                        url: $btn.attr("href"),
+                        type: "GET",
+                        dataType: "json",
+                        success: function(response) {
+                            if (response.success) {
+                                alert("Success: " + response.data.message);
+                                location.reload();
+                            } else {
+                                alert("Error: " + response.data.message + (response.data.details ? "\\nDetails: " + JSON.stringify(response.data.details) : ""));
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            alert("AJAX Error: " + error + "\\nStatus: " + status + "\\nResponse: " + xhr.responseText);
+                        },
+                        complete: function() {
+                            $btn.text(originalText).prop("disabled", false);
+                        }
+                    });
+                });
             });
-        });
-    });
-    </script>';
-}
+            </script>';
+    }
+);
 
 /**
  * Add information about VPN config to order (admin)
  */
-add_action('woocommerce_admin_order_data_after_shipping_address', 'display_vpn_config_in_admin_order');
-function display_vpn_config_in_admin_order($order)
-{
-    $order_id = $order->get_id();
-    $vpn_connection_string = get_post_meta($order_id, '_vpn_connection_string', true);
-    $vpn_expires_at = get_post_meta($order_id, '_vpn_expires_at', true);
-    // $vpn_config_sent = get_post_meta($order_id, '_vpn_config_sent', true);
-    echo '<div class="vpn-config-info-block" style="display: flex; flex-flow: column; gap:.5rem">';
 
-    // Показываем конфиг только если он был сгенерирован и отправлен
-    if ($vpn_connection_string && $vpn_expires_at) {
-        echo '
-        <div class="">
+add_action(
+    'woocommerce_admin_order_data_after_order_details',
+    function ($order) {
+        $order_id = $order->get_id();
+
+        $payment_url = get_post_meta($order_id, '_payment_url', true);
+
+        if ($payment_url) {
+            echo '
+                <p class="form-field form-field-wide">
+                    <h4>Payment URL:</h4>
+                    <div style="overflow-x: scroll;">
+                        <code style="white-space: nowrap; padding: 0">' . $payment_url . '</code>
+                    </div>
+                </p>';
+        }
+    },
+    10,
+    1
+);
+
+add_action(
+    'woocommerce_admin_order_data_after_shipping_address',
+    function ($order) {
+        $order_id = $order->get_id();
+        $vpn_connection_string = get_post_meta($order_id, '_vpn_connection_string', true);
+        $vpn_expires_at = get_post_meta($order_id, '_vpn_expires_at', true);
+        // $vpn_config_sent = get_post_meta($order_id, '_vpn_config_sent', true);
+        echo '<div class="vpn-config-info-block" style="display: flex; flex-flow: column; gap:.5rem">';
+
+        // Показываем конфиг только если он был сгенерирован и отправлен
+        if ($vpn_connection_string && $vpn_expires_at) {
+            echo '
+        <div class="_wpdm-social-share-admin-menu">
             <h4 style="margin: 0">VPN Configuration String:</h4>
             <code style="word-wrap: break-word; padding: 0;">' . esc_html($vpn_connection_string) . '</code>
         </div>';
 
-        echo '
+            echo '
         <div class="_wpdm-social-share-admin-menu">
             <h4 style="margin: 0">Expires at:</h4>
             <code style="word-wrap: break-word; padding: 0;">' . esc_html(str_replace('T', ' ', $vpn_expires_at)) . '</code>
         </div>';
-    }
+        }
 
-    $vpn_reminder_promocode = get_post_meta($order_id, '_vpn_reminder_promocode', true);
-    $vpn_reminder_sent = get_post_meta($order_id, '_vpn_reminder_sent', true);
-    if ($vpn_reminder_promocode && $vpn_reminder_sent) {
-        echo '
+        $vpn_reminder_promocode = get_post_meta($order_id, '_vpn_reminder_promocode', true);
+        $vpn_reminder_sent = get_post_meta($order_id, '_vpn_reminder_sent', true);
+        if ($vpn_reminder_promocode && $vpn_reminder_sent) {
+            echo '
         <div class="_wpdm-social-share-admin-menu">
             <h4 style="margin: 0">Reminder sent:</h4>
             <code style="padding: 0;">' . esc_html($vpn_reminder_sent) . '</code>
         </div>';
 
-        echo '
+            echo '
         <div class="_wpdm-social-share-admin-menu">
             <h4 style="margin: 0">Reminder promo-code:</h4>
             <code style="padding: 0;">' . esc_html($vpn_reminder_promocode) . '</code>
         </div>';
-    }
+        }
 
-    echo '</div>';
-}
+        echo '</div>';
+    }
+);
 
 /**
  * AJAX handler for resending VPN config with improved error reporting
  */
-add_action('wp_ajax_resend_vpn_config', 'ajax_resend_vpn_config');
-function ajax_resend_vpn_config()
-{
-    // Verify nonce and sanitize input
-    $order_id_raw = isset($_GET['order_id']) ? wp_unslash($_GET['order_id']) : '';
-    $nonce = isset($_GET['nonce']) ? wp_unslash($_GET['nonce']) : '';
+add_action(
+    'wp_ajax_resend_vpn_config',
+    function () {
+        // Verify nonce and sanitize input
+        $order_id_raw = isset($_GET['order_id']) ? wp_unslash($_GET['order_id']) : '';
+        $nonce = isset($_GET['nonce']) ? wp_unslash($_GET['nonce']) : '';
 
-    if (empty($order_id_raw) || !is_numeric($order_id_raw)) {
-        wp_send_json_error(array(
-            'message' => 'Order ID is required and must be numeric.',
-            'error_code' => 'invalid_order_id',
-            'suggestion' => 'Please provide a valid order ID.'
-        ));
+        if (empty($order_id_raw) || !is_numeric($order_id_raw)) {
+            wp_send_json_error(array(
+                'message' => 'Order ID is required and must be numeric.',
+                'error_code' => 'invalid_order_id',
+                'suggestion' => 'Please provide a valid order ID.'
+            ));
+        }
+
+        $order_id = (int) $order_id_raw;
+
+        if (empty($nonce) || !wp_verify_nonce($nonce, 'resend_vpn_' . $order_id)) {
+            wp_send_json_error(array(
+                'message' => 'Security check failed. Invalid or missing nonce.',
+                'error_code' => 'invalid_nonce',
+                'suggestion' => 'Please refresh the page and try again.'
+            ));
+        }
+
+        if (!current_user_can('manage_woocommerce')) {
+            wp_send_json_error(array(
+                'message' => 'Permission denied. You do not have sufficient permissions to perform this action.',
+                'error_code' => 'insufficient_permissions',
+                'required_capability' => 'manage_woocommerce',
+                'suggestion' => 'Contact your administrator for access.'
+            ));
+        }
+
+        $result = resend_vpn_config($order_id);
+
+        if ($result['success']) {
+            wp_send_json_success(array(
+                'message' => $result['message'],
+                'action' => isset($result['action']) ? $result['action'] : 'resent',
+                'email' => isset($result['email']) ? $result['email'] : null,
+                'timestamp' => current_time('mysql')
+            ));
+        } else {
+            wp_send_json_error(array(
+                'message' => $result['message'],
+                'error_code' => $result['error'] ?? 'unknown_error',
+                'details' => isset($result['details']) ? $result['details'] : null,
+                'order_id' => $order_id,
+                'suggestion' => 'Please check the order details and try again. If the problem persists, contact technical support.',
+                'debug_info' => array(
+                    'order_exists' => !empty(wc_get_order($order_id)),
+                    'has_vpn_config' => !empty(get_post_meta($order_id, '_vpn_config', true)),
+                    'config_sent' => get_post_meta($order_id, '_vpn_config_sent', true)
+                )
+            ));
+        }
     }
-
-    $order_id = (int) $order_id_raw;
-
-    if (empty($nonce) || !wp_verify_nonce($nonce, 'resend_vpn_' . $order_id)) {
-        wp_send_json_error(array(
-            'message' => 'Security check failed. Invalid or missing nonce.',
-            'error_code' => 'invalid_nonce',
-            'suggestion' => 'Please refresh the page and try again.'
-        ));
-    }
-
-    if (!current_user_can('manage_woocommerce')) {
-        wp_send_json_error(array(
-            'message' => 'Permission denied. You do not have sufficient permissions to perform this action.',
-            'error_code' => 'insufficient_permissions',
-            'required_capability' => 'manage_woocommerce',
-            'suggestion' => 'Contact your administrator for access.'
-        ));
-    }
-
-    $result = resend_vpn_config($order_id);
-
-    if ($result['success']) {
-        wp_send_json_success(array(
-            'message' => $result['message'],
-            'action' => isset($result['action']) ? $result['action'] : 'resent',
-            'email' => isset($result['email']) ? $result['email'] : null,
-            'timestamp' => current_time('mysql')
-        ));
-    } else {
-        wp_send_json_error(array(
-            'message' => $result['message'],
-            'error_code' => $result['error'] ?? 'unknown_error',
-            'details' => isset($result['details']) ? $result['details'] : null,
-            'order_id' => $order_id,
-            'suggestion' => 'Please check the order details and try again. If the problem persists, contact technical support.',
-            'debug_info' => array(
-                'order_exists' => !empty(wc_get_order($order_id)),
-                'has_vpn_config' => !empty(get_post_meta($order_id, '_vpn_config', true)),
-                'config_sent' => get_post_meta($order_id, '_vpn_config_sent', true)
-            )
-        ));
-    }
-}
+);
 
 /**
  * Log VPN actions for debugging
