@@ -7,8 +7,11 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # mail renew config reminder 
 0 10 * * * root /usr/bin/php /opt/server_scripts/cron-payment-mail-reminder.php >> /tmp/cron-payment-mail-reminder.log 2>&1
 
+# debug.log  rotation 30 days
+0 0 * * * root mkdir -p /var/www/html/wp-content/vpn-logs && cp /var/www/html/wp-content/debug.log /var/www/html/wp-content/vpn-logs/debug_$(date +\%Y-\%m-\%d).log && truncate -s 0 /var/www/html/wp-content/debug.log
+
 # logs rotation 30 days
-0 0 * * * root find "/var/www/html/wp-content/vpn-logs/" -name "*.log" -type f -mtime +30 -delete
+0 1 * * * root find "/var/www/html/wp-content/vpn-logs/" -name "*.log" -type f -mtime +30 -delete
 
 # Clean WC orders without email every Monday morning
 0 2 * * 1 root /usr/bin/php /opt/server_scripts/clean_wc_orders.php >> /tmp/clean_wc_orders.log 2>&1
