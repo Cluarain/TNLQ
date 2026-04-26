@@ -8,28 +8,32 @@
 define('WP_USE_THEMES', false);
 require_once('./wp-load.php');
 
-// Проверяем, что это POST запрос
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    wp_die(esc_html__('Invalid request method', 'tnlq'));
-}
-
-// Проверяем nonce для безопасности
-if (!isset($_POST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'direct_payment_nonce')) {
-    wp_die(esc_html__('Security check failed', 'tnlq'));
-}
-
-// Получаем и валидируем данные
-$product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
-$email = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : 'None';
-$coupon_code = isset($_POST['promo']) ? sanitize_text_field(wp_unslash($_POST['promo'])) : '';
-
-if (!$product_id || !is_email($email)) {
-    // wp_die(esc_html__('Invalid product or email', 'tnlq'));
-    showClientError($email, $product_id, $coupon_code, __('Invalid product or email', 'tnlq'));
-}
-
 try {
+    // Проверяем, что это POST запрос
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        error_log("Invalid request method");
+        wp_die(esc_html__('Invalid request method', 'tnlq'));
+    }
+
+    // Проверяем nonce для безопасности
+    if (!isset($_POST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'direct_payment_nonce')) {
+        error_log("Security check failed");
+        wp_die(esc_html__('Security check failed', 'tnlq'));
+    }
+
+    // Получаем и валидируем данные
+    $product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
+    $email = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : 'None';
+    $coupon_code = isset($_POST['promo']) ? sanitize_text_field(wp_unslash($_POST['promo'])) : '';
+
+    if (!$product_id || !is_email($email)) {
+        error_log("Invalid product or email");
+        // wp_die(esc_html__('Invalid product or email', 'tnlq'));
+        showClientError($email, $product_id, $coupon_code, __('Invalid product or email', 'tnlq'));
+    }
+
     if (!empty($coupon_code) && !check_coupon_rate_limit($email)) {
+        error_log("Too many coupon attempts.");
         showClientError($email, $product_id, $coupon_code, __('Too many coupon attempts. Please try again in 20 minutes.', 'tnlq'));
     }
 
@@ -55,7 +59,9 @@ try {
                 $order_total = $order->get_total();
                 if ($order_total < $minimum_amount) {
                     increment_failed_coupon_attempts($email);
+                    error_log(sprintf(__('Minimum order amount for this coupon is %s', 'tnlq'), wc_price($minimum_amount)));
                     showClientError($email, $product_id, $coupon_code, sprintf(__('Minimum order amount for this coupon is %s', 'tnlq'), wc_price($minimum_amount)), $order);
+
                     // throw new Exception(sprintf(__('Minimum order amount for this coupon is %s', 'tnlq'), wc_price($minimum_amount)));
                 }
             }
@@ -66,12 +72,14 @@ try {
 
             if (!empty($product_ids) && !in_array($product_id, $product_ids)) {
                 // throw new Exception();
+                error_log("This coupon $coupon_code is not valid for the selected product");
                 increment_failed_coupon_attempts($email);
                 showClientError($email, $product_id, $coupon_code, __('This coupon is not valid for the selected product', 'tnlq'), $order);
             }
 
             if (!empty($excluded_product_ids) && in_array($product_id, $excluded_product_ids)) {
                 // throw new Exception(__('This coupon is not valid for the selected product', 'tnlq'));
+                error_log("This coupon $coupon_code is not valid for the selected product");
                 increment_failed_coupon_attempts($email);
                 showClientError($email, $product_id, $coupon_code, __('This coupon is not valid for the selected product', 'tnlq'), $order);
             }
@@ -89,6 +97,7 @@ try {
             update_post_meta($order->get_id(), '_applied_coupon', $coupon_code);
         } else {
             increment_failed_coupon_attempts($email);
+            error_log("Invalid coupon $coupon_code");
             showClientError($email, $product_id, $coupon_code, __("Invalid coupon code", 'tnlq'), $order);
             // Получаем конкретную причину невалидности купона
             // $error_message = __('Invalid coupon code', 'tnlq');
