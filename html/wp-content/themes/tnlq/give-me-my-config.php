@@ -1,4 +1,5 @@
 <?php
+// тестовый файл для выдачи конфига с помощью функции
 
 // Загружаем WordPress
 define('WP_USE_THEMES', false);
@@ -9,8 +10,7 @@ if (!function_exists('create_vpn_client')) {
     die('Function create_vpn_client does not exist');
 }
 
-// тестовый файл для выдачи конфига с помощью функции
-// $test_config = create_vpn_client(0, 9999, 0, 10);
+// $test_config = create_vpn_client(0, 30, 0, 3);
 
 if (isset($test_config['success']) && $test_config['success']) {
     header('Content-Type: text/plain; charset=utf-8');
