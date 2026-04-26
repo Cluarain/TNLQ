@@ -60,7 +60,8 @@ function wp_scripts_styles_dequeue()
     wp_deregister_style('global-styles');
 
     wp_deregister_script('interactivity');
-    wp_deregister_script('wc-jquery-blockui');
+    // нужен для woocommerce
+    // wp_deregister_script('wc-jquery-blockui');
 
     if (current_user_can('update_core')) {
         return;
