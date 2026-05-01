@@ -193,22 +193,31 @@ function add_scripts_and_styles()
 
     // $main_css = get_relative_theme_file_uri('/assets/css/main' . $isMinify . '.css');
 
-    $main_js = get_relative_theme_file_uri('/assets/js/main' . $isMinify . '.js');
+    // $main_js = get_relative_theme_file_uri('/assets/js/main' . $isMinify . '.js');
+    // // ['strategy' => 'async', 'in_footer' => true ]
+    // wp_enqueue_script('main', getShortFileLink($main_js), [], getShortFileHash($main_js), true);
 
-    // wp_enqueue_style('main', getShortFileLink($main_css), [], getShortFileHash($main_css));
+    // main.js
+    wp_register_script('main', '', [], null, true);
+    wp_add_inline_script('main', file_get_contents(__DIR__ . '/assets/js/main' . $isMinify . '.js'));
+    wp_enqueue_script('main');
+
+    // main.css
     wp_register_style('main', false);
     wp_add_inline_style('main', file_get_contents(__DIR__ . '/assets/css/main' . $isMinify . '.css'));
     wp_enqueue_style('main');
 
-    // ['strategy' => 'async', 'in_footer' => true ]
-    wp_enqueue_script('main', getShortFileLink($main_js), [], getShortFileHash($main_js), true);
-
+    // animations.css
+    wp_register_style('animations', false);
+    wp_add_inline_style('animations', file_get_contents(__DIR__ . '/assets/css/animations.min.css'));
+    wp_enqueue_style('animations');
 
     if (is_page() && strpos(get_post_field('post_name'), 'affiliate-') !== false) {
-        $affiliate_css = get_relative_theme_file_uri('/assets/css/affiliate' . $isMinify . '.css');
-        wp_enqueue_style('affiliate', getShortFileLink($affiliate_css), [], getShortFileHash($affiliate_css));
+        // affiliate.css
+        wp_register_style('affiliate', false);
+        wp_add_inline_style('affiliate', file_get_contents(__DIR__ . '/assets/css/affiliate' . $isMinify . '.css'));
+        wp_enqueue_style('affiliate');
     }
-
 
     $typewriter_js = get_relative_theme_file_uri('/assets/js/typewriter.min.js');
     wp_enqueue_script('typewriter', getShortFileLink($typewriter_js), [], getShortFileHash($typewriter_js), ['strategy' => 'async', 'in_footer' => true]);
@@ -285,20 +294,6 @@ add_action('wp_footer', function () {
     // if (! WP_DEBUG) {
     //     $isMinify = '.min';
     // }
-    $animations_css = get_relative_theme_file_uri('/assets/css/animations' . $isMinify . '.css');
-    $animations_url = getShortFileLink($animations_css) . '?v=' . getShortFileHash($animations_css);;
-    echo '
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            var link = document.createElement("link");
-            link.rel = "stylesheet";
-            link.href = "' .  $animations_url . '";
-            link.type = "text/css";
-            document.head.appendChild(link);
-        });
-    </script>
-    <noscript><link rel="stylesheet" href="' . $animations_url . '"></noscript>
-    ';
 });
 
 
