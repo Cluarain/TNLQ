@@ -26,10 +26,10 @@ The subscription is valid until: {{var:expire_date}}
   https://storage.v2raytun.com/v2RayTun_Setup.exe
 
   alternative:
-  https://github.com/hiddify/hiddify-app/releases/latest/download/Hiddify-Windows-Setup-x64.Msix
+  https://github.com/hiddify/hiddify-app/releases
 
 * Linux
-  https://github.com/hiddify/hiddify-app/releases/latest/download/Hiddify-Linux-x64.AppImage
+  https://github.com/hiddify/hiddify-app/releases
 
 * Android TV
   https://play.google.com/store/apps/details?id=com.v2raytun.android
