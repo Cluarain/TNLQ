@@ -8,32 +8,46 @@
 define('WP_USE_THEMES', false);
 require_once('./wp-load.php');
 
+$product_id =  0;
+$email = 'None';
+$coupon_code = '';
+
 try {
     // Проверяем, что это POST запрос
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        error_log("Invalid request method");
-        wp_die(esc_html__('Invalid request method', 'tnlq'));
+        my_payment_error_log("Invalid request method");
+        showClientError($email, $product_id, $coupon_code, __('Invalid request method', 'tnlq'));
+        // wp_die(esc_html__('Invalid request method', 'tnlq'));
     }
 
     // Проверяем nonce для безопасности
     if (!isset($_POST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'direct_payment_nonce')) {
-        error_log("Security check failed");
-        wp_die(esc_html__('Security check failed', 'tnlq'));
+        my_payment_error_log("Security check failed");
+        showClientError($email, $product_id, $coupon_code, __('Security check failed', 'tnlq'));
+        // wp_die(esc_html__('Security check failed', 'tnlq'));
     }
 
     // Получаем и валидируем данные
-    $product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
-    $email = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : 'None';
-    $coupon_code = isset($_POST['promo']) ? sanitize_text_field(wp_unslash($_POST['promo'])) : '';
-
-    if (!$product_id || !is_email($email)) {
-        error_log("Invalid product or email");
-        // wp_die(esc_html__('Invalid product or email', 'tnlq'));
-        showClientError($email, $product_id, $coupon_code, __('Invalid product or email', 'tnlq'));
+    if (isset($_POST['product_id'])) {
+        $product_id = intval($_POST['product_id']);
+    }
+    if (isset($_POST['email'])) {
+        $email =  sanitize_email(wp_unslash($_POST['email']));
+    }
+    if (isset($_POST['product_id'])) {
+        $coupon_code =  sanitize_text_field(wp_unslash($_POST['promo']));
     }
 
+    if (!$product_id) {
+        my_payment_error_log("Invalid product");
+        showClientError($email, $product_id, $coupon_code, __('Invalid product', 'tnlq'));
+    }
+    if (!is_email($email)) {
+        my_payment_error_log("Invalid email");
+        showClientError($email, $product_id, $coupon_code, __('Invalid email', 'tnlq'));
+    }
     if (!empty($coupon_code) && !check_coupon_rate_limit($email)) {
-        error_log("Too many coupon attempts.");
+        my_payment_error_log("Too many coupon attempts.");
         showClientError($email, $product_id, $coupon_code, __('Too many coupon attempts. Please try again in 20 minutes.', 'tnlq'));
     }
 
@@ -72,14 +86,14 @@ try {
 
             if (!empty($product_ids) && !in_array($product_id, $product_ids)) {
                 // throw new Exception();
-                error_log("This coupon $coupon_code is not valid for the selected product");
+                my_payment_error_log("This coupon $coupon_code is not valid for the selected product");
                 increment_failed_coupon_attempts($email);
                 showClientError($email, $product_id, $coupon_code, __('This coupon is not valid for the selected product', 'tnlq'), $order);
             }
 
             if (!empty($excluded_product_ids) && in_array($product_id, $excluded_product_ids)) {
                 // throw new Exception(__('This coupon is not valid for the selected product', 'tnlq'));
-                error_log("This coupon $coupon_code is not valid for the selected product");
+                my_payment_error_log("This coupon $coupon_code is not valid for the selected product");
                 increment_failed_coupon_attempts($email);
                 showClientError($email, $product_id, $coupon_code, __('This coupon is not valid for the selected product', 'tnlq'), $order);
             }
@@ -97,7 +111,13 @@ try {
             update_post_meta($order->get_id(), '_applied_coupon', $coupon_code);
         } else {
             increment_failed_coupon_attempts($email);
-            error_log("Invalid coupon $coupon_code");
+            my_payment_error_log("Invalid coupon $coupon_code");
+
+            // нужно удалить заказ если купон неверный
+            if ($order && $order->get_id()) {
+                wp_delete_post($order->get_id(), true); // Принудительное удаление заказа
+            }
+
             showClientError($email, $product_id, $coupon_code, __("Invalid coupon code", 'tnlq'), $order);
             // Получаем конкретную причину невалидности купона
             // $error_message = __('Invalid coupon code', 'tnlq');
@@ -118,9 +138,13 @@ try {
     // Проверяем, равна ли итоговая сумма 0
     if ($order->get_total() == 0) {
         // Если сумма равна 0, отмечаем заказ как оплаченный
-        $order->set_status('completed');
+        // $order->set_status('completed');
         $order->set_payment_method('free_gateway'); // Можно установить виртуальный метод оплаты
+        $order->set_payment_method_title('Free');
+        $order->payment_complete();
+
         $order->save();
+
         set_order_affiliate_from_cookie($order->get_id());
 
         // Создаем URL для успешной оплаты
@@ -154,7 +178,10 @@ try {
     $nowpayments_gateway = $payment_gateways['nowpayments'];
 
     $order->set_payment_method($nowpayments_gateway);
+
     $order->save(); // Сохраняем изменения с платежным методом
+    my_payment_error_log("New order created: #" . $order->get_id() . ", Sum total:" . $order->get_total() .  ", Email:" . $order->get_billing_email(), "success");
+
     set_order_affiliate_from_cookie($order->get_id());
 
     // Создаем URL для успешной оплаты и отмены
@@ -178,6 +205,7 @@ try {
         return $cancel_url;
     });
 
+    $order->save();
     // Теперь получаем URL оплаты через NOWPayments
     $result = $nowpayments_gateway->process_payment($order->get_id());
     if (is_array($result) && isset($result['result']) && $result['result'] === 'success' && !empty($result['redirect'])) {
@@ -203,7 +231,7 @@ function showClientError($email, $product_id, $coupon_code, $message, $need_dele
 {
     // if ($need_delete_order && is_a($need_delete_order, 'WC_Order')) {
     //     $need_delete_order->delete(true); // true = удалить навсегда
-    //     error_log("Order #{$need_delete_order->get_id()} deleted due to error: {$message}");
+    //     my_payment_error_log("Order #{$need_delete_order->get_id()} deleted due to error: {$message}");
     // }
 
     $error_url = add_query_arg(array(
@@ -336,11 +364,11 @@ function set_order_affiliate_from_cookie($order_id)
     $existing_referral = affwp_get_referral_by('reference', $order_id, 'woocommerce');
     if (!is_wp_error($existing_referral)) {
         // Реферал уже существует, не создаем новый
-        error_log("Referral already exists for order {$order_id}, skipping creation");
+        my_payment_error_log("Referral already exists for order {$order_id}, skipping creation");
         return;
     }
 
-    error_log("No existing referral found for order {$order_id}, proceeding with referral creation");
+    my_payment_error_log("No existing referral found for order {$order_id}, proceeding with referral creation");
 
     // Получаем детали заказа для создания реферала
     $order_total = $order->get_total();
@@ -401,7 +429,7 @@ function set_order_affiliate_from_cookie($order_id)
     }
 
     // Добавим отладочную информацию для проверки расчетов
-    error_log("Order total: {$order_total}, Affiliate rate: {$affiliate_rate}, Rate type: {$rate_type}, Calculated referral amount: {$referral_amount}");
+    my_payment_error_log("Order total: {$order_total}, Affiliate rate: {$affiliate_rate}, Rate type: {$rate_type}, Calculated referral amount: {$referral_amount}");
 
     // Проверяем, не отключены ли рефералы для каких-то продуктов
     foreach ($order->get_items() as $key => $product) {
@@ -417,7 +445,7 @@ function set_order_affiliate_from_cookie($order_id)
 
     // Проверяем, нужно ли игнорировать нулевые рефералы
     if ($referral_amount == 0 && affiliate_wp()->settings->get('ignore_zero_referrals')) {
-        error_log("Referral amount is 0 and ignore_zero_referrals is enabled, skipping referral creation");
+        my_payment_error_log("Referral amount is 0 and ignore_zero_referrals is enabled, skipping referral creation");
         return;
     }
 
@@ -461,8 +489,15 @@ function set_order_affiliate_from_cookie($order_id)
                 affiliate_wp()->affiliates->get_affiliate_name($affiliate_id)
             )
         );
-        error_log("Successfully created referral #{$referral_id} with amount {$referral_amount} for order {$order_id}");
+        my_payment_error_log("Successfully created referral #{$referral_id} with amount {$referral_amount} for order {$order_id}", "success");
     } else {
-        error_log("Failed to create referral for order {$order_id} with amount {$referral_amount}");
+        my_payment_error_log("Failed to create referral for order {$order_id} with amount {$referral_amount}");
     }
+}
+
+
+function my_payment_error_log($message, $message_type = 'error')
+{
+    $real_user_ip = get_real_user_ip();
+    error_log("$real_user_ip -- $message_type: $message");
 }
