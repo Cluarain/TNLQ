@@ -37,7 +37,6 @@ add_filter('style_loader_src', 'make_url_relative', 10, 2);
 add_filter('script_loader_src', 'make_url_relative', 10, 2);
 add_filter('get_site_icon_url', 'make_url_relative');
 
-
 // Отключение jquery и лишних стилей для не админов
 function wp_scripts_styles_dequeue()
 {
@@ -49,8 +48,9 @@ function wp_scripts_styles_dequeue()
     wp_deregister_style('wp-block-separator');
     wp_deregister_style('wp-block-paragraph');
     wp_deregister_style('wp-block-list');
-
     wp_deregister_style('wp-block-library');
+
+    wp_deregister_style('wc-blocks-style');
     wp_deregister_style('affwp-forms');
     wp_deregister_style('woocommerce-layout');
     wp_deregister_style('woocommerce-smallscreen');
@@ -60,6 +60,16 @@ function wp_scripts_styles_dequeue()
     wp_deregister_style('global-styles');
 
     wp_deregister_script('interactivity');
+
+    // Вместо жёсткого deregister для зависимостей, которые всё равно могут быть запрошены,
+    // регистрируем пустые обработчики
+    if (!wp_script_is('jquery-migrate', 'registered')) {
+        wp_register_script('jquery-migrate', false, array(), '', true);
+    }
+    if (!wp_script_is('jquery-ui-menu', 'registered')) {
+        wp_register_script('jquery-ui-menu', false, array(), '', true);
+    }
+
     // нужен для woocommerce
     // wp_deregister_script('wc-jquery-blockui');
 
@@ -69,10 +79,11 @@ function wp_scripts_styles_dequeue()
 
     wp_deregister_style('dashicons');
 
+
     // jquery НЕОБХОДИМ ДЛЯ ПЛАГИНА affiliate-wp
     // wp_deregister_script('jquery');
 }
-add_action('wp_enqueue_scripts', 'wp_scripts_styles_dequeue');
+add_action('wp_enqueue_scripts', 'wp_scripts_styles_dequeue', 20);
 
 // Отключение JavaScript ufaq
 function disable_plugins_scripts()
