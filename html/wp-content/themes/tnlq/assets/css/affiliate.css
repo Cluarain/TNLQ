@@ -307,7 +307,7 @@ input[type="hidden"] {
             display: block;
 
             &::before {
-                content: "> ";
+                content: ">\a0";
                 opacity: 0.75;
                 transition: opacity var(--main-transition);
             }
