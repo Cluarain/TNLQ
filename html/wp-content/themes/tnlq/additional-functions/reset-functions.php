@@ -8,10 +8,7 @@ remove_filter('the_excerpt', 'wptexturize');
 
 
 // отключить обёртку у всех кастомных lazy блоков
-if (! WP_DEBUG) {
-    add_filter('lzb/block_render/allow_wrapper', '__return_false');
-}
-
+// add_filter('lzb/block_render/allow_wrapper', '__return_false');
 
 function disable_lzb_deprecated_notice($trigger, $hook = '')
 {
@@ -37,7 +34,7 @@ add_filter('style_loader_src', 'make_url_relative', 10, 2);
 add_filter('script_loader_src', 'make_url_relative', 10, 2);
 add_filter('get_site_icon_url', 'make_url_relative');
 
-// Отключение jquery и лишних стилей для не админов
+// Отключение лишних стилей и скриптов
 function wp_scripts_styles_dequeue()
 {
     wp_deregister_style('classic-theme-styles');
@@ -57,21 +54,43 @@ function wp_scripts_styles_dequeue()
     wp_deregister_style('woocommerce-general');
     wp_deregister_style('woocommerce-inline');
 
+    // НЕ ОТКЛЮЧАТЬ
+    // wp_deregister_script('wc-jquery-cookie');
+    // wp_deregister_script('wc-js-cookie');
+
+
+    // jquery НЕОБХОДИМ ДЛЯ ПЛАГИНА affiliate-wp
+    // wp_deregister_script('jquery');
+
     wp_deregister_style('global-styles');
 
+    wp_deregister_script('woocommerce');
     wp_deregister_script('interactivity');
+    // wp_deregister_script('wp-hooks');
+    wp_deregister_script('jquery-effects-core');
 
     // Вместо жёсткого deregister для зависимостей, которые всё равно могут быть запрошены,
     // регистрируем пустые обработчики
-    if (!wp_script_is('jquery-migrate', 'registered')) {
-        wp_register_script('jquery-migrate', false, array(), '', true);
-    }
-    if (!wp_script_is('jquery-ui-menu', 'registered')) {
-        wp_register_script('jquery-ui-menu', false, array(), '', true);
-    }
+    wp_deregister_script('jquery-migrate');
+    wp_register_script('jquery-migrate', false, array(), '', true);
 
-    // нужен для woocommerce
-    // wp_deregister_script('wc-jquery-blockui');
+    wp_deregister_script('jquery-ui-menu');
+    wp_register_script('jquery-ui-menu', false, array(), '', true);
+
+    wp_deregister_script('jquery-ui-autocomplete');
+    wp_register_script('jquery-ui-autocomplete', false, array(), '', true);
+
+    wp_deregister_script('wc-jquery-blockui');
+    wp_register_script('wc-jquery-blockui', false, array(), '', true);
+
+    wp_deregister_script('wp-dom-ready');
+    wp_register_script('wp-dom-ready', false, array(), '', true);
+
+    wp_deregister_script('wp-i18n');
+    wp_register_script('wp-i18n', false, array(), '', true);
+
+    wp_deregister_script('wp-a11y');
+    wp_register_script('wp-a11y', false, array('wp-dom-ready', 'wp-i18n'), '', true);
 
     if (current_user_can('update_core')) {
         return;
@@ -80,10 +99,51 @@ function wp_scripts_styles_dequeue()
     wp_deregister_style('dashicons');
 
 
-    // jquery НЕОБХОДИМ ДЛЯ ПЛАГИНА affiliate-wp
-    // wp_deregister_script('jquery');
+    if (strpos(get_post_field('post_name'), 'affiliate-') == false) {
+        wp_deregister_script('jquery-ui-core');
+    }
+
+    $wp_scripts = wp_scripts();
+
+    // ========================================
+    // 2. WooCommerce jquery.cookie (хендл: wc-jquery-cookie-js)
+    // ========================================
+    $cookie_handle = 'wc-jquery-cookie';
+    if (isset($wp_scripts->registered[$cookie_handle])) {
+        $cookie_reg = $wp_scripts->registered[$cookie_handle];
+
+        wp_deregister_script($cookie_handle);
+        wp_register_script(
+            $cookie_handle,
+            $cookie_reg->src ?: plugins_url('woocommerce/assets/js/jquery-cookie/jquery.cookie.min.js'),
+            $cookie_reg->deps ?: array('jquery'),
+            $cookie_reg->ver ?: '000',
+            true // ← футер
+        );
+        wp_enqueue_script($cookie_handle);
+    }
+
+    // ДОЛЖНО БЫТЬ РЯДОМ С jquery-core
+    // ========================================
+    // 3. AffiliateWP tracking (хендл: affwp-tracking-js)
+    // ========================================
+    // $tracking_handle = 'affwp-tracking';
+    // if (isset($wp_scripts->registered[$tracking_handle])) {
+    //     $tracking_reg = $wp_scripts->registered[$tracking_handle];
+
+    //     wp_deregister_script($tracking_handle);
+    //     wp_register_script(
+    //         $tracking_handle,
+    //         $tracking_reg->src ?: plugins_url('affiliate-wp/assets/js/tracking.min.js'),
+    //         $tracking_reg->deps ?: array('jquery'),
+    //         $tracking_reg->ver ?: '2.31.2',
+    //         true // ← футер
+    //     );
+    //     wp_enqueue_script($tracking_handle);
+    // }
 }
-add_action('wp_enqueue_scripts', 'wp_scripts_styles_dequeue', 20);
+add_action('wp_enqueue_scripts', 'wp_scripts_styles_dequeue', 100);
+
 
 // Отключение JavaScript ufaq
 function disable_plugins_scripts()
