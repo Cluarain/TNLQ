@@ -129,14 +129,6 @@ function make_yoast_breadcrumb_url_relative($link_info)
 
 add_action('template_redirect', 'rw_relative_urls');
 
-// 2. Управляем канонической ссылкой
-// add_filter('wpseo_canonical', function ($canonical) {
-// if (is_mirror_domain()) {
-//     return 'https://tuneliqa.com' . $_SERVER['REQUEST_URI'];
-// }
-// return $canonical;
-// });
-
 // 3. Отключаем карту сайта для зеркал
 // add_filter('wpseo_sitemap_exclude_post_type', function ($exclude, $post_type) {
 //     if (is_mirror_domain()) {
@@ -155,6 +147,8 @@ function add_meta_tag()
     //     // echo '<link rel="canonical" href="https://' . $primary_domain . $_SERVER['REQUEST_URI'] . '" />' . "\n";
     // }
     //     <meta name="google" content="notranslate">
+
+
     echo '
     <!-- start My custom meta -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -186,7 +180,7 @@ function get_relative_theme_file_uri($path = '')
 
 function add_scripts_and_styles()
 {
-    $isMinify = '';
+    $isMinify = '.min';
     // if (! WP_DEBUG) {
     //     $isMinify = '.min';
     // }
@@ -225,6 +219,31 @@ function add_scripts_and_styles()
 add_action('wp_enqueue_scripts', 'add_scripts_and_styles');
 
 
+add_action(
+    'wp_enqueue_scripts',
+    function () {
+        $plugin_path = WP_PLUGIN_DIR . '/duracelltomi-google-tag-manager/dist/js/';
+
+        // GTM4WP E-commerce Generic
+        $script1_file = $plugin_path . 'gtm4wp-ecommerce-generic.js';
+        if (file_exists($script1_file)) {
+            wp_deregister_script('gtm4wp-ecommerce-generic');
+            wp_register_script('gtm4wp-ecommerce-generic', '', [], null, true);
+            wp_add_inline_script('gtm4wp-ecommerce-generic', file_get_contents($script1_file));
+            wp_enqueue_script('gtm4wp-ecommerce-generic');
+        }
+
+        // GTM4WP WooCommerce
+        $script2_file = $plugin_path . 'gtm4wp-woocommerce.js';
+        if (file_exists($script2_file)) {
+            wp_deregister_script('gtm4wp-woocommerce');
+            wp_register_script('gtm4wp-woocommerce', '', [], null, true);
+            wp_add_inline_script('gtm4wp-woocommerce', file_get_contents($script2_file));
+            wp_enqueue_script('gtm4wp-woocommerce');
+        }
+    },
+    100
+);
 // свои стили для админки
 // add_action('admin_enqueue_scripts', function () {
 //     $main_css = get_relative_theme_file_uri('/assets/css/main.css');
