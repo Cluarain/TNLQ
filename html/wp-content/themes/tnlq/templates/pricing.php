@@ -95,10 +95,7 @@ extract(parse_args_filtered($args, $defaults));
                             <dl>
                                 <dt class="pricing__card-period">
                                     <?php
-                                    echo $best_plan ?
-                                        '<span class="pricing__card-period-best">
-                                    <span>Popular</span>
-                                </span>' : '';
+                                    echo $best_plan ? '<span class="pricing__card-period-best"><span>Popular</span></span>' : '';
                                     echo $product_title;
                                     ?>
                                 </dt>

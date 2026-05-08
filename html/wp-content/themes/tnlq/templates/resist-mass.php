@@ -21,15 +21,9 @@ extract(parse_args_filtered($args, $defaults));
         foreach ($titles as $index => $title) {
 
             if ($index == 0) {
-                echo '
-                <h2 class="resist-mass__title glow active">
-                    ' . $title['title'] . '
-                </h2>';
+                echo '<h2 class="resist-mass__title glow active">' . $title['title'] . '</h2>';
             } else {
-                echo '
-                <p class="resist-mass__title glow">
-                    ' . $title['title'] . '
-                </p>';
+                echo '<p class="resist-mass__title glow">' . $title['title'] . '</p>';
             }
         }
         ?>
