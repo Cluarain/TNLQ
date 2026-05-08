@@ -60,6 +60,13 @@ try {
     $order = wc_create_order();
     $order->add_product($product, 1);
 
+    // Устанавливаем данные заказа
+    $order->set_address(array(
+        'email' => $email,
+        'first_name' => $email,
+        'last_name' => '',
+    ), 'billing');
+
     // Применяем купон, если он передан и валиден
     if (!empty($coupon_code)) {
         // Проверяем существование купона
@@ -111,11 +118,11 @@ try {
             update_post_meta($order->get_id(), '_applied_coupon', $coupon_code);
         } else {
             increment_failed_coupon_attempts($email);
-            my_payment_error_log("Invalid coupon $coupon_code");
+            my_payment_error_log("Invalid coupon '$coupon_code'");
 
             // нужно удалить заказ если купон неверный
-            if ($order && $order->get_id()) {
-                wp_delete_post($order->get_id(), true); // Принудительное удаление заказа
+            if ($order) {
+                $order->delete(false); // false = trash, true = permanent delete
             }
 
             showClientError($email, $product_id, $coupon_code, __("Invalid coupon code", 'tnlq'), $order);
@@ -124,13 +131,6 @@ try {
             // throw new Exception($error_message);
         }
     }
-
-    // Устанавливаем данные заказа
-    $order->set_address(array(
-        'email' => $email,
-        'first_name' => $email,
-        'last_name' => '',
-    ), 'billing');
 
     // Рассчитываем итоги
     $order->calculate_totals();
@@ -141,7 +141,7 @@ try {
         // $order->set_status('completed');
         $order->set_payment_method('free_gateway'); // Можно установить виртуальный метод оплаты
         $order->set_payment_method_title('Free');
-        $order->payment_complete();
+        $order->set_status('completed');
 
         $order->save();
 
@@ -364,11 +364,11 @@ function set_order_affiliate_from_cookie($order_id)
     $existing_referral = affwp_get_referral_by('reference', $order_id, 'woocommerce');
     if (!is_wp_error($existing_referral)) {
         // Реферал уже существует, не создаем новый
-        my_payment_error_log("Referral already exists for order {$order_id}, skipping creation");
+        my_payment_error_log("Referral already exists for order {$order_id}, skipping creation", 'info');
         return;
     }
 
-    my_payment_error_log("No existing referral found for order {$order_id}, proceeding with referral creation");
+    my_payment_error_log("No existing referral found for order {$order_id}, proceeding with referral creation", 'info');
 
     // Получаем детали заказа для создания реферала
     $order_total = $order->get_total();
@@ -429,7 +429,7 @@ function set_order_affiliate_from_cookie($order_id)
     }
 
     // Добавим отладочную информацию для проверки расчетов
-    my_payment_error_log("Order total: {$order_total}, Affiliate rate: {$affiliate_rate}, Rate type: {$rate_type}, Calculated referral amount: {$referral_amount}");
+    my_payment_error_log("Order total: {$order_total}, Affiliate rate: {$affiliate_rate}, Rate type: {$rate_type}, Calculated referral amount: {$referral_amount}", 'info');
 
     // Проверяем, не отключены ли рефералы для каких-то продуктов
     foreach ($order->get_items() as $key => $product) {
@@ -445,7 +445,7 @@ function set_order_affiliate_from_cookie($order_id)
 
     // Проверяем, нужно ли игнорировать нулевые рефералы
     if ($referral_amount == 0 && affiliate_wp()->settings->get('ignore_zero_referrals')) {
-        my_payment_error_log("Referral amount is 0 and ignore_zero_referrals is enabled, skipping referral creation");
+        my_payment_error_log("Referral amount is 0 and ignore_zero_referrals is enabled, skipping referral creation", 'warning');
         return;
     }
 
