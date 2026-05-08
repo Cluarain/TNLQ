@@ -152,7 +152,7 @@ function get_attachment_image_ID_by_name($attachment_name)
   }
 }
 
-function get_attachment_image_by_name($attachment_name, $size = 'full', $icon = false, $attributes = [])
+function get_attachment_image_by_name($attachment_name, $size = 'full', $icon = false, $attributes = [], $useCache = true)
 {
   if (!$attachment_name) {
     return null;
@@ -161,7 +161,7 @@ function get_attachment_image_by_name($attachment_name, $size = 'full', $icon = 
   // Кэшируем результат на день (уменьшаем нагрузку)
   $cache_key = 'attachment_image_by_name__' . $attachment_name;
   $cached = get_transient($cache_key);
-  if ($cached !== false) {
+  if ($cached !== false && $useCache) {
     return $cached;
   }
 
