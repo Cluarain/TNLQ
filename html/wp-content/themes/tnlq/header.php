@@ -65,9 +65,21 @@ HTML;
                         <?php echo $nav_links ?>
                     </div>
                 </div>
-                <a href="/" class="tnlq-logo">
+                <a href="/" class="tnlq-logo hover-active-1">
                     <span class="d-none">Main page</span>
-                    <?php echo get_attachment_image_by_name('tuneliqa_logo') ?>
+                    <?php
+                    echo get_attachment_image_by_name(
+                        'tuneliqa_logo',
+                        'full',
+                        false,
+                        [
+                            'lazyload' => false,
+                            'svg-inline' => true
+                        ]
+                    );
+                    ?>
+
+
                 </a>
                 <div class="header__nav__inner__desktop">
                     <?php echo $nav_links ?>

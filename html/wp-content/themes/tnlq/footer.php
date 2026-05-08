@@ -5,7 +5,16 @@
             <div class="footer__inner__box">
                 <a href="/" class="tnlq-logo text-accent hover-active-1">
                     <span class="d-none">Main page</span>
-                    <?php echo get_attachment_image_by_name('tuneliqa_logo', 'full', false, ['svg-inline' => false]) ?>
+                    <?php
+                    echo get_attachment_image_by_name(
+                        'tuneliqa_logo',
+                        'full',
+                        false,
+                        [
+                            'svg-inline' => true
+                        ]
+                    );
+                    ?>
                 </a>
                 <h2 class="footer__title project__title">
                     Take Back Your Internet
