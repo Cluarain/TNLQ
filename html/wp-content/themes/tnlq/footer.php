@@ -33,6 +33,7 @@
                 <span>
                     <?php echo "(c) " . date("Y") . " Tuneliqa" ?>
                 </span>
+                <a href="/refund-policy/" class="hover-active-1">Refund Policy</a>
                 <a href="/privacy-policy/" class="hover-active-1">Privacy Policy</a>
                 <a href="/terms-of-service/" class="hover-active-1">Terms of Service</a>
                 <a href="/legal/" class="hover-active-1">Legal and Jurisdiction</a>
