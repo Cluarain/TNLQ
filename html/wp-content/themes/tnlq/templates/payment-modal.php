@@ -20,7 +20,16 @@
                         <input class="form-control input" type="promo" id="promo" name="promo" placeholder="Enter your promo">
                     </details>
 
-                    <!-- <label class="placeholder arrow-sign" for="email">Enter your email </label> -->
+                    <div class="payment-methods">
+                        <label class="payment-option" for="nowpayments">
+                            <input type="radio" id="nowpayments" name="payment_method" value="nowpayments" checked>
+                            NOWpayments
+                        </label>
+                        <label class="payment-option" for="enot">
+                            <input type="radio" id="enot" name="payment_method" value="enot">
+                            Enot Payments
+                        </label>
+                    </div>
                 </div>
 
                 <input type="hidden" id="productId" name="product_id">

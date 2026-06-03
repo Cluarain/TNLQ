@@ -1055,6 +1055,49 @@ input:-internal-autofill-selected {
     }
 }
 
+.payment-methods {
+    display: grid;
+    gap: 0.5rem;
+    max-width: fit-content;
+    margin-inline: auto;
+}
+
+.payment-option {
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    /* justify-content: center; */
+    gap: .5rem;
+    cursor: pointer;
+    max-width: ;
+
+    & input[type="radio"] {
+        width: 18px;
+        height: 18px;
+        position: relative;
+        cursor: pointer;
+
+        &::before {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border: 1px solid var(--border-secondary);
+            background-color: var(--bg-quaternary);
+        }
+
+        &:checked::after {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent-color);
+            top: 4px;
+            left: 4px;
+        }
+    }
+}
+
 
 
 .footer {

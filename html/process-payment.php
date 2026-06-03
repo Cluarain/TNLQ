@@ -11,7 +11,7 @@ require_once('./wp-load.php');
 $product_id =  0;
 $email = 'None';
 $coupon_code = '';
-
+$my_payment_method = 'nowpayments';
 try {
     // Проверяем, что это POST запрос
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -34,8 +34,11 @@ try {
     if (isset($_POST['email'])) {
         $email =  sanitize_email(wp_unslash($_POST['email']));
     }
-    if (isset($_POST['product_id'])) {
+    if (isset($_POST['promo'])) {
         $coupon_code =  sanitize_text_field(wp_unslash($_POST['promo']));
+    }
+    if (isset($_POST['payment_method'])) {
+        $my_payment_method = sanitize_text_field(wp_unslash($_POST['payment_method']));
     }
 
     if (!$product_id) {
@@ -171,11 +174,11 @@ try {
 
     $payment_gateways = WC()->payment_gateways ? WC()->payment_gateways->payment_gateways() : array();
 
-    if (empty($payment_gateways['nowpayments'])) {
-        throw new Exception(__('NOWPayments gateway is not available', 'tnlq'));
+    if (empty($payment_gateways[$my_payment_method])) {
+        throw new Exception(__("$my_payment_method gateway is not available", 'tnlq'));
     }
 
-    $nowpayments_gateway = $payment_gateways['nowpayments'];
+    $nowpayments_gateway = $payment_gateways[$my_payment_method];
 
     $order->set_payment_method($nowpayments_gateway);
 
