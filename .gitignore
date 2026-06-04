@@ -20,7 +20,7 @@ html/wp-config.php
 html/wp-content/plugins/*
 !html/wp-content/plugins/svg-text-editor/
 !html/wp-content/plugins/webp-auto-generator/
-
+!html/wp-content/plugins/wooenot/
 
 # Log files
 *.log
