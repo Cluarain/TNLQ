@@ -141,7 +141,6 @@ try {
     // Проверяем, равна ли итоговая сумма 0
     if ($order->get_total() == 0) {
         // Если сумма равна 0, отмечаем заказ как оплаченный
-        // $order->set_status('completed');
         $order->set_payment_method('free_gateway'); // Можно установить виртуальный метод оплаты
         $order->set_payment_method_title('Free');
         $order->set_status('completed');
@@ -178,9 +177,9 @@ try {
         throw new Exception(__("$my_payment_method gateway is not available", 'tnlq'));
     }
 
-    $nowpayments_gateway = $payment_gateways[$my_payment_method];
+    $selected_gateway = $payment_gateways[$my_payment_method];
 
-    $order->set_payment_method($nowpayments_gateway);
+    $order->set_payment_method($selected_gateway);
 
     $order->save(); // Сохраняем изменения с платежным методом
     my_payment_error_log("New order created: #" . $order->get_id() . ", Sum total:" . $order->get_total() .  ", Email:" . $order->get_billing_email(), "success");
@@ -200,6 +199,8 @@ try {
         'key' => $order->get_order_key()
     ), site_url('/'));
 
+
+
     add_filter('woocommerce_get_return_url', function () use ($success_url) {
         return $success_url;
     });
@@ -208,16 +209,19 @@ try {
         return $cancel_url;
     });
 
+    $_SESSION['enot_success_url'] = $success_url;
+    $_SESSION['enot_fail_url'] = $cancel_url;
+
     $order->save();
-    // Теперь получаем URL оплаты через NOWPayments
-    $result = $nowpayments_gateway->process_payment($order->get_id());
+    // Теперь получаем URL оплаты
+    $result = $selected_gateway->process_payment($order->get_id());
     if (is_array($result) && isset($result['result']) && $result['result'] === 'success' && !empty($result['redirect'])) {
         $payment_url = esc_url_raw($result['redirect']);
 
         // Сохраняем URL оплаты в мета-данные заказа (опционально)
         update_post_meta($order->get_id(), '_payment_url', $payment_url);
 
-        // Перенаправляем на страницу оплаты NOWPayments
+        // Перенаправляем на страницу оплаты 
         wp_redirect($payment_url);
         exit;
     } else {

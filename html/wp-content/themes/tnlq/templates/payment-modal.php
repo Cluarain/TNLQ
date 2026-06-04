@@ -15,7 +15,7 @@
                 <div class="form-control-wrapper">
                     <input class="form-control input" type="email" autocomplete="true" id="email" name="email" placeholder="Enter your email" required>
 
-                    <details style="height: 90px; margin-top: 10px;">
+                    <details style="height: 90px; margin-top: 1rem;">
                         <summary class="btn summary-promocode-btn">have promocode?</summary>
                         <input class="form-control input" type="promo" id="promo" name="promo" placeholder="Enter your promo">
                     </details>
@@ -23,11 +23,11 @@
                     <div class="payment-methods">
                         <label class="payment-option" for="nowpayments">
                             <input type="radio" id="nowpayments" name="payment_method" value="nowpayments" checked>
-                            NOWpayments
+                            Crypto (BTC, ETH, USDT, etc)
                         </label>
                         <label class="payment-option" for="enot">
                             <input type="radio" id="enot" name="payment_method" value="enot">
-                            Enot Payments
+                            Bank cards, SBP
                         </label>
                     </div>
                 </div>

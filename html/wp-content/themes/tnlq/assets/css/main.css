@@ -1016,6 +1016,9 @@ dialog {
 
 .form-control-wrapper {
     position: relative;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
 }
 
 .form-control {
@@ -1060,6 +1063,7 @@ input:-internal-autofill-selected {
     gap: 0.5rem;
     max-width: fit-content;
     margin-inline: auto;
+    margin-top: 1rem;
 }
 
 .payment-option {
